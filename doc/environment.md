@@ -17,13 +17,13 @@ that executes the quartus compiler.
 
 On the Windows side:
 
-   C:\max-ii-fuse-map\windows> make
+    C:\max-ii-fuse-map\windows> make
 
 ## Experiments
 
 On the experiment side
 
-   $ gmake
-   $ gmake shell
-   > run(test_experiment).
+    $ gmake
+    $ gmake shell
+    > run(test_experiment).
 
