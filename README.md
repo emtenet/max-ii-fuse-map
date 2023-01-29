@@ -6,3 +6,7 @@ Can I work out the fuse map of MAX II devices by
 feeding the Quartus tools
 and observing the outputs?
 
+## Index
+
+ * [environment](doc/environment.md)
+
