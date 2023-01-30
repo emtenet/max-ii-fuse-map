@@ -39,7 +39,7 @@ run() ->
         "  );\n"
         "end behavioral;\n"
     >>,
-    POF = quartus:compile(Device, Settings, VHDL),
+    {ok, POF} = quartus:compile(Device, Settings, VHDL),
     pof_file:fuses(POF).
 
 %%--------------------------------------------------------------------

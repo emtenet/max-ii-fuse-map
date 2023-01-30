@@ -22,7 +22,7 @@ decode(<<"POF", 0, 0, 0, 1, 0, Count:32/little-unsigned, Data/binary>>) ->
 %%--------------------------------------------------------------------
 
 decode_parts(0, <<>>, Parts) ->
-    Parts;
+    {ok, Parts};
 decode_parts(N, <<Id:16/little, Size:32/little, Data/binary>>, Parts) ->
     <<Part:Size/binary, Rest/binary>> = Data,
     decode_parts(N - 1, Rest, decode_part(Id, Part, Parts)).
