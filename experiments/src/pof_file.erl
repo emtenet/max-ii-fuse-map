@@ -75,6 +75,7 @@ decode_skip(Expect, Data, Parts) ->
 -include_lib("eunit/include/eunit.hrl").
 
 fuses_test() ->
+    % See: doc/fuse-ordering.md
     CFM = <<16#fe, 16#ff, 16#ff, 16#ff, 16#fd, 16#3f, 16#9f, 16#e7>>,
     POF = #{cfm => #{data => CFM}},
     Fuses = [0, 33, 46, 47, 53, 54, 59, 60],

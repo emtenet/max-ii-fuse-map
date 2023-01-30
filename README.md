@@ -9,4 +9,5 @@ and observing the outputs?
 ## Index
 
  * [environment](doc/environment.md)
+ * [fuse-ordering](doc/fuse-ordering.md)
 
