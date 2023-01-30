@@ -1,21 +1,17 @@
 -module(quartus).
 
--export([compile/3]).
+-export([compile/1]).
 
 %%====================================================================
 %% compile
 %%====================================================================
 
-compile(Device, Settings, VHDL)
+compile(Request = #{device := Device, settings := Settings, vhdl := VHDL})
         when is_binary(Device) andalso
              is_binary(Settings) andalso
              is_binary(VHDL) ->
     connect_to_windows(),
-    compile_result(gen_server:call({global, quartus}, {compile, #{
-        device => Device,
-        settings => Settings,
-        vhdl => VHDL
-    }})).
+    compile_result(gen_server:call({global, quartus}, {compile, Request})).
 
 %%--------------------------------------------------------------------
 
