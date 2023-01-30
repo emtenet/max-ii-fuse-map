@@ -76,71 +76,195 @@ compile(#{device := Device, settings := Settings, vhdl := VHDL})
         when is_binary(Device) andalso
              is_binary(Settings) andalso
              is_binary(VHDL) ->
-    RunIn = "a",
-    RunDir = filename:join("run", RunIn),
-    make_dir(RunDir),
-    clear_dir(RunDir),
-    make_file(RunDir, "experiment.qpf", <<
+    io:format("=> compile ~s~n", [Device]),
+    Dir = filename:join("run", "a"),
+    case file:make_dir(Dir) of
+        ok ->
+            compile_clear(Dir, Device, Settings, VHDL);
+
+        {error, eexist} ->
+            compile_clear(Dir, Device, Settings, VHDL);
+
+        {error, Reason} ->
+            {error, {make_dir, Reason}}
+    end;
+compile(_) ->
+    {error, badarg}.
+
+%%--------------------------------------------------------------------
+
+compile_clear(Dir, Device, Settings, VHDL) ->
+    case clear_dir(Dir) of
+        ok ->
+            compile_qpf(Dir, Device, Settings, VHDL);
+
+        {error, Reason} ->
+            {error, {clear_dir, Reason}}
+    end.
+
+%%--------------------------------------------------------------------
+
+compile_qpf(Dir, Device, Settings, VHDL) ->
+    File = filename:join(Dir, "experiment.qpf"),
+    Data = <<
         "QUARTUS_VERSION = \"13.1\"\n"
         "DATE = \"11:38:48  January 28, 2023\"\n"
         "PROJECT_REVISION = \"experiment\"\n"
-    >>),
-    make_file(RunDir, "experiment.qsf", <<
+    >>,
+    case file:write_file(File, Data) of
+        ok ->
+            compile_qsf(Dir, Device, Settings, VHDL);
+
+        {error, Reason} ->
+            {error, {qpf_file, Reason}}
+    end.
+
+%%--------------------------------------------------------------------
+
+compile_qsf(Dir, Device, Settings, VHDL) ->
+    File = filename:join(Dir, "experiment.qsf"),
+    Data = <<
         "set_global_assignment -name FAMILY \"MAX II\"\n"
         "set_global_assignment -name DEVICE ", Device/binary, "\n"
         "set_global_assignment -name PROJECT_OUTPUT_DIRECTORY output_files\n"
         "set_global_assignment -name VHDL_FILE experiment.vhd\n"
         "set_global_assignment -name TOP_LEVEL_ENTITY experiment\n",
         Settings/binary
-    >>),
-    make_file(RunDir, "experiment.vhd", VHDL),
-    ok = exec(RunDir, "quartus_map", [
+    >>,
+    case file:write_file(File, Data) of
+        ok ->
+            compile_vhd(Dir, Device, VHDL);
+
+        {error, Reason} ->
+            {error, {qpf_file, Reason}}
+    end.
+
+%%--------------------------------------------------------------------
+
+compile_vhd(Dir, Device, VHDL) ->
+    File = filename:join(Dir, "experiment.vhd"),
+    case file:write_file(File, VHDL) of
+        ok ->
+            compile_map(Dir, Device);
+
+        {error, Reason} ->
+            {error, {qpf_file, Reason}}
+    end.
+
+%%--------------------------------------------------------------------
+
+compile_map(Dir, Device) ->
+    Bin = "quartus_map",
+    Args = [
         "experiment",
         "--source=experiment.vhd",
         "--family=MAX II"
-    ]),
-    ok = exec(RunDir, "quartus_fit", [
+    ],
+    case exec(Dir, Bin, Args) of
+        ok ->
+            compile_fit(Dir, Device);
+
+        {error, {exit, Exit, Out}} ->
+            {error, {quartus_map, Exit, Out}}
+    end.
+
+%%--------------------------------------------------------------------
+
+compile_fit(Dir, Device) ->
+    Bin = "quartus_fit",
+    Args = [
         "experiment",
         "--part=" ++ binary_to_list(Device)
-    ]),
-    ok = exec(RunDir, "quartus_asm", [
+    ],
+    case exec(Dir, Bin, Args) of
+        ok ->
+            compile_asm(Dir);
+
+        {error, {exit, Exit, Out}} ->
+            {error, {quartus_fit, Exit, Out}}
+    end.
+
+%%--------------------------------------------------------------------
+
+compile_asm(Dir) ->
+    Bin ="quartus_asm",
+    Args = [
         "experiment"
-    ]),
-    {ok, POF} = read_file(RunDir, ["output_files", "experiment.pof"]),
-    {ok, POF};
-compile(_) ->
-    {error, badarg}.
+    ],
+    case exec(Dir, Bin, Args) of
+        ok ->
+            compile_read(Dir);
+
+        {error, {exit, Exit, Out}} ->
+            {error, {quartus_asm, Exit, Out}}
+    end.
+
+%%--------------------------------------------------------------------
+
+compile_read(Dir) ->
+    File = filename:join([Dir, "output_files", "experiment.pof"]),
+    case file:read_file(File) of
+        Ok = {ok, _} ->
+            Ok;
+
+        {error, Reason} ->
+            {error, {pof_file, Reason}}
+    end.
 
 %%====================================================================
 %% helpers
 %%====================================================================
 
 clear_dir(Dir) ->
-    {ok, Names} = file:list_dir_all(Dir),
-    lists:foreach(fun (Name) ->
-        clear_file(filename:join(Dir, Name))
-    end, Names).
+    case file:list_dir_all(Dir) of
+        {ok, Names} ->
+            clear_dir(Dir, Names);
+
+        Error ->
+            Error
+    end.
+
+%%--------------------------------------------------------------------
+
+clear_dir(_, []) ->
+    ok;
+clear_dir(Dir, [Name | Names]) ->
+    case clear_file(filename:join(Dir, Name)) of
+        ok ->
+            clear_dir(Dir, Names);
+
+        Error ->
+            Error
+    end.
 
 %%--------------------------------------------------------------------
 
 clear_file(File) ->
     case file:read_link_info(File) of
         {ok, #file_info{type = directory}} ->
-            clear_dir(File),
-            ok = file:del_dir(File);
+            case clear_dir(File) of
+                ok ->
+                    file:del_dir(File);
+
+                Error ->
+                    Error
+            end;
 
         {ok, _} ->
-            ok = file:delete(File)
+            file:delete(File);
+
+        Error ->
+            Error
     end.
 
 %%--------------------------------------------------------------------
 
-exec(RunDir, Arg0, Args) ->
+exec(Dir, Arg0, Args) ->
     Path = "C:\\Applications\\Altera\\13.1\\quartus\\bin64",
     Exec = {spawn_executable, filename:join(Path, Arg0)},
     Opts = [
         {args, Args},
-        {cd, RunDir},
+        {cd, Dir},
         stream,
         exit_status,
         use_stdio,
@@ -156,7 +280,7 @@ exec(RunDir, Arg0, Args) ->
 
         {Exit, Out} ->
             %io:format("[[[[~n~s~n]]]]~nEXIT: ~p~n", [Out, Exit]),
-            {error, Exit, Out}
+            {error, {exit, Exit, Out}}
     end.
 
 %%--------------------------------------------------------------------
@@ -178,26 +302,3 @@ exec(Port, Out) ->
         {Port, {data, Data}} ->
             exec(Port, [Data | Out])
     end.
-
-%%--------------------------------------------------------------------
-
-make_dir(Dir) ->
-    case file:make_dir(Dir) of
-        ok ->
-            ok;
-
-        {error, eexist} ->
-            ok
-    end.
-
-%%--------------------------------------------------------------------
-
-make_file(Dir, Name, Data) ->
-    File = filename:join(Dir, Name),
-    ok = file:write_file(File, Data).
-
-%%--------------------------------------------------------------------
-
-read_file(Dir, Path) ->
-    File = filename:join([Dir | Path]),
-    file:read_file(File).
