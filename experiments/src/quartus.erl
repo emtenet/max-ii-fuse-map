@@ -10,16 +10,20 @@ compile(Request = #{device := Device, settings := Settings, vhdl := VHDL})
         when is_binary(Device) andalso
              is_binary(Settings) andalso
              is_binary(VHDL) ->
-    connect_to_windows(),
+    compile_connect(),
     compile_result(gen_server:call({global, quartus}, {compile, Request})).
 
 %%--------------------------------------------------------------------
 
-connect_to_windows() ->
+compile_connect() ->
     case nodes() of
         [] ->
             pong = net_adm:ping('quartus@SILENT-PC'),
-            ok;
+            ok = global:sync(),
+            case global:whereis_name(quartus) of
+                Pid when is_pid(Pid) ->
+                    ok
+            end;
 
         [_] ->
             ok
