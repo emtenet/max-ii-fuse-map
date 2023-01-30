@@ -44,7 +44,7 @@ init(undefined) ->
 %%--------------------------------------------------------------------
 
 handle_call({compile, Compile}, _From, State) ->
-    {reply, compile(Compile), State};
+    {reply, compile("a", Compile), State};
 handle_call(stop, _From, State) ->
     {stop, normal, ok, State}.
 
@@ -72,12 +72,18 @@ terminate(_Reason, _State) ->
 %% internal
 %%====================================================================
 
-compile(#{device := Device, settings := Settings, vhdl := VHDL})
+compile(InDir, Compile = #{device := Device, settings := Settings, vhdl := VHDL})
         when is_binary(Device) andalso
              is_binary(Settings) andalso
              is_binary(VHDL) ->
-    io:format("=> compile ~s~n", [Device]),
-    Dir = filename:join("run", "a"),
+    case Compile of
+        #{title := Title} ->
+            io:format("[~s] ~s ~s~n", [InDir, Device, Title]);
+
+        _ ->
+            io:format("[~s] ~s~n", [InDir, Device])
+    end,
+    Dir = filename:join("run", InDir),
     case file:make_dir(Dir) of
         ok ->
             compile_clear(Dir, Device, Settings, VHDL);
@@ -88,7 +94,7 @@ compile(#{device := Device, settings := Settings, vhdl := VHDL})
         {error, Reason} ->
             {error, {make_dir, Reason}}
     end;
-compile(_) ->
+compile(_, _) ->
     {error, badarg}.
 
 %%--------------------------------------------------------------------
