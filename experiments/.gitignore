@@ -1,4 +1,5 @@
 .erlang.mk
+cache
 deps
 ebin
 experiments.d
