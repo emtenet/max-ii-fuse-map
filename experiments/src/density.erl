@@ -65,7 +65,7 @@ devices(epm2210) ->
 %% fuse_count
 %%====================================================================
 
--spec fuse_count(density() | device()) -> density().
+-spec fuse_count(density() | device()) -> 53248 | 110592 | 208896 | 348160.
 
 fuse_count(epm240) -> 53248;
 fuse_count(epm570) -> 110592;
