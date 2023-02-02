@@ -2,6 +2,7 @@
 
 -export([read/1]).
 -export([decode/1]).
+-export([fuse_count/1]).
 -export([fuses/1]).
 
 -export_type([pof/0]).
@@ -54,9 +55,9 @@ decode_part(2, Data, Parts) ->
 decode_part(3, Data, Parts) ->
     decode_string(name, Data, Parts);
 decode_part(17, Data, Parts) ->
-    decode_flash(cfm, <<0,0,0,0,0,0,0,176,1,0,1,0>>, Data, Parts);
+    decode_flash(cfm, Data, Parts);
 decode_part(24, Data, Parts) ->
-    decode_flash(ufm, <<0,0,0,0,0,0,0,32,0,0,1,0>>, Data, Parts);
+    decode_flash(ufm, Data, Parts);
 decode_part(5, Data, Parts) ->
     decode_skip(<<0,0>>, Data, Parts);
 decode_part(8, _Data, Parts) ->
@@ -72,11 +73,11 @@ decode_string(Name, Data, Parts) ->
 
 %%--------------------------------------------------------------------
 
-decode_flash(Name, Expect, <<Header:12/binary, Data/binary>>, Parts) ->
-    Expect = Header,
+decode_flash(Name, <<0,0,0,0,0,0, Size:32/little, 1,0, Data/binary>>, Parts) ->
+    Size = 8 * byte_size(Data),
     Parts#{Name => #{
         data => Data,
-        size => 8 * byte_size(Data)
+        size => Size
     }}.
 
 %%--------------------------------------------------------------------
@@ -84,6 +85,15 @@ decode_flash(Name, Expect, <<Header:12/binary, Data/binary>>, Parts) ->
 decode_skip(Expect, Data, Parts) ->
     Expect = Data,
     Parts.
+
+%%====================================================================
+%% fuse_count
+%%====================================================================
+
+-spec fuse_count(pof()) -> non_neg_integer().
+
+fuse_count(#{cfm := #{size := Size}}) ->
+    Size.
 
 %%====================================================================
 %% fuses

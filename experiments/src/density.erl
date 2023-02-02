@@ -2,6 +2,7 @@
 
 -export([list/0]).
 -export([devices/1]).
+-export([fuse_count/1]).
 -export([or_device/1]).
 
 -export_type([density/0]).
@@ -59,6 +60,17 @@ devices(epm2210) ->
         epm2210_f256,
         epm2210_f324
     ].
+
+%%====================================================================
+%% fuse_count
+%%====================================================================
+
+-spec fuse_count(density() | device()) -> density().
+
+fuse_count(epm240) -> 53248;
+fuse_count(epm570) -> 110592;
+fuse_count(epm1270) -> 208896;
+fuse_count(epm2210) -> 348160.
 
 %%====================================================================
 %% or_device

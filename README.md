@@ -19,4 +19,5 @@ My experiments are being run in the following
 
  * [How to indicate a global clock](experiments/src/global_clock_experiment.erl)
  * [User code](experiments/src/user_code_experiment.erl)
+ * [Fuse count](experiments/src/fuse_count_experiment.erl)
 
