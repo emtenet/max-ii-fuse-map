@@ -1,33 +1,51 @@
 -module(quartus).
 
--export([compile/1]).
+-export([cache/1]).
+-export([pof/1]).
+-export([rcf/1]).
+
+-export_type([compile/0]).
+-export_type([cache/0]).
+
+-type compile() :: #{
+    title => binary(),
+    device := binary(),
+    settings := binary(),
+    vhdl := binary()
+}.
+
+-type cache() ::
+    {cache, hit, file:filename_all()} |
+    {cache, miss, binary(), binary()}.
 
 -define(SEPARATOR, <<"\n====================\n">>).
 
 %%====================================================================
-%% compile
+%% cache
 %%====================================================================
 
-compile(Request = #{device := Device, settings := Settings, vhdl := VHDL})
+-spec cache(compile()) -> {ok, cache()} | error.
+
+cache(Compile = #{device := Device, settings := Settings, vhdl := VHDL})
         when is_binary(Device) andalso
              is_binary(Settings) andalso
              is_binary(VHDL) ->
-    With = cache_with(Device, Settings, VHDL),
-    CacheDir = cache_dir(With),
-    case cache_read_with(CacheDir) of
-        {ok, With} ->
+    Source = cache_source(Device, Settings, VHDL),
+    CacheDir = cache_dir(Source),
+    case cache_read_source(CacheDir) of
+        {ok, Source} ->
             cache_hit(CacheDir);
 
         {error, enoent} ->
-            cache_miss(With, CacheDir, Request)
+            cache_miss(Source, CacheDir, Compile)
     end.
 
 %%--------------------------------------------------------------------
 
-compile_request(Request) ->
+compile(Compile) ->
     compile_connect(),
-    Response = gen_server:call({global, quartus}, {compile, Request}, 10000),
-    compile_response(Response).
+    Result = gen_server:call({global, quartus}, {compile, Compile}, 10000),
+    compile_result(Result).
 
 %%--------------------------------------------------------------------
 
@@ -47,15 +65,17 @@ compile_connect() ->
 
 %%--------------------------------------------------------------------
 
-compile_response({ok, POF}) ->
-    {ok, POF};
-compile_response({error, {quartus_map, Exit, Out}}) ->
+compile_result({ok, Files}) ->
+    {ok, Files};
+compile_result({error, {quartus_map, Exit, Out}}) ->
     compile_exit("MAP", Exit, Out);
-compile_response({error, {quartus_fit, Exit, Out}}) ->
+compile_result({error, {quartus_fit, Exit, Out}}) ->
     compile_exit("FIT", Exit, Out);
-compile_response({error, {quartus_asm, Exit, Out}}) ->
+compile_result({error, {quartus_asm, Exit, Out}}) ->
     compile_exit("ASM", Exit, Out);
-compile_response({error, Error}) ->
+compile_result({error, {quartus_cdb, Exit, Out}}) ->
+    compile_exit("CDB", Exit, Out);
+compile_result({error, Error}) ->
     io:format("QUARTUS: ~p~n", [Error]),
     error.
 
@@ -70,7 +90,7 @@ compile_exit(Who, Exit, Out) ->
 
 %%--------------------------------------------------------------------
 
-cache_with(Device, Settings, VHDL) ->
+cache_source(Device, Settings, VHDL) ->
     iolist_to_binary([
         Device,
         <<"\n">>,
@@ -81,8 +101,8 @@ cache_with(Device, Settings, VHDL) ->
 
 %%--------------------------------------------------------------------
 
-cache_dir(With) ->
-    Hash = crypto:hash(sha256, With),
+cache_dir(Source) ->
+    Hash = crypto:hash(sha256, Source),
     Base64 = base64url:encode(Hash),
     cache_make_dir(filename:join("cache", Base64)).
 
@@ -105,24 +125,30 @@ cache_read_pof(CacheDir) ->
 
 %%--------------------------------------------------------------------
 
-cache_read_with(CacheDir) ->
-    File = filename:join(CacheDir, "with"),
+cache_read_rcf(CacheDir) ->
+    File = filename:join(CacheDir, "experiment.rcf"),
+    file:read_file(File).
+
+%%--------------------------------------------------------------------
+
+cache_read_source(CacheDir) ->
+    File = filename:join(CacheDir, "source"),
     file:read_file(File).
 
 %%--------------------------------------------------------------------
 
 cache_hit(CacheDir) ->
-    {ok, POF} = cache_read_pof(CacheDir),
-    pof_file:decode(POF).
+    {ok, {cache, hit, CacheDir}}.
 
 %%--------------------------------------------------------------------
 
-cache_miss(With, CacheDir, Request) ->
-    case compile_request(Request) of
-        {ok, POF} ->
+cache_miss(Source, CacheDir, Compile) ->
+    case compile(Compile) of
+        {ok, #{pof := POF, rcf := RCF}} ->
             cache_write_pof(CacheDir, POF),
-            cache_write_with(CacheDir, With),
-            pof_file:decode(POF);
+            cache_write_rcf(CacheDir, RCF),
+            cache_write_source(CacheDir, Source),
+            {ok, {cache, miss, POF, RCF}};
 
         Error ->
             Error
@@ -136,7 +162,37 @@ cache_write_pof(CacheDir, POF) ->
 
 %%--------------------------------------------------------------------
 
-cache_write_with(CacheDir, With) ->
-    File = filename:join(CacheDir, "with"),
-    ok = file:write_file(File, With).
+cache_write_rcf(CacheDir, RCF) ->
+    File = filename:join(CacheDir, "experiment.rcf"),
+    ok = file:write_file(File, RCF).
+
+%%--------------------------------------------------------------------
+
+cache_write_source(CacheDir, Source) ->
+    File = filename:join(CacheDir, "source"),
+    ok = file:write_file(File, Source).
+
+%%====================================================================
+%% pof
+%%====================================================================
+
+-spec pof(cache()) -> {ok, pof_file:pof()}.
+
+pof({cache, hit, CacheDir}) ->
+    {ok, POF} = cache_read_pof(CacheDir),
+    pof_file:decode(POF);
+pof({cache, miss, POF, _}) ->
+    pof_file:decode(POF).
+
+%%====================================================================
+%% rcf
+%%====================================================================
+
+-spec rcf(cache()) -> {ok, pof_file:pof()}.
+
+rcf({cache, hit, CacheDir}) ->
+    {ok, RCF} = cache_read_rcf(CacheDir),
+    RCF;
+rcf({cache, miss, _, RCF}) ->
+    RCF.
 

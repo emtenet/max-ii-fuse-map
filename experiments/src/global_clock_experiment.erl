@@ -40,7 +40,7 @@ run() ->
 not_global() ->
     Title = <<"not global">>,
     io:format(" => ~s~n", [Title]),
-    {ok, POF} = quartus:compile(#{
+    {ok, Cache} = quartus:cache(#{
         title => Title,
         device => <<"EPM570T100C5">>,
         settings => <<
@@ -76,6 +76,7 @@ not_global() ->
             "end behavioral;\n"
         >>
     }),
+    {ok, POF} = quartus:pof(Cache),
     {Title, pof_file:fuses(POF)}.
 
 
@@ -84,7 +85,7 @@ not_global() ->
 setting_global() ->
     Title = <<"setting global">>,
     io:format(" => ~s~n", [Title]),
-    {ok, POF} = quartus:compile(#{
+    {ok, Cache} = quartus:cache(#{
         title => Title,
         device => <<"EPM570T100C5">>,
         settings => <<
@@ -121,6 +122,7 @@ setting_global() ->
             "end behavioral;\n"
         >>
     }),
+    {ok, POF} = quartus:pof(Cache),
     {Title, pof_file:fuses(POF)}.
 
 
@@ -129,7 +131,7 @@ setting_global() ->
 primitive_global() ->
     Title = <<"primitive global">>,
     io:format(" => ~s~n", [Title]),
-    {ok, POF} = quartus:compile(#{
+    {ok, Cache} = quartus:cache(#{
         title => Title,
         device => <<"EPM570T100C5">>,
         settings => <<
@@ -170,6 +172,7 @@ primitive_global() ->
             "end behavioral;\n"
         >>
     }),
+    {ok, POF} = quartus:pof(Cache),
     {Title, pof_file:fuses(POF)}.
 
 

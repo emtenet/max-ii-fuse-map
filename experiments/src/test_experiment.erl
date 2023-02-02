@@ -7,7 +7,7 @@
 %%====================================================================
 
 run() ->
-    {ok, POF} = quartus:compile(#{
+    {ok, Cache} = quartus:cache(#{
         title => <<"Test">>,
         device => <<"EPM570T100C5">>,
         settings => <<
@@ -42,6 +42,7 @@ run() ->
             "end behavioral;\n"
         >>
     }),
+    {ok, POF} = quartus:pof(Cache),
     pof_file:fuses(POF).
 
 %%--------------------------------------------------------------------

@@ -24,6 +24,7 @@ dep_solarized = git https://github.com/emtenet/erlang-solarized.git master
 EUNIT_OPTS = no_tty, {report, {solarized_eunit, []}}
 CT_OPTS = -ct_hooks solarized_ct and testing_ct
 
+PLT_APPS += crypto
 #DIALYZER_OPTS += --src -r test
 
 include erlang.mk

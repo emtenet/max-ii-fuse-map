@@ -4,17 +4,35 @@
 -export([decode/1]).
 -export([fuses/1]).
 
+-export_type([pof/0]).
+-export_type([flash/0]).
+
+-type pof() :: #{
+    cfm => flash(),
+    ufm => flash(),
+    any() => any()
+}.
+
+-type flash() :: #{
+    data := binary(),
+    size := non_neg_integer()
+}.
+
 %%====================================================================
 %% read
 %%====================================================================
 
+-spec read(file:name_all()) -> {ok, pof()}.
+
 read(File) ->
-    {ok, Data} = file:decode_file(File),
+    {ok, Data} = file:read_file(File),
     decode(Data).
 
 %%====================================================================
 %% decode
 %%====================================================================
+
+-spec decode(binary()) -> {ok, pof()}.
 
 decode(<<"POF", 0, 0, 0, 1, 0, Count:32/little-unsigned, Data/binary>>) ->
     decode_parts(Count, Data, #{}).
@@ -36,9 +54,9 @@ decode_part(2, Data, Parts) ->
 decode_part(3, Data, Parts) ->
     decode_string(name, Data, Parts);
 decode_part(17, Data, Parts) ->
-    decode_block(cfm, <<0,0,0,0,0,0,0,176,1,0,1,0>>, Data, Parts);
+    decode_flash(cfm, <<0,0,0,0,0,0,0,176,1,0,1,0>>, Data, Parts);
 decode_part(24, Data, Parts) ->
-    decode_block(ufm, <<0,0,0,0,0,0,0,32,0,0,1,0>>, Data, Parts);
+    decode_flash(ufm, <<0,0,0,0,0,0,0,32,0,0,1,0>>, Data, Parts);
 decode_part(5, Data, Parts) ->
     decode_skip(<<0,0>>, Data, Parts);
 decode_part(8, _Data, Parts) ->
@@ -54,7 +72,7 @@ decode_string(Name, Data, Parts) ->
 
 %%--------------------------------------------------------------------
 
-decode_block(Name, Expect, <<Header:12/binary, Data/binary>>, Parts) ->
+decode_flash(Name, Expect, <<Header:12/binary, Data/binary>>, Parts) ->
     Expect = Header,
     Parts#{Name => #{
         data => Data,
@@ -85,6 +103,8 @@ fuses_test() ->
 
 %%--------------------------------------------------------------------
 
+-spec fuses(pof()) -> [fuses:fuse()].
+
 fuses(#{cfm := #{data := Bytes}}) ->
     fuses_bytes(0, Bytes, []).
 
@@ -92,7 +112,7 @@ fuses(#{cfm := #{data := Bytes}}) ->
 
 fuses_bytes(_, <<>>, Fuses) ->
     lists:reverse(Fuses);
-fuses_bytes(Fuse, <<255, Bytes/binary>>, Fuses) ->
+fuses_bytes(Fuse, <<0, Bytes/binary>>, Fuses) ->
     fuses_bytes(Fuse + 8, Bytes, Fuses);
 fuses_bytes(Fuse, <<Byte, Bytes/binary>>, Fuses) ->
     fuses_bytes(Fuse + 8, Bytes, fuses_byte(8, Fuse, Byte, Fuses)).
