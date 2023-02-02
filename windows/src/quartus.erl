@@ -33,18 +33,21 @@ start_link() ->
 %%====================================================================
 
 -record(state, {
+    dir :: string()
 }).
 
 %%--------------------------------------------------------------------
 
 init(undefined) ->
-    State = #state{},
+    State = #state{
+        dir = dir_first()
+    },
     {ok, State}.
 
 %%--------------------------------------------------------------------
 
-handle_call({compile, Compile}, _From, State) ->
-    {reply, compile("a", Compile), State};
+handle_call({compile, Compile}, _From, State = #state{dir = Dir}) ->
+    {reply, compile(Dir, Compile), State#state{dir = dir_next(Dir)}};
 handle_call(stop, _From, State) ->
     {stop, normal, ok, State}.
 
@@ -71,6 +74,18 @@ terminate(_Reason, _State) ->
 %%====================================================================
 %% internal
 %%====================================================================
+
+dir_first() ->
+    "a".
+
+%%--------------------------------------------------------------------
+
+dir_next("z") ->
+    "a";
+dir_next([C]) ->
+    [C + 1].
+
+%%--------------------------------------------------------------------
 
 compile(InDir, Compile = #{device := Device, settings := Settings, vhdl := VHDL})
         when is_binary(Device) andalso
@@ -199,7 +214,7 @@ compile_asm(Dir) ->
     ],
     case exec(Dir, Bin, Args) of
         ok ->
-            compile_read(Dir);
+            compile_cdb(Dir);
 
         {error, {exit, Exit, Out}} ->
             {error, {quartus_asm, Exit, Out}}
@@ -207,14 +222,42 @@ compile_asm(Dir) ->
 
 %%--------------------------------------------------------------------
 
-compile_read(Dir) ->
+compile_cdb(Dir) ->
+    Bin ="quartus_cdb",
+    Args = [
+        "--back_annotate=routing",
+        "experiment"
+    ],
+    case exec(Dir, Bin, Args) of
+        ok ->
+            compile_read_pof(Dir);
+
+        {error, {exit, Exit, Out}} ->
+            {error, {quartus_asm, Exit, Out}}
+    end.
+
+%%--------------------------------------------------------------------
+
+compile_read_pof(Dir) ->
     File = filename:join([Dir, "output_files", "experiment.pof"]),
     case file:read_file(File) of
-        Ok = {ok, _} ->
-            Ok;
+        {ok, POF} ->
+            compile_read_rcf(Dir, POF);
 
         {error, Reason} ->
             {error, {pof_file, Reason}}
+    end.
+
+%%--------------------------------------------------------------------
+
+compile_read_rcf(Dir, POF) ->
+    File = filename:join([Dir, "experiment.rcf"]),
+    case file:read_file(File) of
+        {ok, RCF} ->
+            {ok, #{pof => POF, rcf => RCF}};
+
+        {error, Reason} ->
+            {error, {rcf_file, Reason}}
     end.
 
 %%====================================================================
