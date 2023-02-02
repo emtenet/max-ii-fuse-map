@@ -19,9 +19,9 @@
     epm570_t144 |
     epm570_m256 |
     epm570_f256 |
-    epm1270_m144 |
     epm1270_t144 |
     epm1270_m256 |
+    epm1270_f256 |
     epm2210_f256 |
     epm2210_f324.
 
@@ -43,9 +43,9 @@ list() ->
      epm570_t144,
      epm570_m256,
      epm570_f256,
-     epm1270_m144,
      epm1270_t144,
      epm1270_m256,
+     epm1270_f256,
      epm2210_f256,
      epm2210_f324
     ].
@@ -65,9 +65,9 @@ name(epm570_t100) -> <<"EPM570T100C5">>;
 name(epm570_t144) -> <<"EPM570T144C5">>;
 name(epm570_m256) -> <<"EPM570M256C5">>;
 name(epm570_f256) -> <<"EPM570F256C5">>;
-name(epm1270_m144) -> <<"EPM1270M144C5">>;
 name(epm1270_t144) -> <<"EPM1270T144C5">>;
 name(epm1270_m256) -> <<"EPM1270M256C5">>;
+name(epm1270_f256) -> <<"EPM1270F256C5">>;
 name(epm2210_f256) -> <<"EPM2210F256C5">>;
 name(epm2210_f324) -> <<"EPM2210F324C5">>.
 
@@ -86,9 +86,9 @@ density(epm570_t100) -> epm570;
 density(epm570_t144) -> epm570;
 density(epm570_m256) -> epm570;
 density(epm570_f256) -> epm570;
-density(epm1270_m144) -> epm1270;
 density(epm1270_t144) -> epm1270;
 density(epm1270_m256) -> epm1270;
+density(epm1270_f256) -> epm1270;
 density(epm2210_f256) -> epm2210;
 density(epm2210_f324) -> epm2210.
 
@@ -107,9 +107,9 @@ package(epm570_t100) -> t100;
 package(epm570_t144) -> t144;
 package(epm570_m256) -> m256;
 package(epm570_f256) -> f256;
-package(epm1270_m144) -> m144;
 package(epm1270_t144) -> t144;
 package(epm1270_m256) -> m256;
+package(epm1270_f256) -> f256;
 package(epm2210_f256) -> f256;
 package(epm2210_f324) -> f324.
 
