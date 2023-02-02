@@ -2,8 +2,6 @@
 
 -export([run/0]).
 
--include_lib("eunit/include/eunit.hrl").
-
 %%====================================================================
 %% run
 %%====================================================================
@@ -13,10 +11,11 @@ run() ->
     {_, Ones} = experiment(<<"FFFFFFFF">>),
     io:format("00000000 => ~p fuses~n", [length(Zeros)]),
     io:format("FFFFFFFF => ~p fuses~n", [length(Ones)]),
-    ?assertEqual(length(Ones), 32 + length(Zeros)),
+    Shortest = length(Zeros),
+    Shortest = length(Ones) - 32,
     {_, Default} = experiment(),
     % want default with least amount of fuses
-    ?assertEqual(Zeros, Default),
+    Zeros = Default,
     Experiments = [
         experiment(<<"80000000">>),
         experiment(<<"40000000">>),
