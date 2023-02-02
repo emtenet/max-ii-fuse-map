@@ -6,12 +6,17 @@ Can I work out the fuse map of MAX II devices by
 feeding the Quartus tools
 and observing the outputs?
 
-## Index
+My experiments are being run in the following
+[environment](doc/environment.md).
 
- * [environment](doc/environment.md)
- * [fuse-ordering](doc/fuse-ordering.md)
+## Assumptions
+
+ * [Fuse ordering](doc/fuse-ordering.md)
+ * [Fuse vs bit](doc/fuse-vs-bit.md)
+ * [Default user code](doc/default-user-code.md)
 
 ## Experiments
 
  * [How to indicate a global clock](experiments/src/global_clock_experiment.erl)
+ * [User code](experiments/src/user_code_experiment.erl)
 

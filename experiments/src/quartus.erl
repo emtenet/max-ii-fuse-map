@@ -20,16 +20,25 @@
 
 -define(SEPARATOR, <<"\n====================\n">>).
 
+-define(USER_CODE_MANUAL,
+    "set_global_assignment -name USE_CHECKSUM_AS_USERCODE Off\n"
+).
+-define(USER_CODE_SETTING, <<" STRATIX_JTAG_USER_CODE ">>).
+-define(USER_CODE_DEFAULT, <<
+    "set_global_assignment -name STRATIX_JTAG_USER_CODE 00000000\n"
+>>).
+
 %%====================================================================
 %% cache
 %%====================================================================
 
 -spec cache(compile()) -> {ok, cache()} | error.
 
-cache(Compile = #{device := Device, settings := Settings, vhdl := VHDL})
+cache(Compile = #{device := Device, settings := Settings0, vhdl := VHDL})
         when is_binary(Device) andalso
-             is_binary(Settings) andalso
+             is_binary(Settings0) andalso
              is_binary(VHDL) ->
+    Settings = compile_defaults(Settings0),
     Source = cache_source(Device, Settings, VHDL),
     CacheDir = cache_dir(Source),
     case cache_read_source(CacheDir) of
@@ -37,8 +46,24 @@ cache(Compile = #{device := Device, settings := Settings, vhdl := VHDL})
             cache_hit(CacheDir);
 
         {error, enoent} ->
-            cache_miss(Source, CacheDir, Compile)
+            cache_miss(Source, CacheDir, Compile#{settings => Settings})
     end.
+
+%%--------------------------------------------------------------------
+
+compile_defaults(Settings) ->
+    UserCode = case binary:match(Settings, ?USER_CODE_SETTING) of
+        {_, _} ->
+            <<>>;
+
+        nomatch ->
+            ?USER_CODE_DEFAULT
+    end,
+    <<
+        ?USER_CODE_MANUAL,
+        UserCode/binary,
+        Settings/binary
+    >>.
 
 %%--------------------------------------------------------------------
 
