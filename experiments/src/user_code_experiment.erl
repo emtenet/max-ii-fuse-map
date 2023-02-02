@@ -60,7 +60,7 @@ experiment() ->
     io:format(" => ~s~n", [Title]),
     {ok, Cache} = quartus:cache(#{
         title => Title,
-        device => <<"EPM570T100C5">>,
+        device => epm570_t100,
         settings => <<
             "set_location_assignment PIN_14 -to d\n"
             "set_location_assignment PIN_15 -to q\n"
@@ -100,7 +100,7 @@ experiment(Code) ->
     io:format(" => ~s~n", [Title]),
     {ok, Cache} = quartus:cache(#{
         title => Title,
-        device => <<"EPM570T100C5">>,
+        device => epm570_t100,
         settings => <<
             "set_global_assignment -name STRATIX_JTAG_USER_CODE ", Code/binary, "\n"
             "set_location_assignment PIN_14 -to d\n"

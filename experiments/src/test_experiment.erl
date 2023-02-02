@@ -9,7 +9,7 @@
 run() ->
     {ok, Cache} = quartus:cache(#{
         title => <<"Test">>,
-        device => <<"EPM570T100C5">>,
+        device => epm570_t100,
         settings => <<
             "set_location_assignment PIN_12 -to clock\n"
             "set_location_assignment PIN_14 -to input\n"

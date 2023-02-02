@@ -7,9 +7,11 @@
 -export_type([compile/0]).
 -export_type([cache/0]).
 
+-type device() :: device:device().
+
 -type compile() :: #{
     title => binary(),
-    device := binary(),
+    device := device(),
     settings := binary(),
     vhdl := binary()
 }.
@@ -34,10 +36,11 @@
 
 -spec cache(compile()) -> {ok, cache()} | error.
 
-cache(Compile = #{device := Device, settings := Settings0, vhdl := VHDL})
-        when is_binary(Device) andalso
+cache(Compile = #{device := Device0, settings := Settings0, vhdl := VHDL})
+        when is_atom(Device0) andalso
              is_binary(Settings0) andalso
              is_binary(VHDL) ->
+    Device = device:name(Device0),
     Settings = compile_defaults(Settings0),
     Source = cache_source(Device, Settings, VHDL),
     CacheDir = cache_dir(Source),
@@ -46,7 +49,10 @@ cache(Compile = #{device := Device, settings := Settings0, vhdl := VHDL})
             cache_hit(CacheDir);
 
         {error, enoent} ->
-            cache_miss(Source, CacheDir, Compile#{settings => Settings})
+            cache_miss(Source, CacheDir, Compile#{
+                device => Device,
+                settings => Settings
+            })
     end.
 
 %%--------------------------------------------------------------------

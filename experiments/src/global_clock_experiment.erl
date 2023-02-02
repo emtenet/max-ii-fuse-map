@@ -42,7 +42,7 @@ not_global() ->
     io:format(" => ~s~n", [Title]),
     {ok, Cache} = quartus:cache(#{
         title => Title,
-        device => <<"EPM570T100C5">>,
+        device => epm570_t100,
         settings => <<
             %"set_global_assignment -name AUTO_GLOBAL_CLOCK Off\n"
             "set_location_assignment PIN_12 -to clk\n"
@@ -87,7 +87,7 @@ setting_global() ->
     io:format(" => ~s~n", [Title]),
     {ok, Cache} = quartus:cache(#{
         title => Title,
-        device => <<"EPM570T100C5">>,
+        device => epm570_t100,
         settings => <<
             %"set_global_assignment -name AUTO_GLOBAL_CLOCK Off\n"
             "set_location_assignment PIN_12 -to clk\n"
@@ -133,7 +133,7 @@ primitive_global() ->
     io:format(" => ~s~n", [Title]),
     {ok, Cache} = quartus:cache(#{
         title => Title,
-        device => <<"EPM570T100C5">>,
+        device => epm570_t100,
         settings => <<
             %"set_global_assignment -name AUTO_GLOBAL_CLOCK Off\n"
             "set_location_assignment PIN_12 -to clk\n"
