@@ -9,7 +9,7 @@
 -type experiment_name() :: atom() | binary() | string().
 -type experiment() :: {experiment_name(), [fuse()]}.
 
--type matrix() :: {matrix, [experiment_name()], [{fuse(), [on | off]}]}.
+-type matrix() :: {matrix, [experiment_name()], [{fuse(), [off | on]}]}.
 
 %%====================================================================
 %% build
@@ -118,17 +118,24 @@ print(Experiments) ->
 %%--------------------------------------------------------------------
 
 print_headers(Names) ->
-    print_keys(Names, $a),
+    print_keys(Names, 0),
     io:format("       ", []),
-    print_header(Names, $a),
+    print_header(Names, 0),
     io:format("~n", []).
+
+%%--------------------------------------------------------------------
+
+print_key(Key) when Key >= 0 andalso Key < 26 ->
+    <<($a + Key)>>;
+print_key(Key) when Key >= 26 andalso Key < 36 ->
+    <<($0 + Key - 26)>>.
 
 %%--------------------------------------------------------------------
 
 print_keys([], _) ->
     ok;
 print_keys([Name | Names], Key) ->
-    io:format("     ~s: ~s~n", [<<Key>>, Name]),
+    io:format("     ~s: ~s~n", [print_key(Key), Name]),
     print_keys(Names, Key + 1).
 
 %%--------------------------------------------------------------------
@@ -136,7 +143,7 @@ print_keys([Name | Names], Key) ->
 print_header([], _) ->
     ok;
 print_header([_ | Names], Key) ->
-    io:format(" ~s", [<<Key>>]),
+    io:format(" ~s", [print_key(Key)]),
     print_header(Names, Key + 1).
 
 %%--------------------------------------------------------------------
