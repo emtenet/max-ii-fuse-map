@@ -2,6 +2,7 @@
 
 -export([build/1]).
 -export([is_empty/1]).
+-export([singles/1]).
 -export([print/1]).
 
 -type fuse() :: fuses:fuse().
@@ -99,6 +100,46 @@ is_empty({matrix, _, []}) ->
     true;
 is_empty({matrix, _, [_ | _]}) ->
     false.
+
+%%====================================================================
+%% singles
+%%====================================================================
+
+-spec singles(matrix()) -> [{fuse(), experiment_name()}].
+
+singles({matrix, Names, Fuses}) ->
+    singles(Fuses, Names, []).
+
+%%--------------------------------------------------------------------
+
+singles([], _, Singles) ->
+    lists:reverse(Singles);
+singles([{Fuse, Bits} | Fuses], Names, Singles) ->
+    case single(Bits, Names) of
+        {ok, Name} ->
+            singles(Fuses, Names, [{Fuse, Name} | Singles]);
+
+        false ->
+            singles(Fuses, Names, Singles)
+    end.
+
+%%--------------------------------------------------------------------
+
+single([], []) ->
+    false;
+single([off | Bits], [_ | Names]) ->
+    single(Bits, Names);
+single([on | Bits], [Name | _]) ->
+    single_ok(Name, Bits).
+
+%%--------------------------------------------------------------------
+
+single_ok(Name, []) ->
+    {ok, Name};
+single_ok(_, [on | _]) ->
+    false;
+single_ok(Name, [off | Bits]) ->
+    single_ok(Name, Bits).
 
 %%====================================================================
 %% print
