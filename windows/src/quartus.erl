@@ -92,8 +92,11 @@ compile(InDir, Compile = #{device := Device, settings := Settings, vhdl := VHDL}
              is_binary(Settings) andalso
              is_binary(VHDL) ->
     case Compile of
-        #{title := Title} ->
+        #{title := Title} when is_atom(Title) orelse is_binary(Title) ->
             io:format("[~s] ~s ~s~n", [InDir, Device, Title]);
+
+        #{title := Title} ->
+            io:format("[~s] ~s ~p~n", [InDir, Device, Title]);
 
         _ ->
             io:format("[~s] ~s~n", [InDir, Device])
