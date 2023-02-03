@@ -134,8 +134,11 @@ print_key(Key) when Key >= 26 andalso Key < 36 ->
 
 print_keys([], _) ->
     ok;
-print_keys([Name | Names], Key) ->
+print_keys([Name | Names], Key) when is_atom(Name) orelse is_binary(Name) ->
     io:format("     ~s: ~s~n", [print_key(Key), Name]),
+    print_keys(Names, Key + 1);
+print_keys([Name | Names], Key) ->
+    io:format("     ~s: ~p~n", [print_key(Key), Name]),
     print_keys(Names, Key + 1).
 
 %%--------------------------------------------------------------------
