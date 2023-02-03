@@ -7,13 +7,14 @@
 %%====================================================================
 
 run() ->
-    run(epm570_t100).
+    lists:foreach(fun run/1, density:list()).
 
 %%--------------------------------------------------------------------
 
-run(Device) ->
-    {_, Zeros} = experiment(Device, <<"00000000">>),
-    {_, Ones} = experiment(Device, <<"FFFFFFFF">>),
+run(Density) ->
+    Device = density:largest_device(Density),
+    {_, Zeros} = experiment(Device, <<"00000000">>, none),
+    {_, Ones} = experiment(Device, <<"FFFFFFFF">>, all),
     io:format("00000000 => ~p fuses~n", [length(Zeros)]),
     io:format("FFFFFFFF => ~p fuses~n", [length(Ones)]),
     Shortest = length(Zeros),
@@ -22,54 +23,59 @@ run(Device) ->
     % want default with least amount of fuses
     Zeros = Default,
     Experiments = [
-        experiment(Device, <<"00000001">>),
-        experiment(Device, <<"00000002">>),
-        experiment(Device, <<"00000004">>),
-        experiment(Device, <<"00000008">>),
-        experiment(Device, <<"00000010">>),
-        experiment(Device, <<"00000020">>),
-        experiment(Device, <<"00000040">>),
-        experiment(Device, <<"00000080">>),
-        experiment(Device, <<"00000100">>),
-        experiment(Device, <<"00000200">>),
-        experiment(Device, <<"00000400">>),
-        experiment(Device, <<"00000800">>),
-        experiment(Device, <<"00001000">>),
-        experiment(Device, <<"00002000">>),
-        experiment(Device, <<"00004000">>),
-        experiment(Device, <<"00008000">>),
-        experiment(Device, <<"00010000">>),
-        experiment(Device, <<"00020000">>),
-        experiment(Device, <<"00040000">>),
-        experiment(Device, <<"00080000">>),
-        experiment(Device, <<"00100000">>),
-        experiment(Device, <<"00200000">>),
-        experiment(Device, <<"00400000">>),
-        experiment(Device, <<"00800000">>),
-        experiment(Device, <<"01000000">>),
-        experiment(Device, <<"02000000">>),
-        experiment(Device, <<"04000000">>),
-        experiment(Device, <<"08000000">>),
-        experiment(Device, <<"10000000">>),
-        experiment(Device, <<"20000000">>),
-        experiment(Device, <<"40000000">>),
-        experiment(Device, <<"80000000">>)
+        experiment(Device, <<"00000001">>, 0),
+        experiment(Device, <<"00000002">>, 1),
+        experiment(Device, <<"00000004">>, 2),
+        experiment(Device, <<"00000008">>, 3),
+        experiment(Device, <<"00000010">>, 4),
+        experiment(Device, <<"00000020">>, 5),
+        experiment(Device, <<"00000040">>, 6),
+        experiment(Device, <<"00000080">>, 7),
+        experiment(Device, <<"00000100">>, 8),
+        experiment(Device, <<"00000200">>, 9),
+        experiment(Device, <<"00000400">>, 10),
+        experiment(Device, <<"00000800">>, 11),
+        experiment(Device, <<"00001000">>, 12),
+        experiment(Device, <<"00002000">>, 13),
+        experiment(Device, <<"00004000">>, 14),
+        experiment(Device, <<"00008000">>, 15),
+        experiment(Device, <<"00010000">>, 16),
+        experiment(Device, <<"00020000">>, 17),
+        experiment(Device, <<"00040000">>, 18),
+        experiment(Device, <<"00080000">>, 19),
+        experiment(Device, <<"00100000">>, 20),
+        experiment(Device, <<"00200000">>, 21),
+        experiment(Device, <<"00400000">>, 22),
+        experiment(Device, <<"00800000">>, 23),
+        experiment(Device, <<"01000000">>, 24),
+        experiment(Device, <<"02000000">>, 25),
+        experiment(Device, <<"04000000">>, 26),
+        experiment(Device, <<"08000000">>, 27),
+        experiment(Device, <<"10000000">>, 28),
+        experiment(Device, <<"20000000">>, 29),
+        experiment(Device, <<"40000000">>, 30),
+        experiment(Device, <<"80000000">>, 31)
     ],
     Matrix = matrix:build(Experiments),
-    matrix:print(Matrix).
+    matrix:print(Matrix),
+    Fuses = matrix:singles(Matrix),
+    32 = length(Fuses),
+    fuse_database:update(Density, Fuses).
 
 %%--------------------------------------------------------------------
 
 experiment(Device) ->
     Title = <<"user code (default)">>,
     io:format(" => ~s ~s~n", [Device, Title]),
+    [Pin | _] = device:pins(Device),
+    [LAB | _] = device:labs(Device),
+    LUT = lab:lc(LAB, 0),
     {ok, Cache} = quartus:cache(#{
         title => Title,
         device => Device,
         settings => [
-            {location, d, pin14},
-            {location, q, pin15},
-            {location, lut, {lc, 1, 5, 0}}
+            {location, q, Pin},
+            {location, lut, LUT}
         ],
         vhdl => <<
             "library IEEE;\n"
@@ -81,7 +87,6 @@ experiment(Device) ->
             "\n"
             "entity experiment is\n"
             "  port (\n"
-            "    d : in STD_LOGIC;\n"
             "    q : out STD_LOGIC\n"
             "  );\n"
             "end experiment;\n"
@@ -89,7 +94,7 @@ experiment(Device) ->
             "architecture behavioral of experiment is\n"
             "begin\n"
             "  lut: LCELL port map (\n"
-            "    a_in => d,\n"
+            "    a_in => '0',\n"
             "    a_out => q\n"
             "  );\n"
             "end behavioral;\n"
@@ -100,17 +105,19 @@ experiment(Device) ->
 
 %%--------------------------------------------------------------------
 
-experiment(Device, Code) ->
-    Title = <<"user code ", Code/binary>>,
-    io:format(" => ~s ~s~n", [Device, Title]),
+experiment(Device, Code, Bit) ->
+    Title = {user_code, Bit},
+    io:format(" => ~s ~p~n", [Device, Title]),
+    [Pin | _] = device:pins(Device),
+    [LAB | _] = device:labs(Device),
+    LUT = lab:lc(LAB, 0),
     {ok, Cache} = quartus:cache(#{
         title => Title,
         device => Device,
         settings => [
             {user_code, Code},
-            {location, d, pin14},
-            {location, q, pin15},
-            {location, lut, {lc, 1, 5, 0}}
+            {location, q, Pin},
+            {location, lut, LUT}
         ],
         vhdl => <<
             "library IEEE;\n"
@@ -122,7 +129,6 @@ experiment(Device, Code) ->
             "\n"
             "entity experiment is\n"
             "  port (\n"
-            "    d : in STD_LOGIC;\n"
             "    q : out STD_LOGIC\n"
             "  );\n"
             "end experiment;\n"
@@ -130,7 +136,7 @@ experiment(Device, Code) ->
             "architecture behavioral of experiment is\n"
             "begin\n"
             "  lut: LCELL port map (\n"
-            "    a_in => d,\n"
+            "    a_in => '0',\n"
             "    a_out => q\n"
             "  );\n"
             "end behavioral;\n"
