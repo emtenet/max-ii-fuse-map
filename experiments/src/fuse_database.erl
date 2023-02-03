@@ -135,5 +135,5 @@ update_file(File, Fuses) ->
 %%====================================================================
 
 database_file(Density) ->
-    lists:flatten(io_lib:format("database/~s.fuses", [Density])).
+    lists:flatten(io_lib:format("../database/~s.fuses", [Density])).
 
