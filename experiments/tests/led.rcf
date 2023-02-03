@@ -1,0 +1,679 @@
+### Routing Constraints File: liushuideng.rcf
+### Written on:				Thu Feb 02 12:16:02 2023
+### Written by:				Version 13.1.0 Build 162 10/23/2013 SJ Web Edition
+
+section global_data {
+	rcf_written_by = "Quartus II 64-Bit 13.1 Build 162";
+	device = EPM570T100C5;
+}
+
+signal_name = LessThan0~0 {	#LC_X11_Y6_N8
+	LOCAL_LINE:X11Y6S0I8;
+	dest = ( LessThan0~5, DATAA ), route_port = DATAA;	#LC_X11_Y6_N5
+}
+signal_name = LessThan0~1 {	#LC_X11_Y6_N6
+	LOCAL_LINE:X11Y6S0I6;
+	dest = ( LessThan0~5, DATAB ), route_port = DATAC;	#LC_X11_Y6_N5
+}
+signal_name = LessThan0~2 {	#LC_X11_Y6_N0
+	LOCAL_LINE:X11Y6S0I0;
+	dest = ( LessThan0~4, DATAB ), route_port = DATAC;	#LC_X11_Y6_N4
+}
+signal_name = LessThan0~3 {	#LC_X11_Y6_N3
+	LUT_CHAIN:X11Y6S0I3;
+	dest = ( LessThan0~4, DATAD ), route_port = DATAD;	#LC_X11_Y6_N4
+}
+signal_name = LessThan0~4 {	#LC_X11_Y6_N4
+	LUT_CHAIN:X11Y6S0I4;
+	dest = ( LessThan0~5, DATAC ), route_port = DATAD;	#LC_X11_Y6_N5
+}
+signal_name = LessThan0~5 {	#LC_X11_Y6_N5
+	LE_BUFFER:X11Y6S0I11;
+	C4:X11Y7S0I4;
+	label = Label_LOCAL_INTERCONNECT:X12Y7S0I18, LOCAL_INTERCONNECT:X12Y7S0I18;
+	dest = ( led~reg0, DATAA ), route_port = DATAA;	#LC_X12_Y7_N0
+
+	branch_point = Label_LOCAL_INTERCONNECT:X12Y7S0I18;
+	dest = ( \P1:count[24]~2, DATAD ), route_port = DATAC;	#LC_X12_Y7_N4
+}
+signal_name = P1~0 {	#LC_X11_Y6_N1
+	LOCAL_LINE:X11Y6S0I1;
+	dest = ( LessThan0~5, DATAD ), route_port = DATAB;	#LC_X11_Y6_N5
+
+	LE_BUFFER:X11Y6S0I3;
+	C4:X11Y7S0I1;
+	LOCAL_INTERCONNECT:X12Y7S0I7;
+	dest = ( P1~8, DATAA ), route_port = DATAB;	#LC_X12_Y7_N2
+}
+signal_name = P1~1 {	#LC_X12_Y7_N5
+	label = Label_LOCAL_LINE:X12Y7S0I5, LOCAL_LINE:X12Y7S0I5;
+	dest = ( P1~8, DATAB ), route_port = DATAA;	#LC_X12_Y7_N2
+
+	branch_point = Label_LOCAL_LINE:X12Y7S0I5;
+	dest = ( P1~15, DATAB ), route_port = DATAC;	#LC_X12_Y7_N8
+}
+signal_name = P1~10 {	#LC_X9_Y7_N2
+	LE_BUFFER:X9Y7S0I4;
+	LOCAL_INTERCONNECT:X8Y7S0I2;
+	dest = ( P1~11, DATAD ), route_port = DATAC;	#LC_X8_Y7_N3
+}
+signal_name = P1~11 {	#LC_X8_Y7_N3
+	LE_BUFFER:X8Y7S0I7;
+	R4:X9Y7S0I3;
+	LOCAL_INTERCONNECT:X12Y7S0I3;
+	dest = ( P1~13, DATAC ), route_port = DATAC;	#LC_X12_Y7_N3
+}
+signal_name = P1~12 {	#LC_X12_Y7_N6
+	LE_BUFFER:X12Y7S0I12;
+	LOCAL_INTERCONNECT:X12Y7S0I20;
+	dest = ( P1~13, DATAD ), route_port = DATAB;	#LC_X12_Y7_N3
+
+	LUT_CHAIN:X12Y7S0I6;
+	dest = ( P1~14, DATAA ), route_port = DATAD;	#LC_X12_Y7_N7
+}
+signal_name = P1~13 {	#LC_X12_Y7_N3
+	LOCAL_LINE:X12Y7S0I3;
+	dest = ( led~reg0, DATAC ), route_port = DATAD;	#LC_X12_Y7_N0
+
+	LUT_CHAIN:X12Y7S0I3;
+	dest = ( \P1:count[24]~2, DATAB ), route_port = DATAD;	#LC_X12_Y7_N4
+}
+signal_name = P1~14 {	#LC_X12_Y7_N7
+	LUT_CHAIN:X12Y7S0I7;
+	dest = ( P1~15, DATAA ), route_port = DATAD;	#LC_X12_Y7_N8
+}
+signal_name = P1~15 {	#LC_X12_Y7_N8
+	LUT_CHAIN:X12Y7S0I8;
+	dest = ( P1~16, DATAA ), route_port = DATAD;	#LC_X12_Y7_N9
+}
+signal_name = P1~16 {	#LC_X12_Y7_N9
+	label = Label_LOCAL_LINE:X12Y7S0I9, LOCAL_LINE:X12Y7S0I9;
+	dest = ( led~reg0, DATAD ), route_port = DATAB;	#LC_X12_Y7_N0
+
+	branch_point = Label_LOCAL_LINE:X12Y7S0I9;
+	dest = ( \P1:count[24]~2, DATAC ), route_port = DATAB;	#LC_X12_Y7_N4
+}
+signal_name = P1~2 {	#LC_X9_Y7_N1
+	LOCAL_LINE:X9Y7S0I1;
+	dest = ( P1~3, DATAA ), route_port = DATAD;	#LC_X9_Y7_N0
+}
+signal_name = P1~3 {	#LC_X9_Y7_N0
+	LE_BUFFER:X9Y7S0I1;
+	R4:X10Y7S0I0;
+	LOCAL_INTERCONNECT:X12Y7S0I0;
+	dest = ( P1~5, DATAC ), route_port = DATAC;	#LC_X12_Y7_N1
+}
+signal_name = P1~4 {	#LC_X11_Y6_N7
+	LE_BUFFER:X11Y6S0I15;
+	C4:X11Y7S0I6;
+	LOCAL_INTERCONNECT:X12Y7S0I24;
+	dest = ( P1~5, DATAD ), route_port = DATAD;	#LC_X12_Y7_N1
+}
+signal_name = P1~5 {	#LC_X12_Y7_N1
+	LUT_CHAIN:X12Y7S0I1;
+	dest = ( P1~8, DATAC ), route_port = DATAD;	#LC_X12_Y7_N2
+}
+signal_name = P1~6 {	#LC_X11_Y7_N9
+	LOCAL_LINE:X11Y7S0I9;
+	dest = ( P1~7, DATAD ), route_port = DATAD;	#LC_X11_Y7_N8
+}
+signal_name = P1~7 {	#LC_X11_Y7_N8
+	LE_BUFFER:X11Y7S0I17;
+	LOCAL_INTERCONNECT:X12Y7S0I25;
+	dest = ( P1~8, DATAD ), route_port = DATAC;	#LC_X12_Y7_N2
+}
+signal_name = P1~8 {	#LC_X12_Y7_N2
+	LUT_CHAIN:X12Y7S0I2;
+	dest = ( P1~13, DATAA ), route_port = DATAD;	#LC_X12_Y7_N3
+}
+signal_name = P1~9 {	#LC_X8_Y7_N2
+	LUT_CHAIN:X8Y7S0I2;
+	dest = ( P1~11, DATAA ), route_port = DATAD;	#LC_X8_Y7_N3
+}
+signal_name = \P1:count[0] {	#LC_X9_Y7_N3
+	label = Label_LOCAL_LINE:X9Y7S0I3, LOCAL_LINE:X9Y7S0I3;
+	dest = ( \P1:count[0], DATAA ), route_port = DATAA;	#LC_X9_Y7_N3
+
+	branch_point = Label_LOCAL_LINE:X9Y7S0I3;
+	dest = ( P1~2, DATAA ), route_port = DATAD;	#LC_X9_Y7_N1
+}
+signal_name = \P1:count[10] {	#LC_X10_Y7_N3
+	label = Label_LE_BUFFER:X10Y7S0I6, LE_BUFFER:X10Y7S0I6;
+	LOCAL_INTERCONNECT:X9Y7S0I3;
+	dest = ( P1~10, DATAB ), route_port = DATAA;	#LC_X9_Y7_N2
+
+	branch_point = Label_LE_BUFFER:X10Y7S0I6;
+	label = Label_R4:X10Y7S0I2, R4:X10Y7S0I2;
+	C4:X11Y3S0I9;
+	LOCAL_INTERCONNECT:X11Y6S0I2;
+	dest = ( LessThan0~3, DATAB ), route_port = DATAB;	#LC_X11_Y6_N3
+
+	branch_point = Label_R4:X10Y7S0I2;
+	LOCAL_INTERCONNECT:X11Y7S0I3;
+	dest = ( P1~6, DATAB ), route_port = DATAC;	#LC_X11_Y7_N9
+
+	LOCAL_LINE:X10Y7S0I3;
+	dest = ( \P1:count[10], DATAA ), route_port = DATAA;	#LC_X10_Y7_N3
+}
+signal_name = \P1:count[11] {	#LC_X10_Y7_N4
+	label = Label_LE_BUFFER:X10Y7S0I8, LE_BUFFER:X10Y7S0I8;
+	LOCAL_INTERCONNECT:X9Y7S0I4;
+	dest = ( P1~10, DATAA ), route_port = DATAB;	#LC_X9_Y7_N2
+
+	branch_point = Label_LE_BUFFER:X10Y7S0I8;
+	R4:X10Y7S0I1;
+	C4:X11Y3S0I8;
+	label = Label_LOCAL_INTERCONNECT:X11Y6S0I1, LOCAL_INTERCONNECT:X11Y6S0I1;
+	dest = ( P1~4, DATAC ), route_port = DATAA;	#LC_X11_Y6_N7
+
+	branch_point = Label_LOCAL_INTERCONNECT:X11Y6S0I1;
+	dest = ( LessThan0~2, DATAC ), route_port = DATAD;	#LC_X11_Y6_N0
+
+	LE_BUFFER:X10Y7S0I9;
+	LOCAL_INTERCONNECT:X11Y7S0I12;
+	dest = ( P1~6, DATAC ), route_port = DATAD;	#LC_X11_Y7_N9
+
+	LOCAL_LINE:X10Y7S0I4;
+	dest = ( \P1:count[11], DATAA ), route_port = DATAA;	#LC_X10_Y7_N4
+}
+signal_name = \P1:count[12] {	#LC_X10_Y7_N5
+	label = Label_LE_BUFFER:X10Y7S0I11, LE_BUFFER:X10Y7S0I11;
+	C4:X10Y3S0I10;
+	label = Label_LOCAL_INTERCONNECT:X11Y6S0I18, LOCAL_INTERCONNECT:X11Y6S0I18;
+	dest = ( LessThan0~4, DATAC ), route_port = DATAA;	#LC_X11_Y6_N4
+
+	branch_point = Label_LOCAL_INTERCONNECT:X11Y6S0I18;
+	dest = ( LessThan0~2, DATAD ), route_port = DATAA;	#LC_X11_Y6_N0
+
+	branch_point = Label_LE_BUFFER:X10Y7S0I11;
+	LOCAL_INTERCONNECT:X11Y7S0I19;
+	dest = ( P1~6, DATAD ), route_port = DATAA;	#LC_X11_Y7_N9
+
+	branch_point = Label_LE_BUFFER:X10Y7S0I11;
+	R4:X7Y7S0I12;
+	LOCAL_INTERCONNECT:X8Y7S0I14;
+	dest = ( P1~11, DATAC ), route_port = DATAA;	#LC_X8_Y7_N3
+
+	LOCAL_LINE:X10Y7S0I5;
+	dest = ( \P1:count[12], DATAA ), route_port = DATAA;	#LC_X10_Y7_N5
+}
+signal_name = \P1:count[13] {	#LC_X10_Y7_N6
+	LOCAL_LINE:X10Y7S0I6;
+	dest = ( \P1:count[13], DATAA ), route_port = DATAA;	#LC_X10_Y7_N6
+
+	label = Label_LE_BUFFER:X10Y7S0I13, LE_BUFFER:X10Y7S0I13;
+	C4:X10Y3S0I11;
+	LOCAL_INTERCONNECT:X11Y6S0I21;
+	dest = ( LessThan0~2, DATAA ), route_port = DATAC;	#LC_X11_Y6_N0
+
+	branch_point = Label_LE_BUFFER:X10Y7S0I13;
+	LOCAL_INTERCONNECT:X11Y7S0I21;
+	dest = ( P1~7, DATAA ), route_port = DATAC;	#LC_X11_Y7_N8
+
+	branch_point = Label_LE_BUFFER:X10Y7S0I13;
+	label = Label_R4:X7Y7S0I15, R4:X7Y7S0I15;
+	R4:X9Y7S0I5;
+	LOCAL_INTERCONNECT:X12Y7S0I22;
+	dest = ( P1~5, DATAA ), route_port = DATAA;	#LC_X12_Y7_N1
+
+	branch_point = Label_R4:X7Y7S0I15;
+	LOCAL_INTERCONNECT:X8Y7S0I17;
+	dest = ( P1~11, DATAB ), route_port = DATAB;	#LC_X8_Y7_N3
+}
+signal_name = \P1:count[14] {	#LC_X10_Y7_N7
+	label = Label_LE_BUFFER:X10Y7S0I14, LE_BUFFER:X10Y7S0I14;
+	R4:X6Y7S0I14;
+	LOCAL_INTERCONNECT:X8Y7S0I25;
+	dest = ( P1~9, DATAA ), route_port = DATAC;	#LC_X8_Y7_N2
+
+	branch_point = Label_LE_BUFFER:X10Y7S0I14;
+	R4:X10Y7S0I7;
+	LOCAL_INTERCONNECT:X12Y7S0I17;
+	dest = ( P1~5, DATAB ), route_port = DATAB;	#LC_X12_Y7_N1
+
+	label = Label_LE_BUFFER:X10Y7S0I15, LE_BUFFER:X10Y7S0I15;
+	C4:X10Y3S0I12;
+	LOCAL_INTERCONNECT:X11Y6S0I24;
+	dest = ( LessThan0~2, DATAB ), route_port = DATAB;	#LC_X11_Y6_N0
+
+	branch_point = Label_LE_BUFFER:X10Y7S0I15;
+	LOCAL_INTERCONNECT:X11Y7S0I23;
+	dest = ( P1~7, DATAB ), route_port = DATAB;	#LC_X11_Y7_N8
+
+	LOCAL_LINE:X10Y7S0I7;
+	dest = ( \P1:count[14], DATAA ), route_port = DATAB;	#LC_X10_Y7_N7
+}
+signal_name = \P1:count[15] {	#LC_X10_Y7_N8
+	LOCAL_LINE:X10Y7S0I8;
+	dest = ( \P1:count[15], DATAA ), route_port = DATAA;	#LC_X10_Y7_N8
+
+	label = Label_LE_BUFFER:X10Y7S0I17, LE_BUFFER:X10Y7S0I17;
+	C4:X10Y3S0I13;
+	R4:X11Y6S0I5;
+	LOCAL_INTERCONNECT:X11Y6S0I20;
+	dest = ( LessThan0~4, DATAA ), route_port = DATAB;	#LC_X11_Y6_N4
+
+	branch_point = Label_LE_BUFFER:X10Y7S0I17;
+	LOCAL_INTERCONNECT:X11Y7S0I25;
+	dest = ( P1~7, DATAC ), route_port = DATAA;	#LC_X11_Y7_N8
+
+	branch_point = Label_LE_BUFFER:X10Y7S0I17;
+	R4:X7Y7S0I13;
+	LOCAL_INTERCONNECT:X8Y7S0I24;
+	dest = ( P1~9, DATAB ), route_port = DATAD;	#LC_X8_Y7_N2
+}
+signal_name = \P1:count[16] {	#LC_X10_Y7_N9
+	LE_BUFFER:X10Y7S0I18;
+	label = Label_R4:X10Y7S0I6, R4:X10Y7S0I6;
+	C4:X11Y3S0I13;
+	LOCAL_INTERCONNECT:X11Y6S0I16;
+	dest = ( P1~0, DATAB ), route_port = DATAD;	#LC_X11_Y6_N1
+
+	branch_point = Label_R4:X10Y7S0I6;
+	R4:X12Y7S0I14;
+	LOCAL_INTERCONNECT:X12Y7S0I15;
+	dest = ( P1~13, DATAB ), route_port = DATAA;	#LC_X12_Y7_N3
+
+	LOCAL_LINE:X10Y7S0I9;
+	dest = ( \P1:count[16], DATAA ), route_port = DATAB;	#LC_X10_Y7_N9
+}
+signal_name = \P1:count[17] {	#LC_X11_Y7_N0
+	LOCAL_LINE:X11Y7S0I0;
+	dest = ( \P1:count[17], DATAA ), route_port = DATAB;	#LC_X11_Y7_N0
+
+	label = Label_LE_BUFFER:X11Y7S0I1, LE_BUFFER:X11Y7S0I1;
+	C4:X11Y3S0I7;
+	LOCAL_INTERCONNECT:X11Y6S0I0;
+	dest = ( P1~0, DATAC ), route_port = DATAC;	#LC_X11_Y6_N1
+
+	branch_point = Label_LE_BUFFER:X11Y7S0I1;
+	LOCAL_INTERCONNECT:X12Y7S0I6;
+	dest = ( P1~14, DATAB ), route_port = DATAA;	#LC_X12_Y7_N7
+}
+signal_name = \P1:count[18] {	#LC_X11_Y7_N1
+	LE_BUFFER:X11Y7S0I2;
+	C4:X10Y3S0I7;
+	LOCAL_INTERCONNECT:X11Y6S0I7;
+	dest = ( P1~0, DATAD ), route_port = DATAB;	#LC_X11_Y6_N1
+
+	LOCAL_LINE:X11Y7S0I1;
+	dest = ( \P1:count[18], DATAA ), route_port = DATAB;	#LC_X11_Y7_N1
+
+	LE_BUFFER:X11Y7S0I3;
+	LOCAL_INTERCONNECT:X12Y7S0I8;
+	dest = ( P1~14, DATAC ), route_port = DATAC;	#LC_X12_Y7_N7
+}
+signal_name = \P1:count[19] {	#LC_X11_Y7_N2
+	LE_BUFFER:X11Y7S0I4;
+	R4:X11Y7S0I3;
+	R4:X12Y7S0I10;
+	LOCAL_INTERCONNECT:X12Y7S0I11;
+	dest = ( P1~15, DATAD ), route_port = DATAA;	#LC_X12_Y7_N8
+
+	LOCAL_LINE:X11Y7S0I2;
+	dest = ( \P1:count[19], DATAA ), route_port = DATAB;	#LC_X11_Y7_N2
+
+	label = Label_LE_BUFFER:X11Y7S0I5, LE_BUFFER:X11Y7S0I5;
+	R4:X8Y7S0I11;
+	C4:X10Y3S0I9;
+	LOCAL_INTERCONNECT:X11Y6S0I12;
+	dest = ( LessThan0~1, DATAC ), route_port = DATAD;	#LC_X11_Y6_N6
+
+	branch_point = Label_LE_BUFFER:X11Y7S0I5;
+	LOCAL_INTERCONNECT:X12Y7S0I10;
+	dest = ( P1~14, DATAD ), route_port = DATAB;	#LC_X12_Y7_N7
+}
+signal_name = \P1:count[1] {	#LC_X9_Y7_N4
+	label = Label_LOCAL_LINE:X9Y7S0I4, LOCAL_LINE:X9Y7S0I4;
+	dest = ( \P1:count[1], DATAA ), route_port = DATAA;	#LC_X9_Y7_N4
+
+	branch_point = Label_LOCAL_LINE:X9Y7S0I4;
+	dest = ( P1~2, DATAB ), route_port = DATAC;	#LC_X9_Y7_N1
+}
+signal_name = \P1:count[20] {	#LC_X11_Y7_N3
+	LE_BUFFER:X11Y7S0I6;
+	R4:X11Y7S0I0;
+	C4:X12Y3S0I7;
+	R4:X9Y6S0I9;
+	LOCAL_INTERCONNECT:X11Y6S0I9;
+	dest = ( LessThan0~1, DATAA ), route_port = DATAC;	#LC_X11_Y6_N6
+
+	LE_BUFFER:X11Y7S0I7;
+	label = Label_LOCAL_INTERCONNECT:X12Y7S0I12, LOCAL_INTERCONNECT:X12Y7S0I12;
+	dest = ( P1~15, DATAC ), route_port = DATAB;	#LC_X12_Y7_N8
+
+	branch_point = Label_LOCAL_INTERCONNECT:X12Y7S0I12;
+	dest = ( P1~12, DATAC ), route_port = DATAD;	#LC_X12_Y7_N6
+
+	LOCAL_LINE:X11Y7S0I3;
+	dest = ( \P1:count[20], DATAA ), route_port = DATAA;	#LC_X11_Y7_N3
+}
+signal_name = \P1:count[21] {	#LC_X11_Y7_N4
+	LE_BUFFER:X11Y7S0I9;
+	label = Label_R4:X12Y7S0I1, R4:X12Y7S0I1;
+	C4:X12Y3S0I8;
+	R4:X9Y6S0I11;
+	LOCAL_INTERCONNECT:X11Y6S0I4;
+	dest = ( LessThan0~0, DATAC ), route_port = DATAD;	#LC_X11_Y6_N8
+
+	branch_point = Label_R4:X12Y7S0I1;
+	label = Label_LOCAL_INTERCONNECT:X12Y7S0I9, LOCAL_INTERCONNECT:X12Y7S0I9;
+	dest = ( P1~1, DATAB ), route_port = DATAC;	#LC_X12_Y7_N5
+
+	branch_point = Label_LOCAL_INTERCONNECT:X12Y7S0I9;
+	dest = ( P1~12, DATAA ), route_port = DATAC;	#LC_X12_Y7_N6
+
+	LOCAL_LINE:X11Y7S0I4;
+	dest = ( \P1:count[21], DATAA ), route_port = DATAA;	#LC_X11_Y7_N4
+}
+signal_name = \P1:count[22] {	#LC_X11_Y7_N5
+	LE_BUFFER:X11Y7S0I10;
+	R4:X11Y6S0I0;
+	LOCAL_INTERCONNECT:X11Y6S0I6;
+	dest = ( LessThan0~0, DATAD ), route_port = DATAA;	#LC_X11_Y6_N8
+
+	LOCAL_LINE:X11Y7S0I5;
+	dest = ( \P1:count[22], DATAA ), route_port = DATAA;	#LC_X11_Y7_N5
+
+	LE_BUFFER:X11Y7S0I11;
+	label = Label_LOCAL_INTERCONNECT:X12Y7S0I19, LOCAL_INTERCONNECT:X12Y7S0I19;
+	dest = ( P1~16, DATAC ), route_port = DATAA;	#LC_X12_Y7_N9
+
+	branch_point = Label_LOCAL_INTERCONNECT:X12Y7S0I19;
+	dest = ( P1~1, DATAC ), route_port = DATAD;	#LC_X12_Y7_N5
+}
+signal_name = \P1:count[23] {	#LC_X11_Y7_N6
+	LOCAL_LINE:X11Y7S0I6;
+	dest = ( \P1:count[23], DATAA ), route_port = DATAA;	#LC_X11_Y7_N6
+
+	label = Label_LE_BUFFER:X11Y7S0I13, LE_BUFFER:X11Y7S0I13;
+	C4:X11Y3S0I11;
+	label = Label_LOCAL_INTERCONNECT:X11Y6S0I13, LOCAL_INTERCONNECT:X11Y6S0I13;
+	dest = ( LessThan0~0, DATAB ), route_port = DATAB;	#LC_X11_Y6_N8
+
+	branch_point = Label_LOCAL_INTERCONNECT:X11Y6S0I13;
+	dest = ( LessThan0~1, DATAB ), route_port = DATAB;	#LC_X11_Y6_N6
+
+	branch_point = Label_LE_BUFFER:X11Y7S0I13;
+	LOCAL_INTERCONNECT:X12Y7S0I21;
+	dest = ( P1~16, DATAD ), route_port = DATAC;	#LC_X12_Y7_N9
+}
+signal_name = \P1:count[24] {	#LC_X11_Y7_N7
+	LOCAL_LINE:X11Y7S0I7;
+	dest = ( \P1:count[24], DATAA ), route_port = DATAB;	#LC_X11_Y7_N7
+
+	label = Label_LE_BUFFER:X11Y7S0I15, LE_BUFFER:X11Y7S0I15;
+	C4:X11Y3S0I12;
+	LOCAL_INTERCONNECT:X11Y6S0I14;
+	dest = ( LessThan0~0, DATAA ), route_port = DATAC;	#LC_X11_Y6_N8
+
+	branch_point = Label_LE_BUFFER:X11Y7S0I15;
+	label = Label_LOCAL_INTERCONNECT:X12Y7S0I23, LOCAL_INTERCONNECT:X12Y7S0I23;
+	dest = ( P1~16, DATAB ), route_port = DATAB;	#LC_X12_Y7_N9
+
+	branch_point = Label_LOCAL_INTERCONNECT:X12Y7S0I23;
+	dest = ( P1~1, DATAD ), route_port = DATAB;	#LC_X12_Y7_N5
+
+	branch_point = Label_LOCAL_INTERCONNECT:X12Y7S0I23;
+	dest = ( P1~12, DATAB ), route_port = DATAB;	#LC_X12_Y7_N6
+}
+signal_name = \P1:count[24]~2 {	#LC_X12_Y7_N4
+	label = Label_LE_BUFFER:X12Y7S0I8, LE_BUFFER:X12Y7S0I8;
+	LOCAL_INTERCONNECT:X11Y7S0I4;
+	label = Label_LAB_CONTROL_MUX:X11Y7S0I5, LAB_CONTROL_MUX:X11Y7S0I5;
+	dest = ( \P1:count[24], SCLR );	#LC_X11_Y7_N7
+
+	branch_point = Label_LAB_CONTROL_MUX:X11Y7S0I5;
+	dest = ( \P1:count[23], SCLR );	#LC_X11_Y7_N6
+
+	branch_point = Label_LAB_CONTROL_MUX:X11Y7S0I5;
+	dest = ( \P1:count[21], SCLR );	#LC_X11_Y7_N4
+
+	branch_point = Label_LAB_CONTROL_MUX:X11Y7S0I5;
+	dest = ( \P1:count[22], SCLR );	#LC_X11_Y7_N5
+
+	branch_point = Label_LAB_CONTROL_MUX:X11Y7S0I5;
+	dest = ( \P1:count[20], SCLR );	#LC_X11_Y7_N3
+
+	branch_point = Label_LAB_CONTROL_MUX:X11Y7S0I5;
+	dest = ( \P1:count[19], SCLR );	#LC_X11_Y7_N2
+
+	branch_point = Label_LAB_CONTROL_MUX:X11Y7S0I5;
+	dest = ( \P1:count[17], SCLR );	#LC_X11_Y7_N0
+
+	branch_point = Label_LAB_CONTROL_MUX:X11Y7S0I5;
+	dest = ( \P1:count[18], SCLR );	#LC_X11_Y7_N1
+
+	branch_point = Label_LE_BUFFER:X12Y7S0I8;
+	label = Label_R4:X8Y7S0I10, R4:X8Y7S0I10;
+	LOCAL_INTERCONNECT:X10Y7S0I12;
+	label = Label_LAB_CONTROL_MUX:X10Y7S0I5, LAB_CONTROL_MUX:X10Y7S0I5;
+	dest = ( \P1:count[15], SCLR );	#LC_X10_Y7_N8
+
+	branch_point = Label_LAB_CONTROL_MUX:X10Y7S0I5;
+	dest = ( \P1:count[13], SCLR );	#LC_X10_Y7_N6
+
+	branch_point = Label_LAB_CONTROL_MUX:X10Y7S0I5;
+	dest = ( \P1:count[14], SCLR );	#LC_X10_Y7_N7
+
+	branch_point = Label_LAB_CONTROL_MUX:X10Y7S0I5;
+	dest = ( \P1:count[11], SCLR );	#LC_X10_Y7_N4
+
+	branch_point = Label_LAB_CONTROL_MUX:X10Y7S0I5;
+	dest = ( \P1:count[12], SCLR );	#LC_X10_Y7_N5
+
+	branch_point = Label_LAB_CONTROL_MUX:X10Y7S0I5;
+	dest = ( \P1:count[9], SCLR );	#LC_X10_Y7_N2
+
+	branch_point = Label_LAB_CONTROL_MUX:X10Y7S0I5;
+	dest = ( \P1:count[10], SCLR );	#LC_X10_Y7_N3
+
+	branch_point = Label_LAB_CONTROL_MUX:X10Y7S0I5;
+	dest = ( \P1:count[7], SCLR );	#LC_X10_Y7_N0
+
+	branch_point = Label_LAB_CONTROL_MUX:X10Y7S0I5;
+	dest = ( \P1:count[8], SCLR );	#LC_X10_Y7_N1
+
+	branch_point = Label_LAB_CONTROL_MUX:X10Y7S0I5;
+	dest = ( \P1:count[16], SCLR );	#LC_X10_Y7_N9
+
+	branch_point = Label_R4:X8Y7S0I10;
+	LOCAL_INTERCONNECT:X9Y7S0I12;
+	label = Label_LAB_CONTROL_MUX:X9Y7S0I5, LAB_CONTROL_MUX:X9Y7S0I5;
+	dest = ( \P1:count[0], SCLR );	#LC_X9_Y7_N3
+
+	branch_point = Label_LAB_CONTROL_MUX:X9Y7S0I5;
+	dest = ( \P1:count[1], SCLR );	#LC_X9_Y7_N4
+
+	branch_point = Label_LAB_CONTROL_MUX:X9Y7S0I5;
+	dest = ( \P1:count[2], SCLR );	#LC_X9_Y7_N5
+
+	branch_point = Label_LAB_CONTROL_MUX:X9Y7S0I5;
+	dest = ( \P1:count[3], SCLR );	#LC_X9_Y7_N6
+
+	branch_point = Label_LAB_CONTROL_MUX:X9Y7S0I5;
+	dest = ( \P1:count[4], SCLR );	#LC_X9_Y7_N7
+
+	branch_point = Label_LAB_CONTROL_MUX:X9Y7S0I5;
+	dest = ( \P1:count[5], SCLR );	#LC_X9_Y7_N8
+
+	branch_point = Label_LAB_CONTROL_MUX:X9Y7S0I5;
+	dest = ( \P1:count[6], SCLR );	#LC_X9_Y7_N9
+}
+signal_name = \P1:count[2] {	#LC_X9_Y7_N5
+	label = Label_LOCAL_LINE:X9Y7S0I5, LOCAL_LINE:X9Y7S0I5;
+	dest = ( \P1:count[2], DATAA ), route_port = DATAA;	#LC_X9_Y7_N5
+
+	branch_point = Label_LOCAL_LINE:X9Y7S0I5;
+	dest = ( P1~2, DATAC ), route_port = DATAA;	#LC_X9_Y7_N1
+}
+signal_name = \P1:count[3] {	#LC_X9_Y7_N6
+	LE_BUFFER:X9Y7S0I12;
+	label = Label_LOCAL_INTERCONNECT:X9Y7S0I20, LOCAL_INTERCONNECT:X9Y7S0I20;
+	dest = ( \P1:count[3], DATAA ), route_port = DATAB;	#LC_X9_Y7_N6
+
+	branch_point = Label_LOCAL_INTERCONNECT:X9Y7S0I20;
+	dest = ( P1~2, DATAD ), route_port = DATAB;	#LC_X9_Y7_N1
+}
+signal_name = \P1:count[4] {	#LC_X9_Y7_N7
+	label = Label_LOCAL_LINE:X9Y7S0I7, LOCAL_LINE:X9Y7S0I7;
+	dest = ( \P1:count[4], DATAA ), route_port = DATAB;	#LC_X9_Y7_N7
+
+	branch_point = Label_LOCAL_LINE:X9Y7S0I7;
+	dest = ( P1~3, DATAB ), route_port = DATAC;	#LC_X9_Y7_N0
+}
+signal_name = \P1:count[5] {	#LC_X9_Y7_N8
+	label = Label_LOCAL_LINE:X9Y7S0I8, LOCAL_LINE:X9Y7S0I8;
+	dest = ( \P1:count[5], DATAA ), route_port = DATAA;	#LC_X9_Y7_N8
+
+	branch_point = Label_LOCAL_LINE:X9Y7S0I8;
+	dest = ( P1~3, DATAC ), route_port = DATAA;	#LC_X9_Y7_N0
+}
+signal_name = \P1:count[6] {	#LC_X9_Y7_N9
+	label = Label_LOCAL_LINE:X9Y7S0I9, LOCAL_LINE:X9Y7S0I9;
+	dest = ( \P1:count[6], DATAA ), route_port = DATAB;	#LC_X9_Y7_N9
+
+	branch_point = Label_LOCAL_LINE:X9Y7S0I9;
+	dest = ( P1~3, DATAD ), route_port = DATAB;	#LC_X9_Y7_N0
+}
+signal_name = \P1:count[7] {	#LC_X10_Y7_N0
+	LE_BUFFER:X10Y7S0I0;
+	C4:X9Y3S0I7;
+	R4:X10Y6S0I0;
+	label = Label_LOCAL_INTERCONNECT:X11Y6S0I5, LOCAL_INTERCONNECT:X11Y6S0I5;
+	dest = ( P1~4, DATAA ), route_port = DATAD;	#LC_X11_Y6_N7
+
+	branch_point = Label_LOCAL_INTERCONNECT:X11Y6S0I5;
+	dest = ( LessThan0~3, DATAC ), route_port = DATAD;	#LC_X11_Y6_N3
+
+	LOCAL_LINE:X10Y7S0I0;
+	dest = ( \P1:count[7], DATAA ), route_port = DATAB;	#LC_X10_Y7_N0
+}
+signal_name = \P1:count[8] {	#LC_X10_Y7_N1
+	LE_BUFFER:X10Y7S0I2;
+	LOCAL_INTERCONNECT:X9Y7S0I1;
+	dest = ( P1~10, DATAC ), route_port = DATAD;	#LC_X9_Y7_N2
+
+	LE_BUFFER:X10Y7S0I3;
+	C4:X10Y3S0I8;
+	label = Label_LOCAL_INTERCONNECT:X11Y6S0I8, LOCAL_INTERCONNECT:X11Y6S0I8;
+	dest = ( LessThan0~3, DATAD ), route_port = DATAA;	#LC_X11_Y6_N3
+
+	branch_point = Label_LOCAL_INTERCONNECT:X11Y6S0I8;
+	dest = ( P1~4, DATAB ), route_port = DATAC;	#LC_X11_Y6_N7
+
+	LOCAL_LINE:X10Y7S0I1;
+	dest = ( \P1:count[8], DATAA ), route_port = DATAB;	#LC_X10_Y7_N1
+}
+signal_name = \P1:count[9] {	#LC_X10_Y7_N2
+	LE_BUFFER:X10Y7S0I5;
+	LOCAL_INTERCONNECT:X11Y7S0I10;
+	dest = ( P1~6, DATAA ), route_port = DATAB;	#LC_X11_Y7_N9
+
+	label = Label_LE_BUFFER:X10Y7S0I4, LE_BUFFER:X10Y7S0I4;
+	C4:X9Y3S0I8;
+	R4:X10Y6S0I2;
+	LOCAL_INTERCONNECT:X11Y6S0I3;
+	dest = ( LessThan0~3, DATAA ), route_port = DATAC;	#LC_X11_Y6_N3
+
+	branch_point = Label_LE_BUFFER:X10Y7S0I4;
+	LOCAL_INTERCONNECT:X9Y7S0I2;
+	dest = ( P1~10, DATAD ), route_port = DATAC;	#LC_X9_Y7_N2
+
+	LOCAL_LINE:X10Y7S0I2;
+	dest = ( \P1:count[9], DATAA ), route_port = DATAB;	#LC_X10_Y7_N2
+}
+signal_name = clk {	#IOC_X0_Y5_N0
+	CLK_BUFFER:X0Y5S0I0;
+	label = Label_GLOBAL_CLK_H:X0Y4S0I0, GLOBAL_CLK_H:X0Y4S0I0;
+	label = Label_LAB_CLK:X9Y2S0I0, LAB_CLK:X9Y2S0I0;
+	dest = ( \P1:count[0], CLK );	#LC_X9_Y7_N3
+
+	branch_point = Label_LAB_CLK:X9Y2S0I0;
+	dest = ( \P1:count[1], CLK );	#LC_X9_Y7_N4
+
+	branch_point = Label_LAB_CLK:X9Y2S0I0;
+	dest = ( \P1:count[2], CLK );	#LC_X9_Y7_N5
+
+	branch_point = Label_LAB_CLK:X9Y2S0I0;
+	dest = ( \P1:count[3], CLK );	#LC_X9_Y7_N6
+
+	branch_point = Label_LAB_CLK:X9Y2S0I0;
+	dest = ( \P1:count[4], CLK );	#LC_X9_Y7_N7
+
+	branch_point = Label_LAB_CLK:X9Y2S0I0;
+	dest = ( \P1:count[5], CLK );	#LC_X9_Y7_N8
+
+	branch_point = Label_LAB_CLK:X9Y2S0I0;
+	dest = ( \P1:count[6], CLK );	#LC_X9_Y7_N9
+
+	branch_point = Label_GLOBAL_CLK_H:X0Y4S0I0;
+	label = Label_LAB_CLK:X10Y0S0I0, LAB_CLK:X10Y0S0I0;
+	dest = ( \P1:count[15], CLK );	#LC_X10_Y7_N8
+
+	branch_point = Label_LAB_CLK:X10Y0S0I0;
+	dest = ( \P1:count[13], CLK );	#LC_X10_Y7_N6
+
+	branch_point = Label_LAB_CLK:X10Y0S0I0;
+	dest = ( \P1:count[14], CLK );	#LC_X10_Y7_N7
+
+	branch_point = Label_LAB_CLK:X10Y0S0I0;
+	dest = ( \P1:count[11], CLK );	#LC_X10_Y7_N4
+
+	branch_point = Label_LAB_CLK:X10Y0S0I0;
+	dest = ( \P1:count[12], CLK );	#LC_X10_Y7_N5
+
+	branch_point = Label_LAB_CLK:X10Y0S0I0;
+	dest = ( \P1:count[9], CLK );	#LC_X10_Y7_N2
+
+	branch_point = Label_LAB_CLK:X10Y0S0I0;
+	dest = ( \P1:count[10], CLK );	#LC_X10_Y7_N3
+
+	branch_point = Label_LAB_CLK:X10Y0S0I0;
+	dest = ( \P1:count[7], CLK );	#LC_X10_Y7_N0
+
+	branch_point = Label_LAB_CLK:X10Y0S0I0;
+	dest = ( \P1:count[8], CLK );	#LC_X10_Y7_N1
+
+	branch_point = Label_LAB_CLK:X10Y0S0I0;
+	dest = ( \P1:count[16], CLK );	#LC_X10_Y7_N9
+
+	branch_point = Label_GLOBAL_CLK_H:X0Y4S0I0;
+	label = Label_LAB_CLK:X11Y0S0I0, LAB_CLK:X11Y0S0I0;
+	dest = ( \P1:count[24], CLK );	#LC_X11_Y7_N7
+
+	branch_point = Label_LAB_CLK:X11Y0S0I0;
+	dest = ( \P1:count[23], CLK );	#LC_X11_Y7_N6
+
+	branch_point = Label_LAB_CLK:X11Y0S0I0;
+	dest = ( \P1:count[21], CLK );	#LC_X11_Y7_N4
+
+	branch_point = Label_LAB_CLK:X11Y0S0I0;
+	dest = ( \P1:count[22], CLK );	#LC_X11_Y7_N5
+
+	branch_point = Label_LAB_CLK:X11Y0S0I0;
+	dest = ( \P1:count[20], CLK );	#LC_X11_Y7_N3
+
+	branch_point = Label_LAB_CLK:X11Y0S0I0;
+	dest = ( \P1:count[19], CLK );	#LC_X11_Y7_N2
+
+	branch_point = Label_LAB_CLK:X11Y0S0I0;
+	dest = ( \P1:count[17], CLK );	#LC_X11_Y7_N0
+
+	branch_point = Label_LAB_CLK:X11Y0S0I0;
+	dest = ( \P1:count[18], CLK );	#LC_X11_Y7_N1
+
+	branch_point = Label_GLOBAL_CLK_H:X0Y4S0I0;
+	LAB_CLK:X12Y0S0I0;
+	dest = ( led~reg0, CLK );	#LC_X12_Y7_N0
+}
+signal_name = led~reg0 {	#LC_X12_Y7_N0
+	LE_BUFFER:X12Y7S0I0;
+	C4:X11Y8S0I0;
+	LOCAL_INTERCONNECT:X12Y8S0I5;
+	IO_DATAOUT:X12Y8S2I0;
+	dest = ( led, DATAIN );	#IOC_X12_Y8_N2
+
+	LOCAL_LINE:X12Y7S0I0;
+	dest = ( led~reg0, DATAB ), route_port = DATAC;	#LC_X12_Y7_N0
+}

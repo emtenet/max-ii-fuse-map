@@ -201,7 +201,7 @@ pof({cache, miss, POF, _}) ->
 
 rcf({cache, hit, CacheDir}) ->
     {ok, RCF} = cache_read_rcf(CacheDir),
-    RCF;
+    rcf_file:decode(RCF);
 rcf({cache, miss, _, RCF}) ->
-    RCF.
+    rcf_file:decode(RCF).
 
