@@ -4,6 +4,7 @@
 -export([name/1]).
 -export([density/1]).
 -export([package/1]).
+-export([labs/1]).
 -export([pins/1]).
 -export([gclk_pins/1]).
 
@@ -27,6 +28,7 @@
     epm2210_f256 |
     epm2210_f324.
 
+-type lab() :: lab:lab().
 -type package() :: package:package().
 -type pin() :: pin:pin().
 
@@ -115,6 +117,15 @@ package(epm1270_m256) -> m256;
 package(epm1270_f256) -> f256;
 package(epm2210_f256) -> f256;
 package(epm2210_f324) -> f324.
+
+%%====================================================================
+%% labs
+%%====================================================================
+
+-spec labs(device()) -> [lab()].
+
+labs(Device) ->
+    density:labs(density(Device)).
 
 %%====================================================================
 %% pins
