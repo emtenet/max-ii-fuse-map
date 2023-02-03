@@ -43,13 +43,13 @@ not_global() ->
     {ok, Cache} = quartus:cache(#{
         title => Title,
         device => epm570_t100,
-        settings => <<
-            %"set_global_assignment -name AUTO_GLOBAL_CLOCK Off\n"
-            "set_location_assignment PIN_12 -to clk\n"
-            "set_location_assignment PIN_14 -to d\n"
-            "set_location_assignment LC_X1_Y5_N0 -to ff\n"
-            "set_location_assignment PIN_15 -to q\n"
-        >>,
+        settings => [
+            %{auto_global_clock, false},
+            {location, clk, pin12},
+            {location, d, pin14},
+            {location, q, pin15},
+            {location, ff, {lc, 1, 5, 0}}
+        ],
         vhdl => <<
             "library IEEE;\n"
             "use IEEE.STD_LOGIC_1164.ALL;\n"
@@ -88,14 +88,14 @@ setting_global() ->
     {ok, Cache} = quartus:cache(#{
         title => Title,
         device => epm570_t100,
-        settings => <<
-            %"set_global_assignment -name AUTO_GLOBAL_CLOCK Off\n"
-            "set_location_assignment PIN_12 -to clk\n"
-            "set_location_assignment PIN_14 -to d\n"
-            "set_location_assignment LC_X1_Y5_N0 -to ff\n"
-            "set_location_assignment PIN_15 -to q\n"
-            "set_instance_assignment -name GLOBAL_SIGNAL \"GLOBAL CLOCK\" -to clk\n"
-        >>,
+        settings => [
+            %{auto_global_clock, false},
+            {location, clk, pin12},
+            {location, d, pin14},
+            {location, q, pin15},
+            {location, ff, {lc, 1, 5, 0}},
+            {global_clock, clk, true}
+        ],
         vhdl => <<
             "library IEEE;\n"
             "use IEEE.STD_LOGIC_1164.ALL;\n"
@@ -134,13 +134,13 @@ primitive_global() ->
     {ok, Cache} = quartus:cache(#{
         title => Title,
         device => epm570_t100,
-        settings => <<
-            %"set_global_assignment -name AUTO_GLOBAL_CLOCK Off\n"
-            "set_location_assignment PIN_12 -to clk\n"
-            "set_location_assignment PIN_14 -to d\n"
-            "set_location_assignment LC_X1_Y5_N0 -to ff\n"
-            "set_location_assignment PIN_15 -to q\n"
-        >>,
+        settings => [
+            %{auto_global_clock, false},
+            {location, clk, pin12},
+            {location, d, pin14},
+            {location, q, pin15},
+            {location, ff, {lc, 1, 5, 0}}
+        ],
         vhdl => <<
             "library IEEE;\n"
             "use IEEE.STD_LOGIC_1164.ALL;\n"

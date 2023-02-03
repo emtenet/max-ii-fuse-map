@@ -16,7 +16,7 @@ experiment(Device) ->
     {ok, Cache} = quartus:cache(#{
         title => Title,
         device => Device,
-        settings => <<>>,
+        settings => [],
         vhdl => <<
             "library IEEE;\n"
             "use IEEE.STD_LOGIC_1164.ALL;\n"

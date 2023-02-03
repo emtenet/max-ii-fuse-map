@@ -7,65 +7,70 @@
 %%====================================================================
 
 run() ->
-    {_, Zeros} = experiment(<<"00000000">>),
-    {_, Ones} = experiment(<<"FFFFFFFF">>),
+    run(epm570_t100).
+
+%%--------------------------------------------------------------------
+
+run(Device) ->
+    {_, Zeros} = experiment(Device, <<"00000000">>),
+    {_, Ones} = experiment(Device, <<"FFFFFFFF">>),
     io:format("00000000 => ~p fuses~n", [length(Zeros)]),
     io:format("FFFFFFFF => ~p fuses~n", [length(Ones)]),
     Shortest = length(Zeros),
     Shortest = length(Ones) - 32,
-    {_, Default} = experiment(),
+    {_, Default} = experiment(Device),
     % want default with least amount of fuses
     Zeros = Default,
     Experiments = [
-        experiment(<<"80000000">>),
-        experiment(<<"40000000">>),
-        experiment(<<"20000000">>),
-        experiment(<<"10000000">>),
-        experiment(<<"08000000">>),
-        experiment(<<"04000000">>),
-        experiment(<<"02000000">>),
-        experiment(<<"01000000">>),
-        experiment(<<"00800000">>),
-        experiment(<<"00400000">>),
-        experiment(<<"00200000">>),
-        experiment(<<"00100000">>),
-        experiment(<<"00080000">>),
-        experiment(<<"00040000">>),
-        experiment(<<"00020000">>),
-        experiment(<<"00010000">>),
-        experiment(<<"00008000">>),
-        experiment(<<"00004000">>),
-        experiment(<<"00002000">>),
-        experiment(<<"00001000">>),
-        experiment(<<"00000800">>),
-        experiment(<<"00000400">>),
-        experiment(<<"00000200">>),
-        experiment(<<"00000100">>),
-        experiment(<<"00000080">>),
-        experiment(<<"00000040">>),
-        experiment(<<"00000020">>),
-        experiment(<<"00000010">>),
-        experiment(<<"00000008">>),
-        experiment(<<"00000004">>),
-        experiment(<<"00000002">>),
-        experiment(<<"00000001">>)
+        experiment(Device, <<"00000001">>),
+        experiment(Device, <<"00000002">>),
+        experiment(Device, <<"00000004">>),
+        experiment(Device, <<"00000008">>),
+        experiment(Device, <<"00000010">>),
+        experiment(Device, <<"00000020">>),
+        experiment(Device, <<"00000040">>),
+        experiment(Device, <<"00000080">>),
+        experiment(Device, <<"00000100">>),
+        experiment(Device, <<"00000200">>),
+        experiment(Device, <<"00000400">>),
+        experiment(Device, <<"00000800">>),
+        experiment(Device, <<"00001000">>),
+        experiment(Device, <<"00002000">>),
+        experiment(Device, <<"00004000">>),
+        experiment(Device, <<"00008000">>),
+        experiment(Device, <<"00010000">>),
+        experiment(Device, <<"00020000">>),
+        experiment(Device, <<"00040000">>),
+        experiment(Device, <<"00080000">>),
+        experiment(Device, <<"00100000">>),
+        experiment(Device, <<"00200000">>),
+        experiment(Device, <<"00400000">>),
+        experiment(Device, <<"00800000">>),
+        experiment(Device, <<"01000000">>),
+        experiment(Device, <<"02000000">>),
+        experiment(Device, <<"04000000">>),
+        experiment(Device, <<"08000000">>),
+        experiment(Device, <<"10000000">>),
+        experiment(Device, <<"20000000">>),
+        experiment(Device, <<"40000000">>),
+        experiment(Device, <<"80000000">>)
     ],
     Matrix = matrix:build(Experiments),
     matrix:print(Matrix).
 
 %%--------------------------------------------------------------------
 
-experiment() ->
+experiment(Device) ->
     Title = <<"user code (default)">>,
-    io:format(" => ~s~n", [Title]),
+    io:format(" => ~s ~s~n", [Device, Title]),
     {ok, Cache} = quartus:cache(#{
         title => Title,
-        device => epm570_t100,
-        settings => <<
-            "set_location_assignment PIN_14 -to d\n"
-            "set_location_assignment PIN_15 -to q\n"
-            "set_location_assignment LC_X1_Y5_N0 -to lut\n"
-        >>,
+        device => Device,
+        settings => [
+            {location, d, pin14},
+            {location, q, pin15},
+            {location, lut, {lc, 1, 5, 0}}
+        ],
         vhdl => <<
             "library IEEE;\n"
             "use IEEE.STD_LOGIC_1164.ALL;\n"
@@ -95,18 +100,18 @@ experiment() ->
 
 %%--------------------------------------------------------------------
 
-experiment(Code) ->
+experiment(Device, Code) ->
     Title = <<"user code ", Code/binary>>,
-    io:format(" => ~s~n", [Title]),
+    io:format(" => ~s ~s~n", [Device, Title]),
     {ok, Cache} = quartus:cache(#{
         title => Title,
-        device => epm570_t100,
-        settings => <<
-            "set_global_assignment -name STRATIX_JTAG_USER_CODE ", Code/binary, "\n"
-            "set_location_assignment PIN_14 -to d\n"
-            "set_location_assignment PIN_15 -to q\n"
-            "set_location_assignment LC_X1_Y5_N0 -to lut\n"
-        >>,
+        device => Device,
+        settings => [
+            {user_code, Code},
+            {location, d, pin14},
+            {location, q, pin15},
+            {location, lut, {lc, 1, 5, 0}}
+        ],
         vhdl => <<
             "library IEEE;\n"
             "use IEEE.STD_LOGIC_1164.ALL;\n"

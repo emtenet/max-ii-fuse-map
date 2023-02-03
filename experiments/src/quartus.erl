@@ -10,9 +10,9 @@
 -type device() :: device:device().
 
 -type compile() :: #{
-    title => binary(),
+    title => atom() | binary(),
     device := device(),
-    settings := binary(),
+    settings := [setting()],
     vhdl := binary()
 }.
 
@@ -20,15 +20,9 @@
     {cache, hit, file:filename_all()} |
     {cache, miss, binary(), binary()}.
 
--define(SEPARATOR, <<"\n====================\n">>).
+-type setting() :: setting:setting().
 
--define(USER_CODE_MANUAL,
-    "set_global_assignment -name USE_CHECKSUM_AS_USERCODE Off\n"
-).
--define(USER_CODE_SETTING, <<" STRATIX_JTAG_USER_CODE ">>).
--define(USER_CODE_DEFAULT, <<
-    "set_global_assignment -name STRATIX_JTAG_USER_CODE 00000000\n"
->>).
+-define(SEPARATOR, <<"\n====================\n">>).
 
 %%====================================================================
 %% cache
@@ -38,10 +32,10 @@
 
 cache(Compile = #{device := Device0, settings := Settings0, vhdl := VHDL})
         when is_atom(Device0) andalso
-             is_binary(Settings0) andalso
+             is_list(Settings0) andalso
              is_binary(VHDL) ->
     Device = device:name(Device0),
-    Settings = compile_defaults(Settings0),
+    Settings = setting:encode(Settings0),
     Source = cache_source(Device, Settings, VHDL),
     CacheDir = cache_dir(Source),
     case cache_read_source(CacheDir) of
@@ -54,22 +48,6 @@ cache(Compile = #{device := Device0, settings := Settings0, vhdl := VHDL})
                 settings => Settings
             })
     end.
-
-%%--------------------------------------------------------------------
-
-compile_defaults(Settings) ->
-    UserCode = case binary:match(Settings, ?USER_CODE_SETTING) of
-        {_, _} ->
-            <<>>;
-
-        nomatch ->
-            ?USER_CODE_DEFAULT
-    end,
-    <<
-        ?USER_CODE_MANUAL,
-        UserCode/binary,
-        Settings/binary
-    >>.
 
 %%--------------------------------------------------------------------
 

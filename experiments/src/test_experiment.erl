@@ -10,12 +10,12 @@ run() ->
     {ok, Cache} = quartus:cache(#{
         title => <<"Test">>,
         device => epm570_t100,
-        settings => <<
-            "set_location_assignment PIN_12 -to clock\n"
-            "set_location_assignment PIN_14 -to input\n"
-            "set_location_assignment LC_X1_Y5_N0 -to ff\n"
-            "set_location_assignment PIN_15 -to output\n"
-        >>,
+        settings => [
+            {location, clock, pin12},
+            {location, input, pin14},
+            {location, output, pin15},
+            {location, ff, {lc, 1, 5, 0}}
+        ],
         vhdl => <<
             "library IEEE;\n"
             "use IEEE.STD_LOGIC_1164.ALL;\n"
