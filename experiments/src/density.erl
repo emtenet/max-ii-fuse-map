@@ -2,6 +2,7 @@
 
 -export([list/0]).
 -export([devices/1]).
+-export([largest_device/1]).
 -export([fuse_count/1]).
 -export([or_device/1]).
 -export([labs/1]).
@@ -62,6 +63,21 @@ devices(epm2210) ->
         epm2210_f256,
         epm2210_f324
     ].
+
+%%====================================================================
+%% largest_device
+%%====================================================================
+
+-spec largest_device(density()) -> device().
+
+largest_device(epm240) ->
+    epm240_t100;
+largest_device(epm570) ->
+    epm570_f256;
+largest_device(epm1270) ->
+    epm1270_m256;
+largest_device(epm2210) ->
+    epm2210_f324.
 
 %%====================================================================
 %% fuse_count
