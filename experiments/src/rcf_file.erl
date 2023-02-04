@@ -236,6 +236,9 @@ decode_signal(<<"CLK_BUFFER:", Line/binary>>) ->
 decode_signal(<<"GLOBAL_CLK_H:", Line/binary>>) ->
     {X, Y, S, I} = decode_coord(Line),
     {push, {global_clk_h, X, Y, S, I}};
+decode_signal(<<"IO_BYPASS_OUT:", Line/binary>>) ->
+    {X, Y, S, I} = decode_coord(Line),
+    {push, {io_bypass_out, X, Y, S, I}};
 decode_signal(<<"IO_DATAOUT:", Line/binary>>) ->
     {X, Y, S, I} = decode_coord(Line),
     {push, {io_data_out, X, Y, S, I}};
