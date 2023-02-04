@@ -30,16 +30,22 @@ name({ioc, X, Y, N}) ->
 
 -spec parse(binary()) -> ioc().
 
-parse(<<"IOC_X", X, "_Y", Y, "_N", N>>)
-        when ?IS_DIGIT(X) andalso ?IS_DIGIT(Y) andalso ?IS_DIGIT(N) ->
-    {ioc, X - $0, Y - $0, N};
-parse(<<"IOC_X", X, "_Y1", Y, "_N", N>>)
-        when ?IS_DIGIT(X) andalso ?IS_DIGIT(Y) andalso ?IS_DIGIT(N) ->
-    {ioc, X - $0, 10 + Y - $0, N};
-parse(<<"IOC_X1", X, "_Y", Y, "_N", N>>)
-        when ?IS_DIGIT(X) andalso ?IS_DIGIT(Y) andalso ?IS_DIGIT(N) ->
-    {ioc, 10 + X - $0, Y - $0, N};
-parse(<<"IOC_X1", X, "_Y1", Y, "_N", N>>)
-        when ?IS_DIGIT(X) andalso ?IS_DIGIT(Y) andalso ?IS_DIGIT(N) ->
-    {ioc, 10 + X - $0, 10 + Y - $0, N}.
+parse(<<"IOC_X", X, "_Y", Y, "_N", N>>) ->
+    {ioc, number(X), number(Y), number(N)};
+parse(<<"IOC_X", X, "_Y", Y10, Y1, "_N", N>>) ->
+    {ioc, number(X), number(Y10, Y1), number(N)};
+parse(<<"IOC_X", X10, X1, "_Y", Y, "_N", N>>) ->
+    {ioc, number(X10, X1), number(Y), number(N)};
+parse(<<"IOC_X", X10, X1, "_Y", Y10, Y1, "_N", N>>) ->
+    {ioc, number(X10, X1), number(Y10, Y1), number(N)}.
+
+%%--------------------------------------------------------------------
+
+number(D1) when ?IS_DIGIT(D1) ->
+    (D1 - $0).
+
+%%--------------------------------------------------------------------
+
+number(D10, D1) when ?IS_DIGIT(D10) andalso ?IS_DIGIT(D1) ->
+    (10 * (D10 - $0)) + (D1 - $0).
 

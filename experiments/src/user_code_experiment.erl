@@ -67,7 +67,7 @@ run(Density) ->
 experiment(Device) ->
     Title = <<"user code (default)">>,
     io:format(" => ~s ~s~n", [Device, Title]),
-    [Pin | _] = device:pins(Device),
+    [{Pin, _} | _] = device:pins(Device),
     [LAB | _] = device:labs(Device),
     LUT = lab:lc(LAB, 0),
     {ok, Cache} = quartus:cache(#{
@@ -108,7 +108,7 @@ experiment(Device) ->
 experiment(Device, Code, Bit) ->
     Title = {user_code, Bit},
     io:format(" => ~s ~p~n", [Device, Title]),
-    [Pin | _] = device:pins(Device),
+    [{Pin, _} | _] = device:pins(Device),
     [LAB | _] = device:labs(Device),
     LUT = lab:lc(LAB, 0),
     {ok, Cache} = quartus:cache(#{

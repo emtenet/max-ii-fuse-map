@@ -138,38 +138,39 @@ decode_name(Name) ->
 
 %%--------------------------------------------------------------------
 
-decode_coord(<<"X", X, "Y", Y, "S", S, "I", I, ";">>)
-        when ?IS_DIGIT(X) andalso ?IS_DIGIT(Y) andalso
-             ?IS_DIGIT(S) andalso ?IS_DIGIT(I) ->
-    {X - $0, Y - $0, S - $0, I - $0};
-decode_coord(<<"X", X, "Y", Y, "S", S, "I", I10, I, ";">>)
-        when ?IS_DIGIT(X) andalso ?IS_DIGIT(Y) andalso
-             ?IS_DIGIT(S) andalso ?IS_DIGIT(I) ->
-    {X - $0, Y - $0, S - $0, (10 * (I10 - $0)) + I - $0};
-decode_coord(<<"X", X, "Y1", Y, "S", S, "I", I, ";">>)
-        when ?IS_DIGIT(X) andalso ?IS_DIGIT(Y) andalso
-             ?IS_DIGIT(S) andalso ?IS_DIGIT(I) ->
-    {X - $0, 10 + Y - $0, S - $0, I - $0};
-decode_coord(<<"X", X, "Y1", Y, "S", S, "I", I10, I, ";">>)
-        when ?IS_DIGIT(X) andalso ?IS_DIGIT(Y) andalso
-             ?IS_DIGIT(S) andalso ?IS_DIGIT(I) ->
-    {X - $0, 10 + Y - $0, S - $0, (10 * (I10 - $0)) + I - $0};
-decode_coord(<<"X1", X, "Y", Y, "S", S, "I", I, ";">>)
-        when ?IS_DIGIT(X) andalso ?IS_DIGIT(Y) andalso
-             ?IS_DIGIT(S) andalso ?IS_DIGIT(I) ->
-    {10 + X - $0, Y - $0, S - $0, I - $0};
-decode_coord(<<"X1", X, "Y", Y, "S", S, "I", I10, I, ";">>)
-        when ?IS_DIGIT(X) andalso ?IS_DIGIT(Y) andalso
-             ?IS_DIGIT(S) andalso ?IS_DIGIT(I) ->
-    {10 + X - $0, Y - $0, S - $0, (10 * (I10 - $0)) + I - $0};
-decode_coord(<<"X1", X, "Y1", Y, "S", S, "I", I, ";">>)
-        when ?IS_DIGIT(X) andalso ?IS_DIGIT(Y) andalso
-             ?IS_DIGIT(S) andalso ?IS_DIGIT(I) ->
-    {10 + X - $0, 10 + Y - $0, S - $0, I - $0};
-decode_coord(<<"X1", X, "Y1", Y, "S", S, "I", I10, I, ";">>)
-        when ?IS_DIGIT(X) andalso ?IS_DIGIT(Y) andalso
-             ?IS_DIGIT(S) andalso ?IS_DIGIT(I) ->
-    {10 + X - $0, 10 + Y - $0, S - $0, (10 * (I10 - $0)) + I - $0}.
+decode_coord(<<"X", X10, X1, "Y", Rest/binary>>)
+        when ?IS_DIGIT(X10) andalso ?IS_DIGIT(X1) ->
+    decode_coord(Rest, (10 * (X10 - $0)) + (X1 - $0));
+decode_coord(<<"X", X, "Y", Rest/binary>>)
+        when ?IS_DIGIT(X) ->
+    decode_coord(Rest, X - $0).
+
+%%--------------------------------------------------------------------
+
+decode_coord(<<Y10, Y1, "S", Rest/binary>>, X)
+        when ?IS_DIGIT(Y10) andalso ?IS_DIGIT(Y1) ->
+    decode_coord(Rest, X, (10 * (Y10 - $0)) + (Y1 - $0));
+decode_coord(<<Y, "S", Rest/binary>>, X)
+        when ?IS_DIGIT(Y) ->
+    decode_coord(Rest, X, Y - $0).
+
+%%--------------------------------------------------------------------
+
+decode_coord(<<S10, S1, "I", Rest/binary>>, X, Y)
+        when ?IS_DIGIT(S10) andalso ?IS_DIGIT(S1) ->
+    decode_coord(Rest, X, Y, (10 * (S10 - $0)) + (S1 - $0));
+decode_coord(<<S, "I", Rest/binary>>, X, Y)
+        when ?IS_DIGIT(S) ->
+    decode_coord(Rest, X, Y, S - $0).
+
+%%--------------------------------------------------------------------
+
+decode_coord(<<I10, I1, ";">>, X, Y, S)
+        when ?IS_DIGIT(I10) andalso ?IS_DIGIT(I1) ->
+    {X, Y, S, (10 * (I10 - $0)) + (I1 - $0)};
+decode_coord(<<I, ";">>, X, Y, S)
+        when ?IS_DIGIT(I) ->
+    {X, Y, S, I - $0}.
 
 %%--------------------------------------------------------------------
 

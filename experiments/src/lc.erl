@@ -32,18 +32,24 @@ name({lc, X, Y, N}) ->
 
 -spec parse(binary()) -> lc().
 
-parse(<<"LC_X", X, "_Y", Y, "_N", N>>)
-        when ?IS_DIGIT(X) andalso ?IS_DIGIT(Y) andalso ?IS_DIGIT(N) ->
-    {lc, X - $0, Y - $0, N};
-parse(<<"LC_X", X, "_Y1", Y, "_N", N>>)
-        when ?IS_DIGIT(X) andalso ?IS_DIGIT(Y) andalso ?IS_DIGIT(N) ->
-    {lc, X - $0, 10 + Y - $0, N};
-parse(<<"LC_X1", X, "_Y", Y, "_N", N>>)
-        when ?IS_DIGIT(X) andalso ?IS_DIGIT(Y) andalso ?IS_DIGIT(N) ->
-    {lc, 10 + X - $0, Y - $0, N};
-parse(<<"LC_X1", X, "_Y1", Y, "_N", N>>)
-        when ?IS_DIGIT(X) andalso ?IS_DIGIT(Y) andalso ?IS_DIGIT(N) ->
-    {lc, 10 + X - $0, 10 + Y - $0, N}.
+parse(<<"LC_X", X, "_Y", Y, "_N", N>>) ->
+    {lc, number(X), number(Y), number(N)};
+parse(<<"LC_X", X, "_Y", Y10, Y1, "_N", N>>) ->
+    {lc, number(X), number(Y10, Y1), number(N)};
+parse(<<"LC_X", X10, X1, "_Y", Y, "_N", N>>) ->
+    {lc, number(X10, X1), number(Y), number(N)};
+parse(<<"LC_X", X10, X1, "_Y", Y10, Y1, "_N", N>>) ->
+    {lc, number(X10, X1), number(Y10, Y1), number(N)}.
+
+%%--------------------------------------------------------------------
+
+number(D1) when ?IS_DIGIT(D1) ->
+    (D1 - $0).
+
+%%--------------------------------------------------------------------
+
+number(D10, D1) when ?IS_DIGIT(D10) andalso ?IS_DIGIT(D1) ->
+    (10 * (D10 - $0)) + (D1 - $0).
 
 %%====================================================================
 %% lab
