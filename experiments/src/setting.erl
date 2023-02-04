@@ -19,7 +19,9 @@
     {io_standard, signal(), io_standard()} |
     {weak_pull_up, signal(), boolean()} |
     % location
-    {location, signal(), lc_or_pin()}.
+    {location, signal(), lc_or_pin()} |
+    %
+    {raw, binary()}.
 
 -type signal() :: atom() | binary().
 
@@ -92,7 +94,11 @@ setting({io_standard, Signal, Value}) ->
 setting({weak_pull_up, Signal, Value}) ->
     instance(<<"WEAK_PULL_UP_RESISTOR">>, Signal, boolean(Value));
 setting({location, Signal, Value}) ->
-    location(Signal, lc_or_pin(Value)).
+    location(Signal, lc_or_pin(Value));
+setting({raw, Line}) ->
+    Size = byte_size(Line) - 1,
+    <<_:Size/binary, "\n">> = Line,
+    Line.
 
 %%--------------------------------------------------------------------
 
