@@ -82,10 +82,10 @@ dir(Source) ->
 make_dir(Dir) ->
     case file:make_dir(Dir) of
         ok ->
-            Dir;
+            ok;
 
         {error, eexist} ->
-            Dir
+            ok
     end.
 
 %%--------------------------------------------------------------------
