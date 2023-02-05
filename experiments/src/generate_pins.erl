@@ -165,7 +165,7 @@ device_pins([{Enum, IOC} | Pins], Lines) ->
 
 device_pin(Device, {_, Enum, Name}) ->
     io:format(" => ~s ~s~n", [Device, Enum]),
-    {ok, Cache} = quartus:cache(#{
+    {ok, Experiment} = experiment:compile(#{
         title => Enum,
         device => Device,
         settings => [
@@ -194,7 +194,7 @@ device_pin(Device, {_, Enum, Name}) ->
             "end behavioral;\n"
         >>
     }),
-    {ok, RCF} = quartus:rcf(Cache),
+    {ok, RCF} = experiment:rcf(Experiment),
     #{signals := #{lut := #{dests := [Dest]}}} = RCF,
     #{ioc := IOC, port := data_in} = Dest,
     {Enum, IOC}.

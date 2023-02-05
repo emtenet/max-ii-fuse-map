@@ -13,7 +13,7 @@ run() ->
 
 experiment(Device) ->
     Title = <<"fuse count">>,
-    {ok, Cache} = quartus:cache(#{
+    {ok, Experiment} = experiment:compile(#{
         title => Title,
         device => Device,
         settings => [],
@@ -41,7 +41,7 @@ experiment(Device) ->
             "end behavioral;\n"
         >>
     }),
-    {ok, POF} = quartus:pof(Cache),
+    {ok, POF} = experiment:pof(Experiment),
     FuseCount = pof_file:fuse_count(POF),
     Density = device:density(Device),
     FuseCount = density:fuse_count(Density),
