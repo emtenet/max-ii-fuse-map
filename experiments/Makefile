@@ -1,6 +1,7 @@
 PROJECT = experiments
 PROJECT_DESCRIPTION = Altera MAX II Fuse Map (experiments)
 PROJECT_VERSION = 1.0.0
+PROJECT_MOD = experiments
 
 ERLC_OPTS = -Werror \
  +warn_bif_clash \
@@ -17,7 +18,7 @@ ERLC_OPTS = -Werror \
  +warn_unused_vars \
  +debug_info
 
-SHELL_OPTS = -setcookie michael -sname experiments
+SHELL_OPTS = -setcookie michael -sname experiments -run experiments
 
 TEST_DEPS = solarized
 dep_solarized = git https://github.com/emtenet/erlang-solarized.git master
