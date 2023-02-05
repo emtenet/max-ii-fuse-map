@@ -28,8 +28,8 @@
     epm2210_f256 |
     epm2210_f324.
 
+-type ioc() :: ioc:ioc().
 -type lab() :: lab:lab().
--type lc() :: lc:lc().
 -type package() :: package:package().
 -type pin() :: pin:pin().
 
@@ -141,7 +141,7 @@ package(epm2210_f324) -> f324.
 %% pins
 %%====================================================================
 
--spec pins(device()) -> [{pin(), lc()}].
+-spec pins(device()) -> [{pin(), ioc()}].
 
 pins(epm240_m100) -> epm240_m100:pins();
 pins(epm240_f100) -> epm240_f100:pins();

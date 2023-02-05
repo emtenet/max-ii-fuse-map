@@ -102,7 +102,7 @@ pin_file(Pins) ->
 %%--------------------------------------------------------------------
 
 pin_type([], [[Line, <<" |\n">>] | Lines]) ->
-    lists:reverse(Lines, [Line | <<".\n">>]);
+    lists:reverse(Lines, [Line, <<".\n">>]);
 pin_type([{_, Enum, _} | Pins], Lines) ->
     Line = [
         <<"    ", Enum/binary>>,
@@ -113,7 +113,7 @@ pin_type([{_, Enum, _} | Pins], Lines) ->
 %%--------------------------------------------------------------------
 
 pin_func([], [[Line, <<";\n">>] | Lines]) ->
-    lists:reverse(Lines, [Line | <<".\n">>]);
+    lists:reverse(Lines, [Line, <<".\n">>]);
 pin_func([{_, Enum, Name} | Pins], Lines) ->
     Line = [
         <<"name(", Enum/binary, ") -> <<\"", Name/binary, "\">>">>,
@@ -132,10 +132,10 @@ device_file({Device, Pins0}) ->
         "\n"
         "-export([pins/0]).\n"
         "\n"
-        "-type lc() :: lc:lc().\n"
+        "-type ioc() :: ioc:ioc().\n"
         "-type pin() :: pin:pin().\n"
         "\n"
-        "-spec pins() -> [{pin(), lc()}].\n"
+        "-spec pins() -> [{pin(), ioc()}].\n"
         "\n"
         "pins() ->\n">>,
         device_pins(Pins, []), <<
@@ -148,7 +148,7 @@ device_file({Device, Pins0}) ->
 %%--------------------------------------------------------------------
 
 device_pins([], [[Indent, Last, <<",\n">>] | Lines0]) ->
-    Lines1 = lists:reverse(Lines0, [Indent, Last | <<"\n    ].\n">>]),
+    Lines1 = lists:reverse(Lines0, [Indent, Last, <<"\n    ].\n">>]),
     [[<<"     ">>, First, <<",\n">>] | Lines] = Lines1,
     [<<"    [">>, First, <<",\n">> | Lines];
 device_pins([{Enum, IOC} | Pins], Lines) ->

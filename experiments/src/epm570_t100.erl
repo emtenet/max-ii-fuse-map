@@ -2,10 +2,10 @@
 
 -export([pins/0]).
 
--type lc() :: lc:lc().
+-type ioc() :: ioc:ioc().
 -type pin() :: pin:pin().
 
--spec pins() -> [{pin(), lc()}].
+-spec pins() -> [{pin(), ioc()}].
 
 pins() ->
     [{pin1,{ioc,3,8,3}},
