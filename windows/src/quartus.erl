@@ -32,22 +32,38 @@ start_link() ->
 %% gen_server
 %%====================================================================
 
+-type dir() :: string().
+-type job_ref() :: reference().
+-type monitor_ref() :: reference().
+
+-record(job, {
+    dir :: dir(),
+    from :: term(),
+    monitor :: monitor_ref()
+}).
+
 -record(state, {
-    dir :: string()
+    dir :: dir(),
+    dirs :: #{dir() => job_ref()},
+    jobs :: #{job_ref() => #job{}},
+    monitors :: #{monitor_ref() => job_ref()}
 }).
 
 %%--------------------------------------------------------------------
 
 init(undefined) ->
     State = #state{
-        dir = dir_first()
+        dir = dir_first(),
+        dirs = #{},
+        jobs = #{},
+        monitors = #{}
     },
     {ok, State}.
 
 %%--------------------------------------------------------------------
 
-handle_call({compile, Compile}, _From, State = #state{dir = Dir}) ->
-    {reply, compile(Dir, Compile), State#state{dir = dir_next(Dir)}};
+handle_call({compile, Compile}, From, State) ->
+    {noreply, compile(Compile, self(), From, State)};
 handle_call(stop, _From, State) ->
     {stop, normal, ok, State}.
 
@@ -58,7 +74,31 @@ handle_cast(_Cast, State) ->
 
 %%--------------------------------------------------------------------
 
-handle_info(_Info, State) ->
+handle_info({'DOWN', MonitorRef, process, _, _}, State = #state{}) ->
+    case State#state.monitors of
+        #{MonitorRef := JobRef} ->
+            #{JobRef := Job} = State#state.jobs,
+            ok = gen_server:reply(Job#job.from, {error, 'DOWN'}),
+            {noreply, State#state{
+                dirs = maps:remove(Job#job.dir, State#state.dirs),
+                jobs = maps:remove(JobRef, State#state.jobs),
+                monitors = maps:remove(MonitorRef, State#state.monitors)
+            }};
+
+        _ ->
+            {noreply, State}
+    end;
+handle_info({compile, JobRef, Reply}, State) ->
+    #{JobRef := Job} = State#state.jobs,
+    true = demonitor(Job#job.monitor, [flush]),
+    ok = gen_server:reply(Job#job.from, Reply),
+    {noreply, State#state{
+        dirs = maps:remove(Job#job.dir, State#state.dirs),
+        jobs = maps:remove(JobRef, State#state.jobs),
+        monitors = maps:remove(Job#job.monitor, State#state.monitors)
+    }};
+handle_info(Info, State) ->
+    io:format("info ~p~n", [Info]),
     {noreply, State}.
 
 %%--------------------------------------------------------------------
@@ -84,6 +124,31 @@ dir_next("z") ->
     "a";
 dir_next([C]) ->
     [C + 1].
+
+%%--------------------------------------------------------------------
+
+dir_next_free(Dir, Dirs) when is_map_key(Dir, Dirs) ->
+    dir_next_free(dir_next(Dir), Dirs);
+dir_next_free(Dir, _) ->
+    Dir.
+
+%%--------------------------------------------------------------------
+
+compile(Compile, Self, From, State = #state{dir = Dir0, dirs = Dirs}) ->
+    Dir = dir_next_free(Dir0, Dirs),
+    JobRef = make_ref(),
+    {_Pid, MonitorRef} = spawn_monitor(fun () ->
+        Self ! {compile, JobRef, compile(Dir, Compile)}
+    end),
+    Jobs = State#state.jobs,
+    Monitors = State#state.monitors,
+    Job = #job{dir = Dir, from = From, monitor = MonitorRef},
+    State#state{
+        dir = dir_next(Dir),
+        dirs = Dirs#{Dir => JobRef},
+        jobs = Jobs#{JobRef => Job},
+        monitors = Monitors#{MonitorRef => JobRef}
+    }.
 
 %%--------------------------------------------------------------------
 
