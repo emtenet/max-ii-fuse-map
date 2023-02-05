@@ -2,6 +2,7 @@
 
 -export([compile/1]).
 -export([compile_to_fuses/1]).
+-export([flush/1]).
 -export([pof/1]).
 -export([rcf/1]).
 
@@ -33,6 +34,15 @@
 -spec compile(compile()) -> {ok, result()} | error;
              ([compile()]) -> {ok, [result()]} | error.
 
+compile(Compile) when is_map(Compile) ->
+    Source = experiment_compile:prepare(Compile),
+    case compile_sources([Source]) of
+        {ok, [Result]} ->
+            {ok, Result};
+
+        error ->
+            error
+    end;
 compile(Compiles) when is_list(Compiles) ->
     Sources = lists:map(fun experiment_compile:prepare/1, Compiles),
     compile_sources(Sources).
@@ -41,7 +51,7 @@ compile(Compiles) when is_list(Compiles) ->
 
 compile_sources(Sources) ->
     Start = erlang:system_time(millisecond),
-    Answer = gen_server:call(experiment_server, {compile, Sources}, 10000),
+    Answer = gen_server:call(experiment_server, {compile, Sources}, 20000),
     Stop = erlang:system_time(millisecond),
     io:format(" ==> ~ps~n", [(Stop - Start) / 1000]),
     Answer.
@@ -70,6 +80,20 @@ compile_to_fuses([Compile | Compiles], [Result | Results], Answers) ->
     {ok, Fuses} = fuses(Result),
     Answer = {Title, Fuses},
     compile_to_fuses(Compiles, Results, [Answer | Answers]).
+
+%%====================================================================
+%% flush
+%%====================================================================
+
+-spec flush(compile()) -> ok;
+           ([compile()]) -> ok.
+
+flush(Compile) when is_map(Compile) ->
+    Source = experiment_compile:prepare(Compile),
+    experiment_cache:flush(Source);
+flush(Compiles) when is_list(Compiles) ->
+    Sources = lists:map(fun experiment_compile:prepare/1, Compiles),
+    lists:foreach(fun experiment_cache:flush/1, Sources).
 
 %%====================================================================
 %% fuses

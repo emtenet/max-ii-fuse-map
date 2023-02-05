@@ -2,6 +2,8 @@
 
 -export([load/1]).
 -export([store/2]).
+-export([flush/1]).
+
 -export([read_pof/1]).
 -export([read_rcf/1]).
 
@@ -11,6 +13,8 @@
 
 -type files() :: experiment_compile:files().
 -type source() :: experiment_compile:source().
+
+-include_lib("kernel/include/file.hrl").
 
 %%====================================================================
 %% load
@@ -36,10 +40,22 @@ load(#{device := Device, settings := Settings, vhdl := VHDL}) ->
 -spec store(slot(), files()) -> experiment:result().
 
 store({slot, Source, Dir}, #{pof := POF, rcf := RCF}) ->
+    make_dir(Dir),
     write_pof(Dir, POF),
     write_rcf(Dir, RCF),
     write_source(Dir, Source),
     {compiled, POF, RCF}.
+
+%%====================================================================
+%% flush
+%%====================================================================
+
+-spec flush(source()) -> ok.
+
+flush(#{device := Device, settings := Settings, vhdl := VHDL}) ->
+    Source = source(Device, Settings, VHDL),
+    Dir = dir(Source),
+    ok = rm_dir(Dir).
 
 %%====================================================================
 %% internal
@@ -59,7 +75,7 @@ source(Device, Settings, VHDL) ->
 dir(Source) ->
     Hash = crypto:hash(sha256, Source),
     Base64 = base64url:encode(Hash),
-    make_dir(filename:join("cache", Base64)).
+    filename:join("cache", Base64).
 
 %%--------------------------------------------------------------------
 
@@ -70,6 +86,47 @@ make_dir(Dir) ->
 
         {error, eexist} ->
             Dir
+    end.
+
+%%--------------------------------------------------------------------
+
+rm_dir(Dir) ->
+    case file:list_dir_all(Dir) of
+        {ok, Names} ->
+            rm_dir(Dir, Names);
+
+        {error, enoent} ->
+            ok;
+
+        Error ->
+            Error
+    end.
+
+%%--------------------------------------------------------------------
+
+rm_dir(Dir, []) ->
+    file:del_dir(Dir);
+rm_dir(Dir, [Name | Names]) ->
+    case rm_file(filename:join(Dir, Name)) of
+        ok ->
+            rm_dir(Dir, Names);
+
+        Error ->
+            Error
+    end.
+
+%%--------------------------------------------------------------------
+
+rm_file(File) ->
+    case file:read_link_info(File) of
+        {ok, #file_info{type = directory}} ->
+            rm_dir(File);
+
+        {ok, _} ->
+            file:delete(File);
+
+        Error ->
+            Error
     end.
 
 %%--------------------------------------------------------------------
