@@ -4,6 +4,7 @@
 
 -export_type([setting/0]).
 
+-export_type([current_strength/0]).
 -export_type([io_standard/0]).
 -export_type([unused_pins/0]).
 
@@ -15,6 +16,7 @@
     {user_code, binary()} |
     % instance
     {bus_hold, signal(), boolean()} |
+    {current_strength, signal(), current_strength()} |
     {global_clock, signal(), boolean()} |
     {io_standard, signal(), io_standard()} |
     {weak_pull_up, signal(), boolean()} |
@@ -24,6 +26,10 @@
     {raw, binary()}.
 
 -type signal() :: atom() | binary().
+
+-type current_strength() ::
+    minimum |
+    maximum.
 
 -type io_standard() ::
     v1_5 |
@@ -87,6 +93,8 @@ setting({user_code, Value}) ->
     global(<<"STRATIX_JTAG_USER_CODE">>, Value);
 setting({bus_hold, Signal, Value}) ->
     instance(<<"ENABLE_BUS_HOLD_CIRCUITRY">>, Signal, boolean(Value));
+setting({current_strength, Signal, Value}) ->
+    instance(<<"CURRENT_STRENGTH_NEW">>, Signal, current_strength(Value));
 setting({global_clock, Signal, Value}) ->
     instance(<<"GLOBAL_SIGNAL">>, Signal, global_clock(Value));
 setting({io_standard, Signal, Value}) ->
@@ -138,6 +146,13 @@ boolean(true) ->
     <<"On">>;
 boolean(false) ->
     <<"Off">>.
+
+%%--------------------------------------------------------------------
+
+current_strength(minimum) ->
+    <<"\"Minimum current\"">>;
+current_strength(maximum) ->
+    <<"\"Maximum current\"">>.
 
 %%--------------------------------------------------------------------
 
