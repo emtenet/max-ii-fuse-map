@@ -21,4 +21,6 @@ My experiments are being run in the following
  * [User code](experiments/src/user_code_experiment.erl)
  * [Fuse count](experiments/src/fuse_count_experiment.erl)
  * [Generate pins](experiments/src/generate_pins.erl)
+ * [Bus-hold](experiments/src/bus_hold_experiment.erl)
+ * [Weak pull-up](experiments/src/weak_pull_up_experiment.erl)
 
