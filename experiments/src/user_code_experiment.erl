@@ -13,16 +13,19 @@ run() ->
 
 run(Density) ->
     Device = density:largest_device(Density),
-    {_, Zeros} = experiment(Device, <<"00000000">>, none),
-    {_, Ones} = experiment(Device, <<"FFFFFFFF">>, all),
+    {ok, Controls} = experiment:compile_to_fuses([
+        experiment(Device, <<"00000000">>, none),
+        experiment(Device, <<"FFFFFFFF">>, all),
+        experiment(Device)
+    ]),
+    [{_, Zeros}, {_, Ones}, {_, Default}] = Controls,
     io:format("00000000 => ~p fuses~n", [length(Zeros)]),
     io:format("FFFFFFFF => ~p fuses~n", [length(Ones)]),
     Shortest = length(Zeros),
     Shortest = length(Ones) - 32,
-    {_, Default} = experiment(Device),
     % want default with least amount of fuses
     Zeros = Default,
-    Experiments = [
+    {ok, Experiments} = experiment:compile_to_fuses([
         experiment(Device, <<"00000001">>, 0),
         experiment(Device, <<"00000002">>, 1),
         experiment(Device, <<"00000004">>, 2),
@@ -55,7 +58,7 @@ run(Density) ->
         experiment(Device, <<"20000000">>, 29),
         experiment(Device, <<"40000000">>, 30),
         experiment(Device, <<"80000000">>, 31)
-    ],
+    ]),
     Matrix = matrix:build(Experiments),
     matrix:print(Matrix),
     Fuses = matrix:singles(Matrix),
@@ -65,13 +68,11 @@ run(Density) ->
 %%--------------------------------------------------------------------
 
 experiment(Device) ->
-    Title = <<"user code (default)">>,
-    io:format(" => ~s ~s~n", [Device, Title]),
     [{Pin, _} | _] = device:pins(Device),
     [LAB | _] = device:labs(Device),
     LUT = lab:lc(LAB, 0),
-    {ok, Cache} = quartus:cache(#{
-        title => Title,
+    #{
+        title => {user_code, default},
         device => Device,
         settings => [
             {location, q, Pin},
@@ -99,20 +100,16 @@ experiment(Device) ->
             "  );\n"
             "end behavioral;\n"
         >>
-    }),
-    {ok, POF} = quartus:pof(Cache),
-    {Title, pof_file:fuses(POF)}.
+    }.
 
 %%--------------------------------------------------------------------
 
 experiment(Device, Code, Bit) ->
-    Title = {user_code, Bit},
-    io:format(" => ~s ~p~n", [Device, Title]),
     [{Pin, _} | _] = device:pins(Device),
     [LAB | _] = device:labs(Device),
     LUT = lab:lc(LAB, 0),
-    {ok, Cache} = quartus:cache(#{
-        title => Title,
+    #{
+        title => {user_code, Bit},
         device => Device,
         settings => [
             {user_code, Code},
@@ -141,7 +138,5 @@ experiment(Device, Code, Bit) ->
             "  );\n"
             "end behavioral;\n"
         >>
-    }),
-    {ok, POF} = quartus:pof(Cache),
-    {Title, pof_file:fuses(POF)}.
+    }.
 

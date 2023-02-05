@@ -26,11 +26,11 @@
 %%====================================================================
 
 run() ->
-    Experiments = [
+    {ok, Experiments} = experiment:compile_to_fuses([
         not_global(),
         setting_global(),
         primitive_global()
-    ],
+    ]),
     Matrix = matrix:build(Experiments),
     false = matrix:is_empty(Matrix),
     matrix:print(Matrix).
@@ -38,10 +38,8 @@ run() ->
 %%--------------------------------------------------------------------
 
 not_global() ->
-    Title = <<"not global">>,
-    io:format(" => ~s~n", [Title]),
-    {ok, Cache} = quartus:cache(#{
-        title => Title,
+    #{
+        title => not_global,
         device => epm570_t100,
         settings => [
             %{auto_global_clock, false},
@@ -75,18 +73,13 @@ not_global() ->
             "  );\n"
             "end behavioral;\n"
         >>
-    }),
-    {ok, POF} = quartus:pof(Cache),
-    {Title, pof_file:fuses(POF)}.
-
+    }.
 
 %%--------------------------------------------------------------------
 
 setting_global() ->
-    Title = <<"setting global">>,
-    io:format(" => ~s~n", [Title]),
-    {ok, Cache} = quartus:cache(#{
-        title => Title,
+    #{
+        title => setting_global,
         device => epm570_t100,
         settings => [
             %{auto_global_clock, false},
@@ -121,18 +114,13 @@ setting_global() ->
             "  );\n"
             "end behavioral;\n"
         >>
-    }),
-    {ok, POF} = quartus:pof(Cache),
-    {Title, pof_file:fuses(POF)}.
-
+    }.
 
 %%--------------------------------------------------------------------
 
 primitive_global() ->
-    Title = <<"primitive global">>,
-    io:format(" => ~s~n", [Title]),
-    {ok, Cache} = quartus:cache(#{
-        title => Title,
+    #{
+        title => primitive_global,
         device => epm570_t100,
         settings => [
             %{auto_global_clock, false},
@@ -171,8 +159,5 @@ primitive_global() ->
             "  );\n"
             "end behavioral;\n"
         >>
-    }),
-    {ok, POF} = quartus:pof(Cache),
-    {Title, pof_file:fuses(POF)}.
-
+    }.
 
