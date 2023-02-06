@@ -4,7 +4,13 @@
 -export([build/2]).
 -export([is_empty/1]).
 -export([singles/1]).
+-export([pattern/2]).
 -export([print/1]).
+
+-export_type([experiment/0]).
+-export_type([experiment_name/0]).
+-export_type([matrix/0]).
+-export_type([pattern/0]).
 
 -type fuse() :: fuses:fuse().
 -type fuse_name() :: fuses:name() | undefined.
@@ -18,7 +24,8 @@
     {experiment_name(), [fuse()], rcf_file:rcf()}.
 
 -type matrix() ::
-    {matrix, [experiment_name()], [{fuse(), [off | on], fuse_name()}]}.
+    {matrix, [experiment_name()], [{fuse(), pattern(), fuse_name()}]}.
+-type pattern() :: [0 | 1].
 
 %%====================================================================
 %% build
@@ -127,9 +134,9 @@ build_row(Results, Fuse, Name) ->
 build_row([], Fuse, Name, Row) ->
     {Fuse, lists:reverse(Row), Name};
 build_row([[Fuse | _] | Results], Fuse, Name, Row) ->
-    build_row(Results, Fuse, Name, [on | Row]);
+    build_row(Results, Fuse, Name, [1 | Row]);
 build_row([_ | Results], Fuse, Name, Row) ->
-    build_row(Results, Fuse, Name, [off | Row]).
+    build_row(Results, Fuse, Name, [0 | Row]).
 
 %%====================================================================
 %% is_empty
@@ -168,19 +175,37 @@ singles([{Fuse, Bits, _Name} | Fuses], Names, Singles) ->
 
 single([], []) ->
     false;
-single([off | Bits], [_ | Names]) ->
+single([0 | Bits], [_ | Names]) ->
     single(Bits, Names);
-single([on | Bits], [Name | _]) ->
+single([1 | Bits], [Name | _]) ->
     single_ok(Name, Bits).
 
 %%--------------------------------------------------------------------
 
 single_ok(Name, []) ->
     {ok, Name};
-single_ok(_, [on | _]) ->
+single_ok(_, [1 | _]) ->
     false;
-single_ok(Name, [off | Bits]) ->
+single_ok(Name, [0 | Bits]) ->
     single_ok(Name, Bits).
+
+%%====================================================================
+%% pattern
+%%====================================================================
+
+-spec pattern(matrix(), pattern()) -> [fuse()].
+
+pattern({matrix, _, Fuses}, Pattern) ->
+    pattern(Fuses, Pattern, []).
+
+%%--------------------------------------------------------------------
+
+pattern([], _, Found) ->
+    lists:reverse(Found);
+pattern([{Fuse, Pattern, _} | Fuses], Pattern, Found) ->
+    pattern(Fuses, Pattern, [Fuse | Found]);
+pattern([_ | Fuses], Pattern, Found) ->
+    pattern(Fuses, Pattern, Found).
 
 %%====================================================================
 %% print
@@ -251,10 +276,10 @@ print_rows([{Fuse, Fuses, Name} | Rows]) ->
 
 print_fuses([]) ->
     ok;
-print_fuses([on | Fuses]) ->
+print_fuses([1 | Fuses]) ->
     io:format("*|", []),
     print_fuses(Fuses);
-print_fuses([off | Fuses]) ->
+print_fuses([0 | Fuses]) ->
     io:format(" |", []),
     print_fuses(Fuses).
 
