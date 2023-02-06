@@ -23,4 +23,5 @@ My experiments are being run in the following
  * [Generate pins](experiments/src/generate_pins.erl)
  * [Bus-hold](experiments/src/bus_hold_experiment.erl)
  * [Weak pull-up](experiments/src/weak_pull_up_experiment.erl)
+ * [LUT](experiments/src/lut_experiment.erl)
 
