@@ -1,18 +1,24 @@
 -module(matrix).
 
 -export([build/1]).
+-export([build/2]).
 -export([is_empty/1]).
 -export([singles/1]).
 -export([print/1]).
 
 -type fuse() :: fuses:fuse().
+-type fuse_name() :: fuses:name() | undefined.
+
+-type density() :: density:density().
+-type device() :: device:device().
 
 -type experiment_name() :: atom() | binary() | string().
 -type experiment() ::
     {experiment_name(), [fuse()]} |
     {experiment_name(), [fuse()], rcf_file:rcf()}.
 
--type matrix() :: {matrix, [experiment_name()], [{fuse(), [off | on]}]}.
+-type matrix() ::
+    {matrix, [experiment_name()], [{fuse(), [off | on], fuse_name()}]}.
 
 %%====================================================================
 %% build
@@ -21,9 +27,25 @@
 -spec build([experiment()]) -> matrix().
 
 build(Experiments) ->
+    Database = fuse_database:empty(),
+    build_with(Database, Experiments).
+
+%%====================================================================
+%% build
+%%====================================================================
+
+-spec build(density() | device(), [experiment()]) -> matrix().
+
+build(DensityOrDevice, Experiments) ->
+    Database = fuse_database:read(DensityOrDevice),
+    build_with(Database, Experiments).
+
+%%--------------------------------------------------------------------
+
+build_with(Database, Experiments) ->
     Names = lists:map(fun build_name/1, Experiments),
     Results = lists:map(fun build_result/1, Experiments),
-    Matrix = build_diff(Results, []),
+    Matrix = build_diff(Results, Database, []),
     {matrix, Names, Matrix}.
 
 %%--------------------------------------------------------------------
@@ -42,7 +64,7 @@ build_result({_, Result, _}) ->
 
 %%--------------------------------------------------------------------
 
-build_diff(Results, Matrix) ->
+build_diff(Results, Database, Matrix) ->
     case build_min_max(Results) of
         finished ->
             lists:reverse(Matrix);
@@ -50,13 +72,16 @@ build_diff(Results, Matrix) ->
         {Fuse, Fuse} ->
             build_diff(
                 build_drop(Results, Fuse),
+                Database,
                 Matrix
              );
 
         {Fuse, _} ->
+            Name = fuse_database:name(Fuse, Database),
             build_diff(
                 build_drop(Results, Fuse),
-                [build_row(Results, Fuse) | Matrix]
+                Database,
+                [build_row(Results, Fuse, Name) | Matrix]
              )
     end.
 
@@ -94,17 +119,17 @@ build_drop([Tail | Heads], Drop, Tails) ->
 
 %%--------------------------------------------------------------------
 
-build_row(Results, Fuse) ->
-    build_row(Results, Fuse, []).
+build_row(Results, Fuse, Name) ->
+    build_row(Results, Fuse, Name, []).
 
 %%--------------------------------------------------------------------
 
-build_row([], Fuse, Row) ->
-    {Fuse, lists:reverse(Row)};
-build_row([[Fuse | _] | Results], Fuse, Row) ->
-    build_row(Results, Fuse, [on | Row]);
-build_row([_ | Results], Fuse, Row) ->
-    build_row(Results, Fuse, [off | Row]).
+build_row([], Fuse, Name, Row) ->
+    {Fuse, lists:reverse(Row), Name};
+build_row([[Fuse | _] | Results], Fuse, Name, Row) ->
+    build_row(Results, Fuse, Name, [on | Row]);
+build_row([_ | Results], Fuse, Name, Row) ->
+    build_row(Results, Fuse, Name, [off | Row]).
 
 %%====================================================================
 %% is_empty
@@ -130,7 +155,7 @@ singles({matrix, Names, Fuses}) ->
 
 singles([], _, Singles) ->
     lists:reverse(Singles);
-singles([{Fuse, Bits} | Fuses], Names, Singles) ->
+singles([{Fuse, Bits, _Name} | Fuses], Names, Singles) ->
     case single(Bits, Names) of
         {ok, Name} ->
             singles(Fuses, Names, [{Fuse, Name} | Singles]);
@@ -210,10 +235,16 @@ print_header([_ | Names], Key) ->
 
 print_rows([]) ->
     ok;
-print_rows([{Fuse, Fuses} | Rows]) ->
+print_rows([{Fuse, Fuses, Name} | Rows]) ->
     io:format("~6b |", [Fuse]),
     print_fuses(Fuses),
-    io:format("~n", []),
+    case Name of
+        _ when is_integer(Name) ->
+            io:format("~n", []);
+
+        _ ->
+            io:format(" ~p~n", [Name])
+    end,
     print_rows(Rows).
 
 %%--------------------------------------------------------------------
