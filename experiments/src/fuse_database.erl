@@ -122,9 +122,11 @@ update_merge([], true, File, Map) ->
     update_file(File, Map);
 update_merge([{Fuse, Name} | Fuses], Changed, File, Map) ->
     case Map of
-        #{Fuse := Existing} ->
-            Name = Existing,
+        #{Fuse := Existing} when Name =:= Existing ->
             update_merge(Fuses, Changed, File, Map);
+
+        #{Fuse := Existing} ->
+            throw({fuse_database, Fuse, existing, Existing, new, Name});
 
         _ ->
             update_merge(Fuses, true, File, Map#{Fuse => Name})
