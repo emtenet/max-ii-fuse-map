@@ -19,10 +19,14 @@ name({lab, X, Y}) when X < 10 andalso Y < 10 ->
     <<"LAB_X", (X + $0), "_Y", (Y + $0)>>;
 name({lab, X, Y}) when X < 10 ->
     <<"LAB_X", (X + $0), "_Y1", ((Y rem 10) + $0)>>;
-name({lab, X, Y}) when Y < 10 ->
+name({lab, X, Y}) when X < 20 andalso Y < 10 ->
     <<"LAB_X1", ((X rem 10) + $0), "_Y", (Y + $0)>>;
+name({lab, X, Y}) when Y < 10 ->
+    <<"LAB_X2", ((X rem 10) + $0), "_Y", (Y + $0)>>;
+name({lab, X, Y}) when X < 20 ->
+    <<"LAB_X1", ((X rem 10) + $0), "_Y1", ((Y rem 10) + $0)>>;
 name({lab, X, Y}) ->
-    <<"LAB_X1", ((X rem 10) + $0), "_Y1", ((Y rem 10) + $0)>>.
+    <<"LAB_X2", ((X rem 10) + $0), "_Y1", ((Y rem 10) + $0)>>.
 
 %%====================================================================
 %% lcs
