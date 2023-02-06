@@ -8,7 +8,9 @@
 -type fuse() :: fuses:fuse().
 
 -type experiment_name() :: atom() | binary() | string().
--type experiment() :: {experiment_name(), [fuse()]}.
+-type experiment() ::
+    {experiment_name(), [fuse()]} |
+    {experiment_name(), [fuse()], rcf_file:rcf()}.
 
 -type matrix() :: {matrix, [experiment_name()], [{fuse(), [off | on]}]}.
 
@@ -19,10 +21,24 @@
 -spec build([experiment()]) -> matrix().
 
 build(Experiments) ->
-    Names = [ Name || {Name, _} <- Experiments ],
-    Results = [ Result || {_, Result} <- Experiments ],
+    Names = lists:map(fun build_name/1, Experiments),
+    Results = lists:map(fun build_result/1, Experiments),
     Matrix = build_diff(Results, []),
     {matrix, Names, Matrix}.
+
+%%--------------------------------------------------------------------
+
+build_name({Name, _}) ->
+    Name;
+build_name({Name, _, _}) ->
+    Name.
+
+%%--------------------------------------------------------------------
+
+build_result({_, Result}) ->
+    Result;
+build_result({_, Result, _}) ->
+    Result.
 
 %%--------------------------------------------------------------------
 

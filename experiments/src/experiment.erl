@@ -2,6 +2,7 @@
 
 -export([compile/1]).
 -export([compile_to_fuses/1]).
+-export([compile_to_fuses_and_rcf/1]).
 -export([flush/1]).
 -export([pof/1]).
 -export([rcf/1]).
@@ -82,6 +83,33 @@ compile_to_fuses([Compile | Compiles], [Result | Results], Answers) ->
     compile_to_fuses(Compiles, Results, [Answer | Answers]).
 
 %%====================================================================
+%% compile_to_fuses_and_rcf
+%%====================================================================
+
+-spec compile_to_fuses_and_rcf([compile()])
+    -> {ok, [{title(), fuses(), rcf_file:rcf()}]} | error.
+
+compile_to_fuses_and_rcf(Compiles) when is_list(Compiles) ->
+    case compile(Compiles) of
+        {ok, Results} ->
+            compile_to_fuses_and_rcf(Compiles, Results, []);
+
+        error ->
+            error
+    end.
+
+%%--------------------------------------------------------------------
+
+compile_to_fuses_and_rcf([], [], Answers) ->
+    {ok, lists:reverse(Answers)};
+compile_to_fuses_and_rcf([Compile | Compiles], [Result | Results], Answers) ->
+    #{title := Title} = Compile,
+    {ok, Fuses} = fuses(Result),
+    {ok, RCF} = rcf(Result),
+    Answer = {Title, Fuses, RCF},
+    compile_to_fuses_and_rcf(Compiles, Results, [Answer | Answers]).
+
+%%====================================================================
 %% flush
 %%====================================================================
 
@@ -121,7 +149,7 @@ pof({compiled, POF, _}) ->
 %% rcf
 %%====================================================================
 
--spec rcf(result()) -> {ok, pof_file:pof()}.
+-spec rcf(result()) -> {ok, rcf_file:rcf()}.
 
 rcf({cached, Dir}) ->
     {ok, RCF} = experiment_cache:read_rcf(Dir),
