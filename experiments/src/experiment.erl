@@ -51,10 +51,10 @@ compile(Compiles) when is_list(Compiles) ->
 %%--------------------------------------------------------------------
 
 compile_sources(Sources) ->
-    Start = erlang:system_time(millisecond),
+    %Start = erlang:system_time(millisecond),
     Answer = gen_server:call(experiment_server, {compile, Sources}, 20000),
-    Stop = erlang:system_time(millisecond),
-    io:format(" ==> ~ps~n", [(Stop - Start) / 1000]),
+    %Stop = erlang:system_time(millisecond),
+    %io:format(" -> ~ps~n", [(Stop - Start) / 1000]),
     Answer.
 
 %%====================================================================
