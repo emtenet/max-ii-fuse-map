@@ -11,7 +11,7 @@
 -type fuse() :: fuses:fuse().
 -type name() :: term().
 
--type database() :: {fuses, density(), #{fuse() => name()}}.
+-type database() :: {fuses, density() | undefined, #{fuse() => name()}}.
 
 %%====================================================================
 %% name
