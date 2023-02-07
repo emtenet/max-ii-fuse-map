@@ -75,7 +75,9 @@ source(Device, Settings, VHDL) ->
 dir(Source) ->
     Hash = crypto:hash(sha256, Source),
     Base64 = base64url:encode(Hash),
-    filename:join("cache", Base64).
+    <<Head:2/binary, Tail/binary>> = Base64,
+    %make_dir(filename:join("cache", Head)),
+    filename:join(["cache", Head, Tail]).
 
 %%--------------------------------------------------------------------
 
