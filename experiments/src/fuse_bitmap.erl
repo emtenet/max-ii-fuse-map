@@ -50,6 +50,11 @@ fuse(Fuse, Database) ->
         {_, clk2_global3} -> $c;
         {_, clk2_invert} -> $c;
         {_, clr} -> $C;
+        {_, clr1_global0} -> $c;
+        {_, clr1_global1} -> $c;
+        {_, clr1_global2} -> $c;
+        {_, clr1_global3} -> $c;
+        {_, clr1_invert} -> $c;
         {_, lut, _} -> $L;
         {_, weak_pull_up} -> $W;
         {user_code, _} -> $U;
