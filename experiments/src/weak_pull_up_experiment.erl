@@ -43,18 +43,19 @@ run(Density, Device, LC, Q, [A, B, C, D | Pins]) ->
 
 %%--------------------------------------------------------------------
 
-run(Density, Device, {A, Alc}, {B, Blc}, {C, Clc}, {D, Dlc}, LC, {Q, _}) ->
+run(Density, Device, {A, Aioc}, {B, Bioc}, {C, Cioc}, {D, Dioc}, LC, {Q, _}) ->
     io:format(" => ~s ~s ~s ~s ~s~n", [Device, A, B, C, D]),
     {ok, Experiments} = experiment:compile_to_fuses([
         run(Device, control, A, B, C, D, LC, Q, []),
-        run(Device, {Alc, ?FEATURE}, A, B, C, D, LC, Q, [{?FEATURE, a, true}]),
-        run(Device, {Blc, ?FEATURE}, A, B, C, D, LC, Q, [{?FEATURE, b, true}]),
-        run(Device, {Clc, ?FEATURE}, A, B, C, D, LC, Q, [{?FEATURE, c, true}]),
-        run(Device, {Dlc, ?FEATURE}, A, B, C, D, LC, Q, [{?FEATURE, d, true}])
+        run(Device, {Aioc, ?FEATURE}, A, B, C, D, LC, Q, [{?FEATURE, a, true}]),
+        run(Device, {Bioc, ?FEATURE}, A, B, C, D, LC, Q, [{?FEATURE, b, true}]),
+        run(Device, {Cioc, ?FEATURE}, A, B, C, D, LC, Q, [{?FEATURE, c, true}]),
+        run(Device, {Dioc, ?FEATURE}, A, B, C, D, LC, Q, [{?FEATURE, d, true}])
     ]),
     Matrix = matrix:build(Experiments),
     matrix:print(Matrix),
-    Fuses = matrix:singles(Matrix),
+    % feature enable when bit is `0`
+    Fuses = matrix:single_zeros(Matrix),
     4 = length(Fuses),
     fuse_database:update(Density, Fuses).
 

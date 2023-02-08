@@ -10,7 +10,7 @@ The bitstream in a POF file is a stream of bits `0` or `1`.
 The majority of bits are `1`s,i
 a very simple experiment contains about 6% `0`s.
 
-## Fuses
+## Fuse lists
 
 Experiments typically work with fuse lists, a list of fuse numbers.
 
@@ -22,13 +22,18 @@ fuses that have their bit `0`.
 
 *CHOICE*: Fuses are listed when they are encoded as a `0` bit in the POF file.
 
-## User code
+This choice means:
 
-The [user code](experiments/src/user_code_experiment.erl) experiment
-gives support to this choice.
+ * `pof_file:fuses/1` collects a list of fuses where the bit is `0`,
+ * `matrix:build/1` records a pattern of `0` when a fuse is found in a list,
+ * `matrix:print/1` prints a `*` for `1` bits and ` ` for `0` bits.
 
-It found that user code `1` bits where encoded as `0` in the POF file.
+## Fuse meaning
 
-Our choice means that user code fuses are listed when the bit is a `1`,
-which is quite natural to work with.
+Fuses will still be described relative to their bit value.
+
+For, example `FUSE_X` represents:
+
+ * a `0` bit means ...
+ * a `1` bit means ...
 

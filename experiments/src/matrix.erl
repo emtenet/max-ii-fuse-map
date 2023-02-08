@@ -3,7 +3,8 @@
 -export([build/1]).
 -export([build/2]).
 -export([is_empty/1]).
--export([singles/1]).
+-export([single_ones/1]).
+-export([single_zeros/1]).
 -export([pattern/2]).
 -export([print/1]).
 
@@ -134,9 +135,10 @@ build_row(Results, Fuse, Name) ->
 build_row([], Fuse, Name, Row) ->
     {Fuse, lists:reverse(Row), Name};
 build_row([[Fuse | _] | Results], Fuse, Name, Row) ->
-    build_row(Results, Fuse, Name, [1 | Row]);
+    % fuse is in the "absent" list so bit == 0
+    build_row(Results, Fuse, Name, [0 | Row]);
 build_row([_ | Results], Fuse, Name, Row) ->
-    build_row(Results, Fuse, Name, [0 | Row]).
+    build_row(Results, Fuse, Name, [1 | Row]).
 
 %%====================================================================
 %% is_empty
@@ -150,44 +152,51 @@ is_empty({matrix, _, [_ | _]}) ->
     false.
 
 %%====================================================================
-%% singles
+%% single_ones & single_zeros
 %%====================================================================
 
--spec singles(matrix()) -> [{fuse(), experiment_name()}].
+-spec single_ones(matrix()) -> [{fuse(), experiment_name()}].
 
-singles({matrix, Names, Fuses}) ->
-    singles(Fuses, Names, []).
+single_ones({matrix, Names, Fuses}) ->
+    singles(1, Fuses, Names, []).
 
 %%--------------------------------------------------------------------
 
-singles([], _, Singles) ->
+-spec single_zeros(matrix()) -> [{fuse(), experiment_name()}].
+
+single_zeros({matrix, Names, Fuses}) ->
+    singles(0, Fuses, Names, []).
+
+%%--------------------------------------------------------------------
+
+singles(_, [], _, Singles) ->
     lists:reverse(Singles);
-singles([{Fuse, Bits, _Name} | Fuses], Names, Singles) ->
-    case single(Bits, Names) of
+singles(Bit, [{Fuse, Bits, _Name} | Fuses], Names, Singles) ->
+    case single(Bit, Bits, Names) of
         {ok, Name} ->
-            singles(Fuses, Names, [{Fuse, Name} | Singles]);
+            singles(Bit, Fuses, Names, [{Fuse, Name} | Singles]);
 
         false ->
-            singles(Fuses, Names, Singles)
+            singles(Bit, Fuses, Names, Singles)
     end.
 
 %%--------------------------------------------------------------------
 
-single([], []) ->
+single(_, [], []) ->
     false;
-single([0 | Bits], [_ | Names]) ->
-    single(Bits, Names);
-single([1 | Bits], [Name | _]) ->
-    single_ok(Name, Bits).
+single(Bit, [Bit | Bits], [Name | _]) ->
+    single_ok(Bit, Name, Bits);
+single(Bit, [_ | Bits], [_ | Names]) ->
+    single(Bit, Bits, Names).
 
 %%--------------------------------------------------------------------
 
-single_ok(Name, []) ->
+single_ok(_, Name, []) ->
     {ok, Name};
-single_ok(_, [1 | _]) ->
+single_ok(Bit, _, [Bit | _]) ->
     false;
-single_ok(Name, [0 | Bits]) ->
-    single_ok(Name, Bits).
+single_ok(Bit, Name, [_ | Bits]) ->
+    single_ok(Bit, Name, Bits).
 
 %%====================================================================
 %% pattern

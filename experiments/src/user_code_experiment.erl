@@ -61,7 +61,9 @@ run(Density) ->
     ]),
     Matrix = matrix:build(Experiments),
     matrix:print(Matrix),
-    Fuses = matrix:singles(Matrix),
+    % the user code bits are stored invered so look for a
+    % single zero (0) bit
+    Fuses = matrix:single_zeros(Matrix),
     32 = length(Fuses),
     fuse_database:update(Density, Fuses).
 
