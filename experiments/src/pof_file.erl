@@ -114,7 +114,7 @@ fuses_test() ->
 
 %%--------------------------------------------------------------------
 
--spec fuses(pof()) -> [fuses:fuse()].
+-spec fuses(pof()) -> [fuse:fuse()].
 
 fuses(#{cfm := #{data := Bytes}}) ->
     fuses_bytes(0, Bytes, []).

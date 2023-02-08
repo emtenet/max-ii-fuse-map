@@ -6,12 +6,14 @@
 -export([read/1]).
 -export([update/2]).
 
+-export_type([database/0]).
+
 -type density() :: density:density().
 -type device() :: device:device().
--type fuse() :: fuses:fuse().
--type name() :: term().
+-type fuse() :: fuse:fuse().
+-type name() :: fuse:name().
 
--type database() :: {fuses, density() | undefined, #{fuse() => name()}}.
+-opaque database() :: {fuses, density() | undefined, #{fuse() => name()}}.
 
 %%====================================================================
 %% name

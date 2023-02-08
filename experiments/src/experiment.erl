@@ -24,7 +24,7 @@
     {cached, file:filename_all()} |
     {compiled, binary(), binary()}.
 
--type fuses() :: [fuses:fuse()].
+-type fuses() :: [fuse:fuse()].
 -type setting() :: setting:setting().
 -type title() :: term().
 

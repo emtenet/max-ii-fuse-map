@@ -12,8 +12,8 @@
 -export_type([matrix/0]).
 -export_type([pattern/0]).
 
--type fuse() :: fuses:fuse().
--type fuse_name() :: fuses:name() | undefined.
+-type fuse() :: fuse:fuse().
+-type fuse_name() :: fuse:name() | undefined.
 
 -type density() :: density:density().
 -type device() :: device:device().
