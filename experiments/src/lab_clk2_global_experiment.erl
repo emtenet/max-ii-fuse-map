@@ -14,10 +14,10 @@
 % Experiment LAB with a control FF (clk1) and active FF (clk2)
 %
 %  * clk1 = gclk3, clk2 = gclk0
+%  * clk1 = gclk3, clk2 = ~gclk0
 %  * clk1 = gclk3, clk2 = gclk1
 %  * clk1 = gclk3, clk2 = gclk2
 %  * clk1 = gclk0, clk2 = gclk3
-%  * clk1 = gclk3, clk2 = ~gclk0
 %
 % The known {lab(), clk1_global?} fuses can be excluded from the
 % matrix to leave the clk2 fuses.
@@ -27,15 +27,15 @@
 %%====================================================================
 
 run() ->
-    Globals = [
+    Sources = [
         {gclk0, run_vhdl(<<"gclk3">>, <<"gclk0">>)},
+        {not_gclk0, run_vhdl(<<"gclk3">>, <<"NOT gclk0">>)},
         {gclk1, run_vhdl(<<"gclk3">>, <<"gclk1">>)},
         {gclk2, run_vhdl(<<"gclk3">>, <<"gclk2">>)},
-        {gclk3, run_vhdl(<<"gclk0">>, <<"gclk3">>)},
-        {not_gclk0, run_vhdl(<<"gclk3">>, <<"NOT gclk0">>)}
+        {gclk3, run_vhdl(<<"gclk0">>, <<"gclk3">>)}
     ],
     [
-        run_density(Density, Globals)
+        run_density(Density, Sources)
         ||
         Density <- density:list()
     ],
@@ -43,7 +43,7 @@ run() ->
 
 %%--------------------------------------------------------------------
 
-run_density(Density, Globals) ->
+run_density(Density, Sources) ->
     Device = density:largest_device(Density),
     [Gclk0, Gclk1, Gclk2, Gclk3] = Gclks = device:gclk_pins(Device),
     Pins = device:pins(Device),
@@ -72,21 +72,21 @@ run_density(Density, Globals) ->
         {location, q, Q}
     ],
     [X, Y | LABs = [Z | _]] = device:labs(Device),
-    run_lab(Density, Device, Globals, Settings, X, Y, Z),
-    run_lab(Density, Device, Globals, Settings, Y, X, Z),
-    run_labs(Density, Device, Globals, Settings, X, Y, LABs).
+    run_lab(Density, Device, Sources, Settings, X, Y, Z),
+    run_lab(Density, Device, Sources, Settings, Y, X, Z),
+    run_labs(Density, Device, Sources, Settings, X, Y, LABs).
 
 %%--------------------------------------------------------------------
 
 run_labs(_, _, _, _, _, _, []) ->
     ok;
-run_labs(Density, Device, Globals, Settings, X, Y, [LAB | LABs]) ->
-    run_lab(Density, Device, Globals, Settings, LAB, X, Y),
-    run_labs(Density, Device, Globals, Settings, X, LAB, LABs).
+run_labs(Density, Device, Sources, Settings, X, Y, [LAB | LABs]) ->
+    run_lab(Density, Device, Sources, Settings, LAB, X, Y),
+    run_labs(Density, Device, Sources, Settings, X, LAB, LABs).
 
 %%--------------------------------------------------------------------
 
-run_lab(Density, Device, Globals, Settings0, LAB, X, Y) ->
+run_lab(Density, Device, Sources, Settings0, LAB, X, Y) ->
     io:format(" => ~s ~p~n", [Device, LAB]),
     Settings = [
         {location, ff0, lab:lc(X, 0)},
@@ -106,7 +106,7 @@ run_lab(Density, Device, Globals, Settings0, LAB, X, Y) ->
             vhdl => VHDL
         }
         ||
-        {Name, VHDL} <- Globals
+        {Name, VHDL} <- Sources
     ]),
     Matrix0 = matrix:build(Density, Experiments),
     Matrix = matrix:remove_fuses(Matrix0, [
@@ -114,11 +114,11 @@ run_lab(Density, Device, Globals, Settings0, LAB, X, Y) ->
         {LAB, clk1_global3}
     ]),
     %matrix:print(Matrix),
-    [Clk2Global0] = matrix:pattern(Matrix, [0,1,1,1,0]),
-    [Clk2Global1] = matrix:pattern(Matrix, [1,0,1,1,1]),
-    [Clk2Global2] = matrix:pattern(Matrix, [1,1,0,1,1]),
-    [Clk2Global3] = matrix:pattern(Matrix, [1,1,1,0,1]),
-    [Clk2Invert]  = matrix:pattern(Matrix, [1,1,1,1,0]),
+    [Clk2Global0] = matrix:pattern(Matrix, [0,0,1,1,1]),
+    [Clk2Global1] = matrix:pattern(Matrix, [1,1,0,1,1]),
+    [Clk2Global2] = matrix:pattern(Matrix, [1,1,1,0,1]),
+    [Clk2Global3] = matrix:pattern(Matrix, [1,1,1,1,0]),
+    [Clk2Invert]  = matrix:pattern(Matrix, [1,0,1,1,1]),
     fuse_database:update(Density, [
         {Clk2Global0, {LAB, clk2_global0}},
         {Clk2Global1, {LAB, clk2_global1}},

@@ -14,17 +14,17 @@
 % Experiment LAB with a single FF
 %
 %  * clk1 = gclk0
+%  * clk1 = ~gclk0
 %  * clk1 = gclk1
 %  * clk1 = gclk2
 %  * clk1 = gclk3
-%  * clk1 = ~gclk0
 
 %%====================================================================
 %% run
 %%====================================================================
 
 run() ->
-    Globals = [
+    Sources = [
         {gclk0, run_vhdl(<<"gclk0">>)},
         {not_gclk0, run_vhdl(<<"NOT gclk0">>)},
         {gclk1, run_vhdl(<<"gclk1">>)},
@@ -32,7 +32,7 @@ run() ->
         {gclk3, run_vhdl(<<"gclk3">>)}
     ],
     [
-        run_density(Density, Globals)
+        run_density(Density, Sources)
         ||
         Density <- density:list()
     ],
@@ -40,7 +40,7 @@ run() ->
 
 %%--------------------------------------------------------------------
 
-run_density(Density, Globals) ->
+run_density(Density, Sources) ->
     Device = density:largest_device(Density),
     [Gclk0, Gclk1, Gclk2, Gclk3] = Gclks = device:gclk_pins(Device),
     Pins = device:pins(Device),
@@ -66,21 +66,21 @@ run_density(Density, Globals) ->
         {location, q, Q}
     ],
     [X, Y | LABs = [Z | _]] = device:labs(Device),
-    run_lab(Density, Device, Globals, Settings, X, Y, Z),
-    run_lab(Density, Device, Globals, Settings, Y, X, Z),
-    run_labs(Density, Device, Globals, Settings, X, Y, LABs).
+    run_lab(Density, Device, Sources, Settings, X, Y, Z),
+    run_lab(Density, Device, Sources, Settings, Y, X, Z),
+    run_labs(Density, Device, Sources, Settings, X, Y, LABs).
 
 %%--------------------------------------------------------------------
 
 run_labs(_, _, _, _, _, _, []) ->
     ok;
-run_labs(Density, Device, Globals, Settings, X, Y, [LAB | LABs]) ->
-    run_lab(Density, Device, Globals, Settings, LAB, X, Y),
-    run_labs(Density, Device, Globals, Settings, X, LAB, LABs).
+run_labs(Density, Device, Sources, Settings, X, Y, [LAB | LABs]) ->
+    run_lab(Density, Device, Sources, Settings, LAB, X, Y),
+    run_labs(Density, Device, Sources, Settings, X, LAB, LABs).
 
 %%--------------------------------------------------------------------
 
-run_lab(Density, Device, Globals, Settings0, LAB, X, Y) ->
+run_lab(Density, Device, Sources, Settings0, LAB, X, Y) ->
     io:format(" => ~s ~p~n", [Device, LAB]),
     Settings = [
         {location, ff0, lab:lc(X, 0)},
@@ -99,7 +99,7 @@ run_lab(Density, Device, Globals, Settings0, LAB, X, Y) ->
             vhdl => VHDL
         }
         ||
-        {Name, VHDL} <- Globals
+        {Name, VHDL} <- Sources
     ]),
     %Matrix = matrix:build(Density, Experiments),
     %matrix:print(Matrix),

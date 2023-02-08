@@ -22,14 +22,14 @@
 %%====================================================================
 
 run() ->
-    Globals = [
+    Sources = [
         {gclk0, run_vhdl(<<"gclk0">>, <<"'1'">>)},
         {gclk0_gclr, run_vhdl(<<"gclk0">>, <<"gclr">>)},
         {gclk1, run_vhdl(<<"gclk1">>, <<"'1'">>)},
         {gclk1_gclr, run_vhdl(<<"gclk1">>, <<"gclr">>)}
     ],
     [
-        run_density(Density, Globals)
+        run_density(Density, Sources)
         ||
         Density <- density:list()
     ],
@@ -37,7 +37,7 @@ run() ->
 
 %%--------------------------------------------------------------------
 
-run_density(Density, Globals) ->
+run_density(Density, Sources) ->
     Device = density:largest_device(Density),
     [Gclk0, Gclk1, Gclk, _] = device:gclk_pins(Device),
     Pins = device:pins(Device),
@@ -57,7 +57,7 @@ run_density(Density, Globals) ->
         {location, q, Q}
     ],
     [
-        run_lc(LAB, N, Density, Device, Globals, Settings)
+        run_lc(LAB, N, Density, Device, Sources, Settings)
         ||
         LAB <- device:labs(Device),
         N <- lists:seq(0, 9)
@@ -72,7 +72,7 @@ run_control(_) -> {0, 1}.
 
 %%--------------------------------------------------------------------
 
-run_lc(LAB, N, Density, Device, Globals, Settings0) ->
+run_lc(LAB, N, Density, Device, Sources, Settings0) ->
     LC = lab:lc(LAB, N),
     io:format(" => ~s ~p~n", [Device, LC]),
     {N0, N1} = run_control(N),
@@ -91,7 +91,7 @@ run_lc(LAB, N, Density, Device, Globals, Settings0) ->
             vhdl => VHDL
         }
         ||
-        {Name, VHDL} <- Globals
+        {Name, VHDL} <- Sources
     ]),
     %Matrix = matrix:build(Density, Experiments),
     %matrix:print(Matrix),
