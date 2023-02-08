@@ -6,6 +6,7 @@
 -export([single_ones/1]).
 -export([single_zeros/1]).
 -export([pattern/2]).
+-export([remove_fuses/2]).
 -export([print/1]).
 
 -export_type([experiment/0]).
@@ -215,6 +216,17 @@ pattern([{Fuse, Pattern, _} | Fuses], Pattern, Found) ->
     pattern(Fuses, Pattern, [Fuse | Found]);
 pattern([_ | Fuses], Pattern, Found) ->
     pattern(Fuses, Pattern, Found).
+
+%%====================================================================
+%% remove_fuses
+%%====================================================================
+
+-spec remove_fuses(matrix(), [fuse_name()]) -> matrix().
+
+remove_fuses({matrix, Experiments, Fuses}, Remove) ->
+    {matrix, Experiments, lists:filter(fun ({_, _, Name}) ->
+        not lists:member(Name, Remove)
+    end, Fuses)}.
 
 %%====================================================================
 %% print
