@@ -26,6 +26,7 @@ My experiments are being run in the following
  * [LUT](experiments/src/lut_experiment.erl)
  * [LC clk & clr](experiments/src/lc_clk_clr_experiment.erl)
  * [LAB clk1 global](experiments/src/lab_clk1_global_experiment.erl)
+ * [LAB clk2 global](experiments/src/lab_clk2_global_experiment.erl)
 
 ## Fuses
 
@@ -64,14 +65,15 @@ The fuse bit selects:
  * `1` LAB clk1 or clr1,
  * `0` LAB clk2 or clk2.
 
-### `{lab(), clk1_global0}` and `{lab(), clk1_global1}` and `{lab(), clk1_global2}` and `{lab(), clk1_global3}`
+### `{lab(), clk#_global#}`
 
-Each LAB can select a clk1 from amongst the four global signals (and others).
+Each LAB can select a clk1 & clk2
+from amongst the four global signals (0..3) (and others).
 
 The four global signals are selected with a one-shot fuse per selection,
 the selection is active with a bit of `0`.
 
-### `{lab(), clk1_invert}`
+### `{lab(), clk#_invert}`
 
-Each LAB's clk1 can be inverted. Invert is selected when the bit is `0`.
+Each LAB's clk1 & clk2 can be inverted. Invert is selected when the bit is `0`.
 
