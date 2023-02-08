@@ -24,6 +24,7 @@ My experiments are being run in the following
  * [Bus-hold](experiments/src/bus_hold_experiment.erl)
  * [Weak pull-up](experiments/src/weak_pull_up_experiment.erl)
  * [LUT](experiments/src/lut_experiment.erl)
+ * [LC clk & clr](experiments/src/lc_clk_clr_experiment.erl)
 
 ## Fuses
 
@@ -50,4 +51,15 @@ The fuse for LUT term `a AND (NOT b) AND c AND d`
 is named `{lc(), lut, {a1, b0, c1, d1}}`.
 
 The stored bit is the result of the lookup.
+
+### `{lc(), clk}` and `{lc(), clr}`
+
+Each LAB can have two clock and two clears defined.
+
+Each LC then can choose from those two clock/clears.
+
+The fuse bit selects:
+
+ * `1` LAB clk1 or clr1,
+ * `0` LAB clk2 or clk2.
 
