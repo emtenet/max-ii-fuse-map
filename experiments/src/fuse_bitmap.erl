@@ -38,6 +38,18 @@ fuse(Fuse, Database) ->
     case fuse_database:name(Fuse, Database) of
         Name when is_integer(Name) -> $.;
         {_, bus_hold} -> $B;
+        {_, clk} -> $C;
+        {_, clk1_global0} -> $c;
+        {_, clk1_global1} -> $c;
+        {_, clk1_global2} -> $c;
+        {_, clk1_global3} -> $c;
+        {_, clk1_invert} -> $c;
+        {_, clk2_global0} -> $c;
+        {_, clk2_global1} -> $c;
+        {_, clk2_global2} -> $c;
+        {_, clk2_global3} -> $c;
+        {_, clk2_invert} -> $c;
+        {_, clr} -> $C;
         {_, lut, _} -> $L;
         {_, weak_pull_up} -> $W;
         {user_code, _} -> $U;
