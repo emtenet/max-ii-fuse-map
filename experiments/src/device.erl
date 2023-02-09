@@ -2,6 +2,7 @@
 
 -export([list/0]).
 -export([name/1]).
+-export([from_name/1]).
 -export([density/1]).
 -export([package/1]).
 -export([labs/1]).
@@ -76,6 +77,27 @@ name(epm1270_m256) -> <<"EPM1270M256C5">>;
 name(epm1270_f256) -> <<"EPM1270F256C5">>;
 name(epm2210_f256) -> <<"EPM2210F256C5">>;
 name(epm2210_f324) -> <<"EPM2210F324C5">>.
+
+%%====================================================================
+%% from_name
+%%====================================================================
+
+-spec from_name(device()) -> binary().
+
+from_name(<<"EPM240M100C5">>) -> epm240_m100;
+from_name(<<"EPM240F100C5">>) -> epm240_f100;
+from_name(<<"EPM240T100C5">>) -> epm240_t100;
+from_name(<<"EPM570M100C5">>) -> epm570_m100;
+from_name(<<"EPM570F100C5">>) -> epm570_f100;
+from_name(<<"EPM570T100C5">>) -> epm570_t100;
+from_name(<<"EPM570T144C5">>) -> epm570_t144;
+from_name(<<"EPM570M256C5">>) -> epm570_m256;
+from_name(<<"EPM570F256C5">>) -> epm570_f256;
+from_name(<<"EPM1270T144C5">>) -> epm1270_t144;
+from_name(<<"EPM1270M256C5">>) -> epm1270_m256;
+from_name(<<"EPM1270F256C5">>) -> epm1270_f256;
+from_name(<<"EPM2210F256C5">>) -> epm2210_f256;
+from_name(<<"EPM2210F324C5">>) -> epm2210_f324.
 
 %%====================================================================
 %% density

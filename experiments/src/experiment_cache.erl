@@ -4,13 +4,25 @@
 -export([store/2]).
 -export([flush/1]).
 
+-export([iterate/0]).
+-export([iterate/1]).
+
 -export([read_pof/1]).
 -export([read_rcf/1]).
 
 -export_type([slot/0]).
+-export_type([iterator/0]).
 
 -type slot() :: {slot, binary(), file:filename_all()}.
 
+-opaque iterator() ::
+    {cache,
+     [file:filename_all()],
+     [file:filename_all()],
+     [file:filename_all()]
+    }.
+
+-type device() :: device:device().
 -type files() :: experiment_compile:files().
 -type source() :: experiment_compile:source().
 
@@ -56,6 +68,46 @@ flush(#{device := Device, settings := Settings, vhdl := VHDL}) ->
     Source = source(Device, Settings, VHDL),
     Dir = dir(Source),
     ok = rm_dir(Dir).
+
+%%====================================================================
+%% iterate
+%%====================================================================
+
+-spec iterate()
+    -> {device(), experiment:result(), iterator()} | false.
+
+iterate() ->
+    {ok, Outers} = file:list_dir("cache"),
+    iterate([], undefined, Outers).
+
+%%--------------------------------------------------------------------
+
+-spec iterate(iterator())
+    -> {device(), experiment:result(), iterator()} | false.
+
+iterate({cache, Inners, Outer, Outers}) ->
+    iterate(Inners, Outer, Outers).
+
+%%--------------------------------------------------------------------
+
+iterate([], _, []) ->
+    false;
+iterate([], _, [Outer | Outers]) ->
+    {ok, Inners} = file:list_dir(filename:join("cache", Outer)),
+    iterate(Inners, Outer, Outers);
+iterate([Inner | Inners], Outer, Outers) ->
+    Next = {cache, Inners, Outer, Outers},
+    Dir = filename:join(["cache", Outer, Inner]),
+    case read_source(Dir) of
+        {ok, Source} ->
+            [Device0, _] = binary:split(Source, <<"\n">>),
+            Device = device:from_name(Device0),
+            Result = {cached, Dir},
+            {Device, Result, Next};
+
+        {error, enoent} ->
+            iterate(Inners, Outer, Outers)
+    end.
 
 %%====================================================================
 %% internal
