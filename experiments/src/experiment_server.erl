@@ -99,7 +99,6 @@ handle_info({'DOWN', MonitorRef, process, _, _}, State0) ->
     State = compile_down(MonitorRef, State0),
     {noreply, compile_dequeue(self(), State)};
 handle_info({compile_done, CompileRef, Response}, State0) ->
-    Response = experiment_compile:response(Response),
     State = compile_done(CompileRef, Response, State0),
     {noreply, compile_dequeue(self(), State)};
 handle_info(Info, State) ->
@@ -292,8 +291,13 @@ request_done(RequestRef, Index, Reply0, State = #state{}) ->
 request_reply(0, _, List) ->
     {ok, List};
 request_reply(Index, Map, List) when is_map_key(Index, Map) ->
-    #{Index := {ok, Reply}} = Map,
-    request_reply(Index - 1, Map, [Reply | List]);
+    case Map of
+        #{Index := {ok, Reply}} ->
+            request_reply(Index - 1, Map, [Reply | List]);
+
+        #{Index := error} ->
+            error
+    end;
 request_reply(_, _, _) ->
     error.
 
