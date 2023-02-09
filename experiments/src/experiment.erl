@@ -4,6 +4,7 @@
 -export([compile_to_fuses/1]).
 -export([compile_to_fuses_and_rcf/1]).
 -export([flush/1]).
+-export([fuses/1]).
 -export([pof/1]).
 -export([rcf/1]).
 
