@@ -18,7 +18,8 @@ ERLC_OPTS = -Werror \
  +warn_unused_vars \
  +debug_info
 
-SHELL_OPTS = -setcookie michael -sname experiments -run experiments
+SNAME ?= experiments
+SHELL_OPTS = -setcookie michael -sname $(SNAME) -run experiments
 
 TEST_DEPS = solarized
 dep_solarized = git https://github.com/emtenet/erlang-solarized.git master
