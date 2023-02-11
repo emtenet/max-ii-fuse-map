@@ -5,14 +5,16 @@
 -export([is_empty/1]).
 -export([single_ones/1]).
 -export([single_zeros/1]).
--export([pattern/2]).
+-export([pattern_is/2]).
+-export([pattern_match/2]).
 -export([remove_fuses/2]).
 -export([print/1]).
 
 -export_type([experiment/0]).
 -export_type([experiment_name/0]).
 -export_type([matrix/0]).
--export_type([pattern/0]).
+-export_type([bits/0]).
+-export_type([match/0]).
 
 -type fuse() :: fuse:fuse().
 -type fuse_name() :: fuse:name() | undefined.
@@ -26,8 +28,9 @@
     {experiment_name(), [fuse()], rcf_file:rcf()}.
 
 -type matrix() ::
-    {matrix, [experiment_name()], [{fuse(), pattern(), fuse_name()}]}.
--type pattern() :: [0 | 1].
+    {matrix, [experiment_name()], [{fuse(), bits(), fuse_name()}]}.
+-type bits() :: [0 | 1].
+-type match() :: [0 | 1 | x].
 
 %%====================================================================
 %% build
@@ -200,22 +203,55 @@ single_ok(Bit, Name, [_ | Bits]) ->
     single_ok(Bit, Name, Bits).
 
 %%====================================================================
-%% pattern
+%% pattern_is
 %%====================================================================
 
--spec pattern(matrix(), pattern()) -> [fuse()].
+-spec pattern_is(matrix(), bits()) -> [fuse()].
 
-pattern({matrix, _, Fuses}, Pattern) ->
-    pattern(Fuses, Pattern, []).
+pattern_is({matrix, _, Fuses}, Pattern) ->
+    pattern_is(Fuses, Pattern, []).
 
 %%--------------------------------------------------------------------
 
-pattern([], _, Found) ->
+pattern_is([], _, Found) ->
     lists:reverse(Found);
-pattern([{Fuse, Pattern, _} | Fuses], Pattern, Found) ->
-    pattern(Fuses, Pattern, [Fuse | Found]);
-pattern([_ | Fuses], Pattern, Found) ->
-    pattern(Fuses, Pattern, Found).
+pattern_is([{Fuse, Pattern, _} | Fuses], Pattern, Found) ->
+    pattern_is(Fuses, Pattern, [Fuse | Found]);
+pattern_is([_ | Fuses], Pattern, Found) ->
+    pattern_is(Fuses, Pattern, Found).
+
+%%====================================================================
+%% pattern_match
+%%====================================================================
+
+-spec pattern_match(matrix(), match()) -> [fuse()].
+
+pattern_match({matrix, _, Fuses}, Match) ->
+    pattern_match(Fuses, Match, []).
+
+%%--------------------------------------------------------------------
+
+pattern_match([], _, Found) ->
+    lists:reverse(Found);
+pattern_match([{Fuse, Pattern, _} | Fuses], Match, Found) ->
+    case match(Pattern, Match) of
+        true ->
+            pattern_match(Fuses, Match, [Fuse | Found]);
+
+        false ->
+            pattern_match(Fuses, Match, Found)
+    end.
+
+%%--------------------------------------------------------------------
+
+match([], []) ->
+    true;
+match([_ | Pattern], [x | Match]) ->
+    match(Pattern, Match);
+match([X | Pattern], [X | Match]) ->
+    match(Pattern, Match);
+match(_, _) ->
+    false.
 
 %%====================================================================
 %% remove_fuses
