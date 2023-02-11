@@ -3,6 +3,7 @@
 -export([compile/1]).
 -export([compile_to_fuses/1]).
 -export([compile_to_fuses_and_rcf/1]).
+-export([compile_to_rcf/1]).
 -export([flush/1]).
 -export([fuses/1]).
 -export([pof/1]).
@@ -109,6 +110,31 @@ compile_to_fuses_and_rcf([Compile | Compiles], [Result | Results], Answers) ->
     {ok, RCF} = rcf(Result),
     Answer = {Title, Fuses, RCF},
     compile_to_fuses_and_rcf(Compiles, Results, [Answer | Answers]).
+
+%%====================================================================
+%% compile_to_rcf
+%%====================================================================
+
+-spec compile_to_rcf([compile()]) -> {ok, [{title(), rcf_file:rcf()}]} | error.
+
+compile_to_rcf(Compiles) when is_list(Compiles) ->
+    case compile(Compiles) of
+        {ok, Results} ->
+            compile_to_rcf(Compiles, Results, []);
+
+        error ->
+            error
+    end.
+
+%%--------------------------------------------------------------------
+
+compile_to_rcf([], [], Answers) ->
+    {ok, lists:reverse(Answers)};
+compile_to_rcf([Compile | Compiles], [Result | Results], Answers) ->
+    #{title := Title} = Compile,
+    {ok, RCF} = rcf(Result),
+    Answer = {Title, RCF},
+    compile_to_rcf(Compiles, Results, [Answer | Answers]).
 
 %%====================================================================
 %% flush
