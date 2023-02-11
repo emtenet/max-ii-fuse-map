@@ -3,6 +3,8 @@
 -export([run/0]).
 
 -export([source/3]).
+-export([source_lc/4]).
+
 -export([compile/1]).
 -export([fuses/1]).
 
@@ -24,11 +26,23 @@ run(Density) ->
 %%====================================================================
 
 source(Title, Device, Pin) ->
+    source(Title, Device, Pin, []).
+
+%%--------------------------------------------------------------------
+
+source_lc(Title, Device, Pin, LC) ->
+    source(Title, Device, Pin, [{location, lut, LC}]).
+
+%%--------------------------------------------------------------------
+
+source(Title, Device, Pin, Settings) ->
     #{
         title => Title,
         device => Device,
         settings => [
             {location, q, Pin}
+            |
+            Settings
         ],
         vhdl => <<
             "library IEEE;\n"

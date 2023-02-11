@@ -5,6 +5,7 @@
 -export([largest_device/1]).
 -export([fuse_count/1]).
 -export([or_device/1]).
+-export([minimal_fuses/1]).
 -export([labs/1]).
 
 -export_type([density/0]).
@@ -16,6 +17,7 @@
     epm2210.
 
 -type device() :: device:device().
+-type fuse() :: fuse:fuse().
 -type lab() :: lab:lab().
 
 %%====================================================================
@@ -102,6 +104,19 @@ or_device(Density = epm1270) -> Density;
 or_device(Density = epm2210) -> Density;
 or_device(Device) ->
     device:density(Device).
+
+%%====================================================================
+%% minimal_fuses
+%%====================================================================
+
+-spec minimal_fuses(density() | device()) -> [fuse()].
+
+minimal_fuses(epm240) -> epm240_minimal:fuses();
+minimal_fuses(epm570) -> epm570_minimal:fuses();
+minimal_fuses(epm1270) -> epm1270_minimal:fuses();
+minimal_fuses(epm2210) -> epm2210_minimal:fuses();
+minimal_fuses(Device) ->
+    minimal_fuses(device:density(Device)).
 
 %%====================================================================
 %% labs
