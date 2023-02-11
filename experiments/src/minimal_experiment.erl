@@ -2,6 +2,7 @@
 
 -export([run/0]).
 
+-export([source/3]).
 -export([compile/1]).
 -export([fuses/1]).
 
@@ -19,14 +20,12 @@ run(Density) ->
     io:format("~s fuse count = ~p~n", [Density, length(Fuses)]).
 
 %%====================================================================
-%% run
+%% source
 %%====================================================================
 
-compile(Density) ->
-    Device = density:largest_device(Density),
-    [{Pin, _} | _] = device:pins(Device),
-    experiment:compile(#{
-        title => minimal,
+source(Title, Device, Pin) ->
+    #{
+        title => Title,
         device => Device,
         settings => [
             {location, q, Pin}
@@ -53,7 +52,16 @@ compile(Density) ->
             "  );\n"
             "end behavioral;\n"
         >>
-    }).
+    }.
+
+%%====================================================================
+%% compile
+%%====================================================================
+
+compile(Density) ->
+    Device = density:largest_device(Density),
+    [{Pin, _} | _] = device:pins(Device),
+    experiment:compile(source(minimal, Device, Pin)).
 
 %%====================================================================
 %% fuses
