@@ -12,9 +12,12 @@
 
 -export_type([experiment/0]).
 -export_type([experiment_name/0]).
+
 -export_type([matrix/0]).
 -export_type([bits/0]).
 -export_type([match/0]).
+
+-export_type([fuse_name_fn/0]).
 
 -type fuse() :: fuse:fuse().
 -type fuse_name() :: fuse:name() | undefined.
@@ -31,6 +34,8 @@
     {matrix, [experiment_name()], [{fuse(), bits(), fuse_name()}]}.
 -type bits() :: [0 | 1].
 -type match() :: [0 | 1 | x].
+
+-type fuse_name_fn() :: fun((fuse_name()) -> boolean()).
 
 %%====================================================================
 %% build
@@ -257,11 +262,16 @@ match(_, _) ->
 %% remove_fuses
 %%====================================================================
 
--spec remove_fuses(matrix(), [fuse_name()]) -> matrix().
+-spec remove_fuses(matrix(), [fuse_name()] | fuse_name_fn()) -> matrix().
 
-remove_fuses({matrix, Experiments, Fuses}, Remove) ->
+remove_fuses({matrix, Experiments, Fuses}, Remove) when is_list(Remove) ->
     {matrix, Experiments, lists:filter(fun ({_, _, Name}) ->
         not lists:member(Name, Remove)
+    end, Fuses)};
+remove_fuses({matrix, Experiments, Fuses}, Remove)
+        when is_function(Remove, 1) ->
+    {matrix, Experiments, lists:filter(fun ({_, _, Name}) ->
+        not Remove(Name)
     end, Fuses)}.
 
 %%====================================================================
