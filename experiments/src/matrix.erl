@@ -302,7 +302,9 @@ print_headers(Names) ->
 print_key(Key) when Key >= 0 andalso Key < 26 ->
     <<($a + Key)>>;
 print_key(Key) when Key >= 26 andalso Key < 36 ->
-    <<($0 + Key - 26)>>.
+    <<($0 + Key - 26)>>;
+print_key(Key) when Key >= 26 andalso Key < 62 ->
+    <<($A + Key - 36)>>.
 
 %%--------------------------------------------------------------------
 
