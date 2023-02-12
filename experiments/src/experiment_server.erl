@@ -1,5 +1,10 @@
 -module(experiment_server).
 
+-export([submit/1]).
+-export([pickup_check/1]).
+-export([pickup_sleep/1]).
+
+% application
 -export([child_spec/0]).
 -export([start_link/0]).
 
@@ -11,11 +16,51 @@
 -export([code_change/3]).
 -export([terminate/2]).
 
--type response() :: experiment_compile:response().
--type result() :: experiment:result().
+-export_type([submit_reply/0]).
+-export_type([pickup_reply/0]).
+
+-type cached() :: experiment:result().
+-type job_ref() :: experiment_compile:job_ref().
+-type result() :: experiment_compile:result().
 -type source() :: experiment_compile:source().
 
--define(LIMIT, 8).
+-type submit_reply() ::
+    {ok, cached()} |
+    {pickup, job_ref()} |
+    busy.
+
+-type pickup_reply() ::
+    {ok, #{job_ref() => result()}} |
+    false.
+
+-define(SUBMIT_TIMEOUT, 10000). % milliseconds
+
+%%====================================================================
+%% submit
+%%====================================================================
+
+-spec submit(source()) -> submit_reply().
+
+submit(Source) ->
+    gen_server:call(?MODULE, {submit, Source}).
+
+%%====================================================================
+%% pickup_check
+%%====================================================================
+
+-spec pickup_check([job_ref()]) -> pickup_reply().
+
+pickup_check(Refs) ->
+    gen_server:call(?MODULE, {pickup, Refs, 500}).
+
+%%====================================================================
+%% pickup_sleep
+%%====================================================================
+
+-spec pickup_sleep([job_ref()]) -> pickup_reply().
+
+pickup_sleep(Refs) ->
+    gen_server:call(?MODULE, {pickup, Refs, 4000}).
 
 %%====================================================================
 %% application
@@ -36,55 +81,42 @@ start_link() ->
 %% gen_server
 %%====================================================================
 
--type request_ref() :: reference().
--type compile_ref() :: reference().
--type monitor_ref() :: reference().
+-type pickup_ref() :: reference().
+-type slot() :: experiment_cache:slot().
 
--type index() :: non_neg_integer().
--type reply() :: {ok, result()} | error.
+-record(submit, {
+    slot :: slot(),
+    pickup_ref :: pickup_ref() | undefined,
+    timer_ref :: timer:tref()
+}).
 
--record(request, {
+-record(pickup, {
     from :: gen_server:from(),
-    size :: non_neg_integer(),
-    replies :: #{index() => reply()}
-}).
-
--record(queue, {
-    request :: request_ref(),
-    source :: source(),
-    index :: index(),
-    slot :: experiment_cache:slot()
-}).
-
--record(compile, {
-    request :: request_ref(),
-    monitor :: monitor_ref(),
-    index :: index(),
-    slot :: experiment_cache:slot()
+    timer_ref :: timer:tref()
 }).
 
 -record(state, {
-    requests :: #{request_ref() => #request{}},
-    queue :: queue:queue(#queue{}),
-    compiles :: #{compile_ref() => #compile{}},
-    monitors :: #{monitor_ref() => compile_ref()}
+    submits :: #{job_ref() => #submit{}},
+    results :: #{job_ref() => result()},
+    pickups :: #{pickup_ref() => #pickup{}}
 }).
 
 %%--------------------------------------------------------------------
 
 init(undefined) ->
     State = #state{
-        requests = #{},
-        queue = queue:new(),
-        compiles = #{},
-        monitors = #{}
+        submits = #{},
+        results = #{},
+        pickups = #{}
     },
     {ok, State}.
 
 %%--------------------------------------------------------------------
 
-handle_call({compile, Source}, From, State) ->
-    {noreply, request(Source, self(), From, State)};
+handle_call({submit, Source}, _From, State) ->
+    submit(Source, State);
+handle_call({pickup, JobRefs, Timeout}, From, State) ->
+    pickup(JobRefs, Timeout, From, State);
 handle_call(stop, _From, State) ->
     {stop, normal, ok, State}.
 
@@ -95,12 +127,12 @@ handle_cast(_Cast, State) ->
 
 %%--------------------------------------------------------------------
 
-handle_info({'DOWN', MonitorRef, process, _, _}, State0) ->
-    State = compile_down(MonitorRef, State0),
-    {noreply, compile_dequeue(self(), State)};
-handle_info({compile_done, CompileRef, Response}, State0) ->
-    State = compile_done(CompileRef, Response, State0),
-    {noreply, compile_dequeue(self(), State)};
+handle_info({submit_result, JobRef, Result}, State) ->
+    {noreply, submit_result(JobRef, Result, State)};
+handle_info({submit_timeout, JobRef}, State) ->
+    {noreply, submit_result(JobRef, {error, timeout}, State)};
+handle_info({pickup_timeout, PickupRef}, State) ->
+    {noreply, pickup_timeout(PickupRef, State)};
 handle_info(Info, State) ->
     io:format("info ~p~n", [Info]),
     {noreply, State}.
@@ -116,124 +148,61 @@ terminate(_Reason, _State) ->
     ok.
 
 %%====================================================================
-%% internal
+%% submit
 %%====================================================================
 
--spec request([source()], pid(), gen_server:from(), #state{}) -> #state{}.
+-spec submit(source(), #state{}) -> {reply, submit_reply(), #state{}}.
 
-request(Sources, Self, From, State0) when is_list(Sources) ->
-    experiment_compile:connect(),
-    RequestRef = make_ref(),
-    case request_add(Sources, Self, RequestRef, 1, #{}, State0) of
-        {Size, Replies, _} when Size =:= map_size(Replies) ->
-            Reply = request_reply(Size, Replies, []),
-            ok = gen_server:reply(From, Reply),
-            State0;
-
-        {Size, Replies, State} ->
-            Request = #request{
-                from = From,
-                size = Size,
-                replies = Replies
-            },
-            Requests = State#state.requests,
-            State#state{
-                requests = Requests#{RequestRef => Request}
-            }
-    end;
-request(_, _, From, State) ->
-    ok = gen_server:reply(From, badarg),
-    State.
-
-%%--------------------------------------------------------------------
-
-request_add([], _, _, Index, Replies, State) ->
-    {Index - 1, Replies, State};
-request_add([Source | Sources], Self, RequestRef, Index, Replies0, State0) ->
+submit(Source, State0) ->
     case experiment_cache:load(Source) of
-        {hit, Compiled} ->
-            Replies = Replies0#{Index => {ok, Compiled}},
-            request_add(Sources, Self, RequestRef, Index + 1, Replies, State0);
+        {hit, Cached} ->
+            Reply = {ok, Cached},
+            {reply, Reply, State0};
 
         {miss, Slot} ->
-            State = compile_add(Source, Self, RequestRef, Index, Slot, State0),
-            request_add(Sources, Self, RequestRef, Index + 1, Replies0, State)
+            experiment_compile:connect(),
+            case submit_to_quartus(Source) of
+                {ok, JobRef} ->
+                    Reply = {pickup, JobRef},
+                    State = submit_insert(JobRef, Slot, State0),
+                    {reply, Reply, State};
+
+                busy ->
+                    {reply, busy, State0}
+            end
     end.
 
 %%--------------------------------------------------------------------
 
-compile_add(Source, Self, RequestRef, Index, Slot, State) ->
-    case map_size(State#state.compiles) of
-        Active when Active < ?LIMIT ->
-            compile_start(Source, Self, RequestRef, Index, Slot, State);
-
-        _ ->
-            compile_queue(Source, RequestRef, Index, Slot, State)
-    end.
+submit_to_quartus(Source) ->
+    experiment_compile:connect(),
+    gen_server:call({global, quartus}, {submit, Source, self()}).
 
 %%--------------------------------------------------------------------
 
-compile_start(Source, Self, RequestRef, Index, Slot, State) ->
-    CompileRef = make_ref(),
-    {_Pid, MonitorRef} = spawn_monitor(fun () ->
-        Response = experiment_compile:request(Source),
-        Self ! {compile_done, CompileRef, Response}
-    end),
-    Compile = #compile{
-        request = RequestRef,
-        monitor = MonitorRef,
-        index = Index,
-        slot = Slot
+submit_insert(JobRef, Slot, State) ->
+    TimeoutMessage = {submit_timeout, JobRef},
+    {ok, TimerRef} = timer:send_after(?SUBMIT_TIMEOUT, TimeoutMessage),
+    Submit = #submit{
+        slot = Slot,
+        pickup_ref = undefined,
+        timer_ref = TimerRef
     },
-    Compiles = State#state.compiles,
+    Submits = State#state.submits,
     State#state{
-        compiles = Compiles#{CompileRef => Compile}
+        submits = Submits#{JobRef => Submit}
     }.
 
-%%--------------------------------------------------------------------
+%%====================================================================
+%% submit_result
+%%====================================================================
 
-compile_queue(Source, RequestRef, Index, Slot, State) ->
-    In = #queue{
-        request = RequestRef,
-        source = Source,
-        index = Index,
-        slot = Slot
-    },
-    Queue = State#state.queue,
-    State#state{
-        queue = queue:in(In, Queue)
-    }.
+-spec submit_result(job_ref(), result(), #state{}) -> #state{}.
 
-%%--------------------------------------------------------------------
-
--spec compile_dequeue(pid(), #state{}) -> #state{}.
-
-compile_dequeue(Self, State0 = #state{compiles = Compiles})
-        when map_size(Compiles) < ?LIMIT ->
-    case queue:out(State0#state.queue) of
-        {empty, _} ->
-            State0;
-
-        {{value, Out = #queue{}}, Queue} ->
-            RequestRef = Out#queue.request,
-            Source = Out#queue.source,
-            Index = Out#queue.index,
-            Slot = Out#queue.slot,
-            State = State0#state{queue = Queue},
-            compile_start(Source, Self, RequestRef, Index, Slot, State)
-    end;
-compile_dequeue(_, State) ->
-    State.
-
-%%--------------------------------------------------------------------
-
--spec compile_down(monitor_ref(), #state{}) -> #state{}.
-
-compile_down(MonitorRef, State = #state{}) ->
-    case State#state.monitors of
-        #{MonitorRef := CompileRef} ->
-            Response = {error, down},
-            compile_done(CompileRef, Response, State);
+submit_result(JobRef, Result, State) ->
+    case State#state.submits of
+        #{JobRef := Submit} ->
+            submit_result(JobRef, Result, Submit, State);
 
         _ ->
             State
@@ -241,63 +210,131 @@ compile_down(MonitorRef, State = #state{}) ->
 
 %%--------------------------------------------------------------------
 
--spec compile_done(compile_ref(), response(), #state{}) -> #state{}.
-
-compile_done(CompileRef, Response, State = #state{}) ->
-    #{CompileRef := Compile} = State#state.compiles,
-    MonitorRef = Compile#compile.monitor,
-    true = demonitor(MonitorRef, [flush]),
-    RequestRef = Compile#compile.request,
-    Index = Compile#compile.index,
-    Slot = Compile#compile.slot,
-    Reply = case experiment_compile:response(Response) of
+submit_result(JobRef, Result, Submit, State) ->
+    _ = timer:cancel(Submit#submit.timer_ref),
+    case Result of
         {ok, Files} ->
-            {ok, experiment_cache:store(Slot, Files)};
-
-        error ->
-            error
-    end,
-    request_done(RequestRef, Index, Reply, State#state{
-        compiles = maps:remove(CompileRef, State#state.compiles),
-        monitors = maps:remove(MonitorRef, State#state.monitors)
-    }).
-
-%%--------------------------------------------------------------------
-
-request_done(RequestRef, Index, Reply0, State = #state{}) ->
-    #{RequestRef := Request} = Requests = State#state.requests,
-    case Request#request.size of
-        Size when Size =:= map_size(Request#request.replies) + 1 ->
-            Replies = Request#request.replies,
-            Reply = request_reply(Size, Replies#{Index => Reply0}, []),
-            ok = gen_server:reply(Request#request.from, Reply),
-            State#state{
-                requests = maps:remove(RequestRef, Requests)
-            };
+            experiment_cache:store(Submit#submit.slot, Files);
 
         _ ->
-            Replies = Request#request.replies,
-            State#state{
-                requests = Requests#{
-                    RequestRef => Request#request{
-                        replies = Replies#{Index => Reply0}
-                    }
-                }
-            }
+            ok
+    end,
+    case Submit#submit.pickup_ref of
+        undefined ->
+            result_store(JobRef, Result, State);
+
+        PickupRef ->
+            pickup_reply(PickupRef, JobRef, Result, State)
     end.
 
 %%--------------------------------------------------------------------
 
-request_reply(0, _, List) ->
-    {ok, List};
-request_reply(Index, Map, List) when is_map_key(Index, Map) ->
-    case Map of
-        #{Index := {ok, Reply}} ->
-            request_reply(Index - 1, Map, [Reply | List]);
+result_store(JobRef, Result, State) ->
+    Submits = State#state.submits,
+    Results = State#state.results,
+    State#state{
+        submits = maps:remove(JobRef, Submits),
+        results = Results#{JobRef => Result}
+    }.
 
-        #{Index := error} ->
-            error
-    end;
-request_reply(_, _, _) ->
-    error.
+%%--------------------------------------------------------------------
+
+pickup_reply(PickupRef, JobRef, Result, State) ->
+    case State#state.pickups of
+        #{PickupRef := #pickup{from = From, timer_ref = TimerRef}} ->
+            _ = timer:cancel(TimerRef),
+            ok = gen_server:reply(From, {ok, #{JobRef => Result}}),
+            State#state{
+                submits = maps:remove(JobRef, State#state.submits),
+                pickups = maps:remove(PickupRef, State#state.pickups)
+            };
+
+        _ ->
+            result_store(JobRef, Result, State)
+    end.
+
+%%====================================================================
+%% pickup
+%%====================================================================
+
+-spec pickup([job_ref()], pos_integer(), gen_server:from(), #state{})
+    -> {reply, pickup_reply(), #state{}} |
+       {no_reply, #state{}}.
+
+pickup(JobRefs, Timeout, From, State0 = #state{}) ->
+    case pickup_collect(JobRefs, State0) of
+        {ok, Replies, State} ->
+            {reply, {ok, Replies}, State};
+
+        false ->
+            PickupRef = make_ref(),
+            TimeoutMessage = {pickup_timeout, PickupRef},
+            {ok, TimerRef} = timer:send_after(Timeout, TimeoutMessage),
+            Pickup = #pickup{
+                from = From,
+                timer_ref = TimerRef
+            },
+            Submits = State0#state.submits,
+            Pickups = State0#state.pickups,
+            State = State0#state{
+                submits = pickup_register(JobRefs, PickupRef, Submits),
+                pickups = Pickups#{PickupRef => Pickup}
+            },
+            {noreply, State}
+    end.
+
+%%--------------------------------------------------------------------
+
+pickup_collect(JobRefs, State) ->
+    pickup_collect(JobRefs, State, #{}).
+
+%%--------------------------------------------------------------------
+
+pickup_collect([], _State, Replies) when map_size(Replies) =:= 0 ->
+    false;
+pickup_collect([], State, Replies)  ->
+    {ok, Replies, State};
+pickup_collect([JobRef | JobRefs], State0 = #state{}, Replies) ->
+    Results = State0#state.results,
+    case Results of
+        #{JobRef := Result} ->
+            State = State0#state{results = maps:remove(JobRef, Results)},
+            pickup_collect(JobRefs, State, Replies#{JobRef => Result});
+
+        _ ->
+            pickup_collect(JobRefs, State0, Replies)
+    end.
+
+%%--------------------------------------------------------------------
+
+pickup_register([], _, Submits) ->
+    Submits;
+pickup_register([JobRef | JobRefs], PickupRef, Submits) ->
+    case Submits of
+        #{JobRef := Submit = #submit{}} ->
+            pickup_register(JobRefs, PickupRef, Submits#{
+                JobRef => Submit#submit{pickup_ref = PickupRef}
+            });
+
+        _ ->
+            pickup_register(JobRefs, PickupRef, Submits)
+    end.
+
+%%====================================================================
+%% pickup_timeout
+%%====================================================================
+
+-spec pickup_timeout(pickup_ref(), #state{}) -> #state{}.
+
+pickup_timeout(PickupRef, State) ->
+    case State#state.pickups of
+        #{PickupRef := #pickup{from = From}} ->
+            ok = gen_server:reply(From, false),
+            State#state{
+                pickups = maps:remove(PickupRef, State#state.pickups)
+            };
+
+        _ ->
+            State
+    end.
 

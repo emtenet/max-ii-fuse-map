@@ -1,12 +1,12 @@
 -module(experiment_compile).
 
--export([prepare/1]).
+-export([pre/1]).
 -export([connect/0]).
--export([request/1]).
--export([response/1]).
+-export([post/1]).
 
 -export_type([files/0]).
--export_type([response/0]).
+-export_type([job_ref/0]).
+-export_type([result/0]).
 -export_type([source/0]).
 
 -type compile() :: experiment:compile().
@@ -16,7 +16,9 @@
     rcf := binary()
 }.
 
--type response() :: {ok, files()} | {error, term()}.
+-type job_ref() :: reference().
+
+-type result() :: {ok, files()} | {error, term()}.
 
 -type source() :: #{
     title := experiment:title(),
@@ -26,12 +28,12 @@
 }.
 
 %%====================================================================
-%% prepare
+%% pre
 %%====================================================================
 
--spec prepare(compile()) -> source().
+-spec pre(compile()) -> source().
 
-prepare(#{title := Title, device := Device, settings := Settings, vhdl := VHDL})
+pre(#{title := Title, device := Device, settings := Settings, vhdl := VHDL})
         when is_atom(Device) andalso
              is_list(Settings) andalso
              is_binary(VHDL) ->
@@ -63,37 +65,28 @@ connect() ->
     end.
 
 %%====================================================================
-%% request
+%% post
 %%====================================================================
 
--spec request(source()) -> response().
+-spec post(result()) -> {ok, experiment:result()} | error.
 
-request(Source) ->
-    gen_server:call({global, quartus}, {compile, Source}, 10000).
-
-%%====================================================================
-%% response
-%%====================================================================
-
--spec response(response()) -> {ok, files()} | error.
-
-response({ok, Files}) ->
-    {ok, Files};
-response({error, {quartus_map, Exit, Out}}) ->
-    response_out("MAP", Exit, Out);
-response({error, {quartus_fit, Exit, Out}}) ->
-    response_out("FIT", Exit, Out);
-response({error, {quartus_asm, Exit, Out}}) ->
-    response_out("ASM", Exit, Out);
-response({error, {quartus_cdb, Exit, Out}}) ->
-    response_out("CDB", Exit, Out);
-response({error, Error}) ->
+post({ok, #{pof := POF, rcf := RCF}}) ->
+    {ok, {compiled, POF, RCF}};
+post({error, {quartus_map, Exit, Out}}) ->
+    post_out("MAP", Exit, Out);
+post({error, {quartus_fit, Exit, Out}}) ->
+    post_out("FIT", Exit, Out);
+post({error, {quartus_asm, Exit, Out}}) ->
+    post_out("ASM", Exit, Out);
+post({error, {quartus_cdb, Exit, Out}}) ->
+    post_out("CDB", Exit, Out);
+post({error, Error}) ->
     io:format("QUARTUS: ~p~n", [Error]),
     error.
 
 %%--------------------------------------------------------------------
 
-response_out(Who, Exit, Out) ->
+post_out(Who, Exit, Out) ->
     io:format("========================================~n", []),
     io:format("~s~n", [Out]),
     io:format("========================================~n", []),

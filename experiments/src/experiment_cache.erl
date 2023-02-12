@@ -49,14 +49,14 @@ load(#{device := Device, settings := Settings, vhdl := VHDL}) ->
 %% store
 %%====================================================================
 
--spec store(slot(), files()) -> experiment:result().
+-spec store(slot(), files()) -> ok.
 
 store({slot, Source, Dir}, #{pof := POF, rcf := RCF}) ->
     make_dir(Dir),
     write_pof(Dir, POF),
     write_rcf(Dir, RCF),
     write_source(Dir, Source),
-    {compiled, POF, RCF}.
+    ok.
 
 %%====================================================================
 %% flush
