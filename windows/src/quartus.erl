@@ -1,7 +1,6 @@
 -module(quartus).
 
 -export([submit/1]).
--export([pickup/2]).
 
 % application
 -export([child_spec/0]).
@@ -34,15 +33,6 @@ submit(Source) ->
     gen_server:call(?MODULE, {submit, Source}).
 
 %%====================================================================
-%% pickup
-%%====================================================================
-
--spec pickup([job_ref()], timer:time()) -> {ok, #{job_ref() => result()}} | false.
-
-pickup(JobRefs, Timeout) ->
-    gen_server:call(?MODULE, {pickup, JobRefs, Timeout}).
-
-%%====================================================================
 %% application
 %%====================================================================
 
@@ -63,27 +53,18 @@ start_link() ->
 
 -type dir() :: string().
 -type monitor_ref() :: reference().
--type pickup_ref() :: reference().
--type timer_ref() :: timer:tref().
 
 -record(job, {
+    from :: pid(),
     dir :: dir(),
-    monitor :: monitor_ref(),
-    pickup_ref :: pickup_ref() | undefined
-}).
-
--record(pickup, {
-    from :: gen_server:from(),
-    timer_ref :: timer_ref()
+    monitor :: monitor_ref()
 }).
 
 -record(state, {
     dir :: dir(),
     dirs :: #{dir() => job_ref()},
     jobs :: #{job_ref() => #job{}},
-    monitors :: #{monitor_ref() => job_ref()},
-    results :: #{job_ref() => result()},
-    pickups :: #{pickup_ref() => #pickup{}}
+    monitors :: #{monitor_ref() => job_ref()}
 }).
 
 %%--------------------------------------------------------------------
@@ -93,17 +74,14 @@ init(undefined) ->
         dir = dir_first(),
         dirs = #{},
         jobs = #{},
-        monitors = #{},
-        pickups = #{}
+        monitors = #{}
     },
     {ok, State}.
 
 %%--------------------------------------------------------------------
 
-handle_call({submit, Source}, _From, State) ->
-    submit(Source, self(), State);
-handle_call({pickup, JobRefs, Timeout}, From, State) ->
-    pickup(JobRefs, Timeout, From, State);
+handle_call({submit, Source, From}, _From, State) ->
+    submit(Source, From, self(), State);
 handle_call(stop, _From, State) ->
     {stop, normal, ok, State}.
 
@@ -117,15 +95,13 @@ handle_cast(_Cast, State) ->
 handle_info({'DOWN', MonitorRef, process, _, _}, State = #state{}) ->
     case State#state.monitors of
         #{MonitorRef := JobRef} ->
-            {noreply, compile_done(JobRef, {error, 'DOWN'}, State)};
+            {noreply, submit_result(JobRef, {error, 'DOWN'}, State)};
 
         _ ->
             {noreply, State}
     end;
-handle_info({compile_done, JobRef, Result}, State) ->
-    {noreply, compile_done(JobRef, Result, State)};
-handle_info({pickup_timeout, PickupRef}, State) ->
-    {noreply, pickup_timeout(PickupRef, State)};
+handle_info({submit_result, JobRef, Result}, State) ->
+    {noreply, submit_result(JobRef, Result, State)};
 handle_info(Info, State) ->
     io:format("info ~p~n", [Info]),
     {noreply, State}.
@@ -144,20 +120,22 @@ terminate(_Reason, _State) ->
 %% submit
 %%====================================================================
 
-submit(_, _Self, State = #state{jobs = Jobs}) when map_size(Jobs) >= ?JOB_LIMIT ->
+-spec submit(source(), pid(), pid(), #state{}) -> {reply, {ok, job_ref()} | busy, #state{}}.
+
+submit(_, _From, _Self, State = #state{jobs = Jobs}) when map_size(Jobs) >= ?JOB_LIMIT ->
     {reply, busy, State};
-submit(Source, Self, State = #state{dir = Dir0, dirs = Dirs}) ->
+submit(Source, From, Self, State = #state{dir = Dir0, dirs = Dirs}) ->
     Dir = dir_next_free(Dir0, Dirs),
     JobRef = make_ref(),
     {_Pid, MonitorRef} = spawn_monitor(fun () ->
-        Self ! {compile_done, JobRef, quartus_compile:in_dir(Dir, Source)}
+        Self ! {submit_result, JobRef, quartus_compile:in_dir(Dir, Source)}
     end),
     Jobs = State#state.jobs,
     Monitors = State#state.monitors,
     Job = #job{
+        from = From,
         dir = Dir,
-        monitor = MonitorRef,
-        pickup_ref = undefined
+        monitor = MonitorRef
     },
     {reply, {ok, JobRef}, State#state{
         dir = dir_next(Dir),
@@ -167,118 +145,20 @@ submit(Source, Self, State = #state{dir = Dir0, dirs = Dirs}) ->
     }}.
 
 %%====================================================================
-%% compile_done
+%% submit_result
 %%====================================================================
 
-compile_done(JobRef, Result, State0 = #state{}) ->
-    #{JobRef := Job} = State0#state.jobs,
+-spec submit_result(job_ref(), result(), #state{}) -> #state{}.
+
+submit_result(JobRef, Result, State = #state{}) ->
+    #{JobRef := Job} = State#state.jobs,
     true = demonitor(Job#job.monitor, [flush]),
-    State = State0#state{
-        dirs = maps:remove(Job#job.dir, State0#state.dirs),
-        jobs = maps:remove(JobRef, State0#state.jobs),
-        monitors = maps:remove(Job#job.monitor, State0#state.monitors)
-    },
-    case Job#job.pickup_ref of
-        undefined ->
-            State#state{
-                results = maps:put(JobRef, Result, State#state.results)
-            };
-
-        PickupRef ->
-            compile_pickup(PickupRef, JobRef, Result, State)
-    end.
-
-%%--------------------------------------------------------------------
-
-compile_pickup(PickupRef, JobRef, Result, State = #state{}) ->
-    case State#state.pickups of
-        #{PickupRef := #pickup{from = From, timer_ref = TimerRef}} ->
-            ok = gen_server:reply(From, {ok, #{JobRef => Result}}),
-            timer:cancel(TimerRef),
-            State#state{
-                pickups = maps:remove(PickupRef, State#state.pickups)
-            };
-
-        _ ->
-            State#state{
-                results = maps:put(JobRef, Result, State#state.results)
-            }
-    end.
-
-%%====================================================================
-%% pickup
-%%====================================================================
-
-pickup(JobRefs, Timeout, From, State0 = #state{}) ->
-    case pickup_collect(JobRefs, State0) of
-        {ok, Replies, State} ->
-            {reply, {ok, Replies}, State};
-
-        false ->
-            PickupRef = make_ref(),
-            {ok, TimerRef} = timer:send_after(Timeout, {pickup_timeout, PickupRef}),
-            Pickup = #pickup{
-                from = From,
-                timer_ref = TimerRef
-            },
-            State = State0#state{
-                jobs = pickup_register(JobRefs, PickupRef, State0#state.jobs),
-                pickups = maps:put(PickupRef, Pickup, State0#state.pickups)
-            },
-            {noreply, State}
-    end.
-
-%%--------------------------------------------------------------------
-
-pickup_collect(JobRefs, State) ->
-    pickup_collect(JobRefs, State, #{}).
-
-%%--------------------------------------------------------------------
-
-pickup_collect([], _State, Replies) when map_size(Replies) =:= 0 ->
-    false;
-pickup_collect([], State, Replies)  ->
-    {ok, Replies, State};
-pickup_collect([JobRef | JobRefs], State0 = #state{results = Results}, Replies) ->
-    case Results of
-        #{JobRef := Result} ->
-            State = State0#state{results = maps:remove(JobRef, Results)},
-            pickup_collect(JobRefs, State, Replies#{JobRef => Result});
-
-        _ ->
-            pickup_collect(JobRefs, State0, Replies)
-    end.
-
-%%--------------------------------------------------------------------
-
-pickup_register([], _, Jobs) ->
-    Jobs;
-pickup_register([JobRef | JobRefs], PickupRef, Jobs) ->
-    case Jobs of
-        #{JobRef := Job = #job{}} ->
-            pickup_register(JobRefs, PickupRef, Jobs#{
-                JobRef => Job#job{pickup_ref = PickupRef}
-            });
-
-        _ ->
-            pickup_register(JobRefs, PickupRef, Jobs)
-    end.
-
-%%====================================================================
-%% pickup_timeout
-%%====================================================================
-
-pickup_timeout(PickupRef, State) ->
-    case State#state.pickups of
-        #{PickupRef := #pickup{from = From}} ->
-            ok = gen_server:reply(From, false),
-            State#state{
-                pickups = maps:remove(PickupRef, State#state.pickups)
-            };
-
-        _ ->
-            State
-    end.
+    Job#job.from ! {submit_result, JobRef, Result},
+    State#state{
+        dirs = maps:remove(Job#job.dir, State#state.dirs),
+        jobs = maps:remove(JobRef, State#state.jobs),
+        monitors = maps:remove(Job#job.monitor, State#state.monitors)
+    }.
 
 %%====================================================================
 %% dirs
