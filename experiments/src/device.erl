@@ -82,7 +82,7 @@ name(epm2210_f324) -> <<"EPM2210F324C5">>.
 %% from_name
 %%====================================================================
 
--spec from_name(device()) -> binary().
+-spec from_name(binary()) -> device().
 
 from_name(<<"EPM240M100C5">>) -> epm240_m100;
 from_name(<<"EPM240F100C5">>) -> epm240_f100;
