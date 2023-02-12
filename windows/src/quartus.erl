@@ -1,5 +1,9 @@
 -module(quartus).
 
+-export([submit/1]).
+-export([pickup/2]).
+
+% application
 -export([child_spec/0]).
 -export([start_link/0]).
 
@@ -11,7 +15,32 @@
 -export([code_change/3]).
 -export([terminate/2]).
 
--include_lib("kernel/include/file.hrl").
+-export_type([job_ref/0]).
+
+-define(JOB_LIMIT, 16).
+
+-type source() :: quartus_compile:source().
+-type result() :: quartus_compile:result().
+
+-type job_ref() :: reference().
+
+%%====================================================================
+%% submit
+%%====================================================================
+
+-spec submit(source()) -> {ok, job_ref()} | busy.
+
+submit(Source) ->
+    gen_server:call(?MODULE, {submit, Source}).
+
+%%====================================================================
+%% pickup
+%%====================================================================
+
+-spec pickup([job_ref()], timer:time()) -> {ok, #{job_ref() => result()}} | false.
+
+pickup(JobRefs, Timeout) ->
+    gen_server:call(?MODULE, {pickup, JobRefs, Timeout}).
 
 %%====================================================================
 %% application
@@ -33,20 +62,28 @@ start_link() ->
 %%====================================================================
 
 -type dir() :: string().
--type job_ref() :: reference().
 -type monitor_ref() :: reference().
+-type pickup_ref() :: reference().
+-type timer_ref() :: timer:tref().
 
 -record(job, {
     dir :: dir(),
-    from :: term(),
-    monitor :: monitor_ref()
+    monitor :: monitor_ref(),
+    pickup_ref :: pickup_ref() | undefined
+}).
+
+-record(pickup, {
+    from :: gen_server:from(),
+    timer_ref :: timer_ref()
 }).
 
 -record(state, {
     dir :: dir(),
     dirs :: #{dir() => job_ref()},
     jobs :: #{job_ref() => #job{}},
-    monitors :: #{monitor_ref() => job_ref()}
+    monitors :: #{monitor_ref() => job_ref()},
+    results :: #{job_ref() => result()},
+    pickups :: #{pickup_ref() => #pickup{}}
 }).
 
 %%--------------------------------------------------------------------
@@ -56,14 +93,17 @@ init(undefined) ->
         dir = dir_first(),
         dirs = #{},
         jobs = #{},
-        monitors = #{}
+        monitors = #{},
+        pickups = #{}
     },
     {ok, State}.
 
 %%--------------------------------------------------------------------
 
-handle_call({compile, Compile}, From, State) ->
-    {noreply, compile(Compile, self(), From, State)};
+handle_call({submit, Source}, _From, State) ->
+    submit(Source, self(), State);
+handle_call({pickup, JobRefs, Timeout}, From, State) ->
+    pickup(JobRefs, Timeout, From, State);
 handle_call(stop, _From, State) ->
     {stop, normal, ok, State}.
 
@@ -77,26 +117,15 @@ handle_cast(_Cast, State) ->
 handle_info({'DOWN', MonitorRef, process, _, _}, State = #state{}) ->
     case State#state.monitors of
         #{MonitorRef := JobRef} ->
-            #{JobRef := Job} = State#state.jobs,
-            ok = gen_server:reply(Job#job.from, {error, 'DOWN'}),
-            {noreply, State#state{
-                dirs = maps:remove(Job#job.dir, State#state.dirs),
-                jobs = maps:remove(JobRef, State#state.jobs),
-                monitors = maps:remove(MonitorRef, State#state.monitors)
-            }};
+            {noreply, compile_done(JobRef, {error, 'DOWN'}, State)};
 
         _ ->
             {noreply, State}
     end;
-handle_info({compile, JobRef, Reply}, State) ->
-    #{JobRef := Job} = State#state.jobs,
-    true = demonitor(Job#job.monitor, [flush]),
-    ok = gen_server:reply(Job#job.from, Reply),
-    {noreply, State#state{
-        dirs = maps:remove(Job#job.dir, State#state.dirs),
-        jobs = maps:remove(JobRef, State#state.jobs),
-        monitors = maps:remove(Job#job.monitor, State#state.monitors)
-    }};
+handle_info({compile_done, JobRef, Result}, State) ->
+    {noreply, compile_done(JobRef, Result, State)};
+handle_info({pickup_timeout, PickupRef}, State) ->
+    {noreply, pickup_timeout(PickupRef, State)};
 handle_info(Info, State) ->
     io:format("info ~p~n", [Info]),
     {noreply, State}.
@@ -112,7 +141,147 @@ terminate(_Reason, _State) ->
     ok.
 
 %%====================================================================
-%% internal
+%% submit
+%%====================================================================
+
+submit(_, _Self, State = #state{jobs = Jobs}) when map_size(Jobs) >= ?JOB_LIMIT ->
+    {reply, busy, State};
+submit(Source, Self, State = #state{dir = Dir0, dirs = Dirs}) ->
+    Dir = dir_next_free(Dir0, Dirs),
+    JobRef = make_ref(),
+    {_Pid, MonitorRef} = spawn_monitor(fun () ->
+        Self ! {compile_done, JobRef, quartus_compile:in_dir(Dir, Source)}
+    end),
+    Jobs = State#state.jobs,
+    Monitors = State#state.monitors,
+    Job = #job{
+        dir = Dir,
+        monitor = MonitorRef,
+        pickup_ref = undefined
+    },
+    {reply, {ok, JobRef}, State#state{
+        dir = dir_next(Dir),
+        dirs = Dirs#{Dir => JobRef},
+        jobs = Jobs#{JobRef => Job},
+        monitors = Monitors#{MonitorRef => JobRef}
+    }}.
+
+%%====================================================================
+%% compile_done
+%%====================================================================
+
+compile_done(JobRef, Result, State0 = #state{}) ->
+    #{JobRef := Job} = State0#state.jobs,
+    true = demonitor(Job#job.monitor, [flush]),
+    State = State0#state{
+        dirs = maps:remove(Job#job.dir, State0#state.dirs),
+        jobs = maps:remove(JobRef, State0#state.jobs),
+        monitors = maps:remove(Job#job.monitor, State0#state.monitors)
+    },
+    case Job#job.pickup_ref of
+        undefined ->
+            State#state{
+                results = maps:put(JobRef, Result, State#state.results)
+            };
+
+        PickupRef ->
+            compile_pickup(PickupRef, JobRef, Result, State)
+    end.
+
+%%--------------------------------------------------------------------
+
+compile_pickup(PickupRef, JobRef, Result, State = #state{}) ->
+    case State#state.pickups of
+        #{PickupRef := #pickup{from = From, timer_ref = TimerRef}} ->
+            ok = gen_server:reply(From, {ok, #{JobRef => Result}}),
+            timer:cancel(TimerRef),
+            State#state{
+                pickups = maps:remove(PickupRef, State#state.pickups)
+            };
+
+        _ ->
+            State#state{
+                results = maps:put(JobRef, Result, State#state.results)
+            }
+    end.
+
+%%====================================================================
+%% pickup
+%%====================================================================
+
+pickup(JobRefs, Timeout, From, State0 = #state{}) ->
+    case pickup_collect(JobRefs, State0) of
+        {ok, Replies, State} ->
+            {reply, {ok, Replies}, State};
+
+        false ->
+            PickupRef = make_ref(),
+            {ok, TimerRef} = timer:send_after(Timeout, {pickup_timeout, PickupRef}),
+            Pickup = #pickup{
+                from = From,
+                timer_ref = TimerRef
+            },
+            State = State0#state{
+                jobs = pickup_register(JobRefs, PickupRef, State0#state.jobs),
+                pickups = maps:put(PickupRef, Pickup, State0#state.pickups)
+            },
+            {noreply, State}
+    end.
+
+%%--------------------------------------------------------------------
+
+pickup_collect(JobRefs, State) ->
+    pickup_collect(JobRefs, State, #{}).
+
+%%--------------------------------------------------------------------
+
+pickup_collect([], _State, Replies) when map_size(Replies) =:= 0 ->
+    false;
+pickup_collect([], State, Replies)  ->
+    {ok, Replies, State};
+pickup_collect([JobRef | JobRefs], State0 = #state{results = Results}, Replies) ->
+    case Results of
+        #{JobRef := Result} ->
+            State = State0#state{results = maps:remove(JobRef, Results)},
+            pickup_collect(JobRefs, State, Replies#{JobRef => Result});
+
+        _ ->
+            pickup_collect(JobRefs, State0, Replies)
+    end.
+
+%%--------------------------------------------------------------------
+
+pickup_register([], _, Jobs) ->
+    Jobs;
+pickup_register([JobRef | JobRefs], PickupRef, Jobs) ->
+    case Jobs of
+        #{JobRef := Job = #job{}} ->
+            pickup_register(JobRefs, PickupRef, Jobs#{
+                JobRef => Job#job{pickup_ref = PickupRef}
+            });
+
+        _ ->
+            pickup_register(JobRefs, PickupRef, Jobs)
+    end.
+
+%%====================================================================
+%% pickup_timeout
+%%====================================================================
+
+pickup_timeout(PickupRef, State) ->
+    case State#state.pickups of
+        #{PickupRef := #pickup{from = From}} ->
+            ok = gen_server:reply(From, false),
+            State#state{
+                pickups = maps:remove(PickupRef, State#state.pickups)
+            };
+
+        _ ->
+            State
+    end.
+
+%%====================================================================
+%% dirs
 %%====================================================================
 
 dir_first() ->
@@ -131,291 +300,3 @@ dir_next_free(Dir, Dirs) when is_map_key(Dir, Dirs) ->
     dir_next_free(dir_next(Dir), Dirs);
 dir_next_free(Dir, _) ->
     Dir.
-
-%%--------------------------------------------------------------------
-
-compile(Compile, Self, From, State = #state{dir = Dir0, dirs = Dirs}) ->
-    Dir = dir_next_free(Dir0, Dirs),
-    JobRef = make_ref(),
-    {_Pid, MonitorRef} = spawn_monitor(fun () ->
-        Self ! {compile, JobRef, compile(Dir, Compile)}
-    end),
-    Jobs = State#state.jobs,
-    Monitors = State#state.monitors,
-    Job = #job{dir = Dir, from = From, monitor = MonitorRef},
-    State#state{
-        dir = dir_next(Dir),
-        dirs = Dirs#{Dir => JobRef},
-        jobs = Jobs#{JobRef => Job},
-        monitors = Monitors#{MonitorRef => JobRef}
-    }.
-
-%%--------------------------------------------------------------------
-
-compile(InDir, Compile = #{device := Device, settings := Settings, vhdl := VHDL})
-        when is_binary(Device) andalso
-             is_binary(Settings) andalso
-             is_binary(VHDL) ->
-    case Compile of
-        #{title := Title} when is_atom(Title) orelse is_binary(Title) ->
-            io:format("[~s] ~s ~s~n", [InDir, Device, Title]);
-
-        #{title := Title} ->
-            io:format("[~s] ~s ~p~n", [InDir, Device, Title]);
-
-        _ ->
-            io:format("[~s] ~s~n", [InDir, Device])
-    end,
-    Dir = filename:join("run", InDir),
-    case file:make_dir(Dir) of
-        ok ->
-            compile_clear(Dir, Device, Settings, VHDL);
-
-        {error, eexist} ->
-            compile_clear(Dir, Device, Settings, VHDL);
-
-        {error, Reason} ->
-            {error, {make_dir, Reason}}
-    end;
-compile(_, _) ->
-    {error, badarg}.
-
-%%--------------------------------------------------------------------
-
-compile_clear(Dir, Device, Settings, VHDL) ->
-    case clear_dir(Dir) of
-        ok ->
-            compile_qpf(Dir, Device, Settings, VHDL);
-
-        {error, Reason} ->
-            {error, {clear_dir, Reason}}
-    end.
-
-%%--------------------------------------------------------------------
-
-compile_qpf(Dir, Device, Settings, VHDL) ->
-    File = filename:join(Dir, "experiment.qpf"),
-    Data = <<
-        "QUARTUS_VERSION = \"13.1\"\n"
-        "DATE = \"11:38:48  January 28, 2023\"\n"
-        "PROJECT_REVISION = \"experiment\"\n"
-    >>,
-    case file:write_file(File, Data) of
-        ok ->
-            compile_qsf(Dir, Device, Settings, VHDL);
-
-        {error, Reason} ->
-            {error, {qpf_file, Reason}}
-    end.
-
-%%--------------------------------------------------------------------
-
-compile_qsf(Dir, Device, Settings, VHDL) ->
-    File = filename:join(Dir, "experiment.qsf"),
-    Data = <<
-        "set_global_assignment -name FAMILY \"MAX II\"\n"
-        "set_global_assignment -name DEVICE ", Device/binary, "\n"
-        "set_global_assignment -name PROJECT_OUTPUT_DIRECTORY output_files\n"
-        "set_global_assignment -name VHDL_FILE experiment.vhd\n"
-        "set_global_assignment -name TOP_LEVEL_ENTITY experiment\n",
-        Settings/binary
-    >>,
-    case file:write_file(File, Data) of
-        ok ->
-            compile_vhd(Dir, Device, VHDL);
-
-        {error, Reason} ->
-            {error, {qpf_file, Reason}}
-    end.
-
-%%--------------------------------------------------------------------
-
-compile_vhd(Dir, Device, VHDL) ->
-    File = filename:join(Dir, "experiment.vhd"),
-    case file:write_file(File, VHDL) of
-        ok ->
-            compile_map(Dir, Device);
-
-        {error, Reason} ->
-            {error, {qpf_file, Reason}}
-    end.
-
-%%--------------------------------------------------------------------
-
-compile_map(Dir, Device) ->
-    Bin = "quartus_map",
-    Args = [
-        "experiment",
-        "--source=experiment.vhd",
-        "--family=MAX II"
-    ],
-    case exec(Dir, Bin, Args) of
-        ok ->
-            compile_fit(Dir, Device);
-
-        {error, {exit, Exit, Out}} ->
-            {error, {quartus_map, Exit, Out}}
-    end.
-
-%%--------------------------------------------------------------------
-
-compile_fit(Dir, Device) ->
-    Bin = "quartus_fit",
-    Args = [
-        "experiment",
-        "--part=" ++ binary_to_list(Device)
-    ],
-    case exec(Dir, Bin, Args) of
-        ok ->
-            compile_asm(Dir);
-
-        {error, {exit, Exit, Out}} ->
-            {error, {quartus_fit, Exit, Out}}
-    end.
-
-%%--------------------------------------------------------------------
-
-compile_asm(Dir) ->
-    Bin ="quartus_asm",
-    Args = [
-        "experiment"
-    ],
-    case exec(Dir, Bin, Args) of
-        ok ->
-            compile_cdb(Dir);
-
-        {error, {exit, Exit, Out}} ->
-            {error, {quartus_asm, Exit, Out}}
-    end.
-
-%%--------------------------------------------------------------------
-
-compile_cdb(Dir) ->
-    Bin ="quartus_cdb",
-    Args = [
-        "--back_annotate=routing",
-        "experiment"
-    ],
-    case exec(Dir, Bin, Args) of
-        ok ->
-            compile_read_pof(Dir);
-
-        {error, {exit, Exit, Out}} ->
-            {error, {quartus_asm, Exit, Out}}
-    end.
-
-%%--------------------------------------------------------------------
-
-compile_read_pof(Dir) ->
-    File = filename:join([Dir, "output_files", "experiment.pof"]),
-    case file:read_file(File) of
-        {ok, POF} ->
-            compile_read_rcf(Dir, POF);
-
-        {error, Reason} ->
-            {error, {pof_file, Reason}}
-    end.
-
-%%--------------------------------------------------------------------
-
-compile_read_rcf(Dir, POF) ->
-    File = filename:join([Dir, "experiment.rcf"]),
-    case file:read_file(File) of
-        {ok, RCF} ->
-            {ok, #{pof => POF, rcf => RCF}};
-
-        {error, Reason} ->
-            {error, {rcf_file, Reason}}
-    end.
-
-%%====================================================================
-%% helpers
-%%====================================================================
-
-clear_dir(Dir) ->
-    case file:list_dir_all(Dir) of
-        {ok, Names} ->
-            clear_dir(Dir, Names);
-
-        Error ->
-            Error
-    end.
-
-%%--------------------------------------------------------------------
-
-clear_dir(_, []) ->
-    ok;
-clear_dir(Dir, [Name | Names]) ->
-    case clear_file(filename:join(Dir, Name)) of
-        ok ->
-            clear_dir(Dir, Names);
-
-        Error ->
-            Error
-    end.
-
-%%--------------------------------------------------------------------
-
-clear_file(File) ->
-    case file:read_link_info(File) of
-        {ok, #file_info{type = directory}} ->
-            case clear_dir(File) of
-                ok ->
-                    file:del_dir(File);
-
-                Error ->
-                    Error
-            end;
-
-        {ok, _} ->
-            file:delete(File);
-
-        Error ->
-            Error
-    end.
-
-%%--------------------------------------------------------------------
-
-exec(Dir, Arg0, Args) ->
-    Path = "C:\\Applications\\Altera\\13.1\\quartus\\bin64",
-    Exec = {spawn_executable, filename:join(Path, Arg0)},
-    Opts = [
-        {args, Args},
-        {cd, Dir},
-        stream,
-        exit_status,
-        use_stdio,
-        binary,
-        eof
-    ],
-    Port = erlang:open_port(Exec, Opts),
-    Result = exec(Port, []),
-    erlang:port_close(Port),
-    case Result of
-        {0, _} ->
-            ok;
-
-        {Exit, Out} ->
-            %io:format("[[[[~n~s~n]]]]~nEXIT: ~p~n", [Out, Exit]),
-            {error, {exit, Exit, Out}}
-    end.
-
-%%--------------------------------------------------------------------
-
-exec(Port, Out) ->
-    receive
-        {Port, eof} ->
-            receive
-                {Port, {exit_status, Exit}} ->
-                    {Exit, lists:reverse(Out)}
-            end;
-
-        {Port, {exit_status, Exit}} ->
-            receive
-                {Port, eof} ->
-                    {Exit, lists:reverse(Out)}
-            end;
-
-        {Port, {data, Data}} ->
-            exec(Port, [Data | Out])
-    end.
