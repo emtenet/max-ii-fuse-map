@@ -28,6 +28,7 @@ My experiments are being run in the following
  * [LAB clk1 global](experiments/src/lab_clk1_global_experiment.erl)
  * [LAB clk2 global](experiments/src/lab_clk2_global_experiment.erl)
  * [LAB clr1 global](experiments/src/lab_clr1_global_experiment.erl)
+ * [Local line](experiments/src/local_line_experiment.erl) outputs from LCs
 
 ## Fuses
 
@@ -65,6 +66,16 @@ The fuse bit selects:
 
  * `1` LAB clk1 or clr1,
  * `0` LAB clk2 or clk2.
+
+### `{lc(), local_line}`
+
+Each LC can drive the LUT or register output to the local interconnect
+via it's *local line*.
+
+This fuse either:
+
+ * enables that output, or
+ * selects between the LUT and registers to output.
 
 ### `{lab(), clk#_global#}`
 
