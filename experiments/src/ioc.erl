@@ -2,8 +2,11 @@
 
 -export([name/1]).
 -export([parse/1]).
+-export([in_iob/2]).
 
 -export_type([ioc/0]).
+
+-type iob() :: iob:iob().
 
 -type ioc() :: {ioc, non_neg_integer(), non_neg_integer(), non_neg_integer()}.
 
@@ -48,4 +51,15 @@ number(D1) when ?IS_DIGIT(D1) ->
 
 number(D10, D1) when ?IS_DIGIT(D10) andalso ?IS_DIGIT(D1) ->
     (10 * (D10 - $0)) + (D1 - $0).
+
+%%====================================================================
+%% in_iob
+%%====================================================================
+
+-spec in_iob(ioc(), iob()) -> boolean().
+
+in_iob({ioc, X, Y, _}, {iob, X, Y}) ->
+    true;
+in_iob({ioc, _, _, _}, {iob, _, _}) ->
+    false.
 
