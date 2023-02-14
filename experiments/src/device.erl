@@ -5,9 +5,10 @@
 -export([from_name/1]).
 -export([density/1]).
 -export([package/1]).
+-export([iobs/1]).
 -export([labs/1]).
--export([pins/1]).
 -export([gclk_pins/1]).
+-export([pins/1]).
 
 -export_type([device/0]).
 
@@ -29,6 +30,7 @@
     epm2210_f256 |
     epm2210_f324.
 
+-type iob() :: iob:iob().
 -type ioc() :: ioc:ioc().
 -type lab() :: lab:lab().
 -type package() :: package:package().
@@ -128,6 +130,15 @@ density(epm2210_f324) -> epm2210.
 
 gclk_pins(Device) ->
     package:gclk_pins(package(Device)).
+
+%%====================================================================
+%% iobs
+%%====================================================================
+
+-spec iobs(device()) -> [{iob(), lab()}].
+
+iobs(Device) ->
+    density:iobs(density(Device)).
 
 %%====================================================================
 %% labs
