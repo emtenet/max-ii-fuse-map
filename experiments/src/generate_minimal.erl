@@ -18,7 +18,13 @@ run() ->
 density(Density) ->
     io:format(" => ~s~n", [Density]),
     Device = density:largest_device(Density),
-    [{A, _}, {B, _}, {C, _}, {D, _} | _] = device:pins(Device),
+    [{IOB, _} | _] = device:iobs(Device),
+    [A, B, C, D | _] = [
+        Pin
+        ||
+        {Pin, IOC} <- device:pins(Device),
+        ioc:in_iob(IOC, IOB)
+    ],
     {ok, Experiments} = experiment:compile_to_fuses([
         minimal_experiment:source(A, Device, A),
         minimal_experiment:source(B, Device, B),
