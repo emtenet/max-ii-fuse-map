@@ -303,8 +303,10 @@ print_key(Key) when Key >= 0 andalso Key < 26 ->
     <<($a + Key)>>;
 print_key(Key) when Key >= 26 andalso Key < 36 ->
     <<($0 + Key - 26)>>;
-print_key(Key) when Key >= 26 andalso Key < 62 ->
-    <<($A + Key - 36)>>.
+print_key(Key) when Key >= 36 andalso Key < 62 ->
+    <<($A + Key - 36)>>;
+print_key(Key) when Key >= 62 andalso Key < 72 ->
+    <<($0 + Key - 62)>>.
 
 %%--------------------------------------------------------------------
 
@@ -337,7 +339,7 @@ print_rows([{Fuse, Fuses, Name} | Rows]) ->
             io:format("~n", []);
 
         _ ->
-            io:format(" ~p~n", [Name])
+            io:format(" ~w~n", [Name])
     end,
     print_rows(Rows).
 
