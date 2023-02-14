@@ -6,6 +6,7 @@
 -export([fuse_count/1]).
 -export([or_device/1]).
 -export([minimal_fuses/1]).
+-export([iobs/1]).
 -export([labs/1]).
 
 -export_type([density/0]).
@@ -18,6 +19,7 @@
 
 -type device() :: device:device().
 -type fuse() :: fuse:fuse().
+-type iob() :: iob:iob().
 -type lab() :: lab:lab().
 
 %%====================================================================
@@ -117,6 +119,189 @@ minimal_fuses(epm1270) -> epm1270_minimal:fuses();
 minimal_fuses(epm2210) -> epm2210_minimal:fuses();
 minimal_fuses(Device) ->
     minimal_fuses(device:density(Device)).
+
+%%====================================================================
+%% iobs
+%%====================================================================
+
+-spec iobs(density()) -> [{iob(), lab()}].
+
+-define(IOB_LEFT(X, Y), {{iob, X, Y}, {lab, X + 1, Y}}).
+-define(IOB_BOTTOM(X, Y), {{iob, X, Y}, {lab, X, Y + 1}}).
+-define(IOB_RIGHT(X, Y), {{iob, X, Y}, {lab, X - 1, Y}}).
+-define(IOB_TOP(X, Y), {{iob, X, Y}, {lab, X, Y - 1}}).
+
+iobs(epm240) ->
+    [?IOB_LEFT(1, 4),
+     ?IOB_LEFT(1, 3),
+     ?IOB_LEFT(1, 2),
+     ?IOB_LEFT(1, 1),
+     ?IOB_BOTTOM(2, 0),
+     ?IOB_BOTTOM(3, 0),
+     ?IOB_BOTTOM(4, 0),
+     ?IOB_BOTTOM(5, 0),
+     ?IOB_BOTTOM(6, 0),
+     ?IOB_BOTTOM(7, 0),
+     ?IOB_RIGHT(8, 4),
+     ?IOB_RIGHT(8, 3),
+     ?IOB_RIGHT(8, 2),
+     ?IOB_RIGHT(8, 1),
+     ?IOB_TOP(7, 5),
+     ?IOB_TOP(6, 5),
+     ?IOB_TOP(5, 5),
+     ?IOB_TOP(4, 5),
+     ?IOB_TOP(3, 5),
+     ?IOB_TOP(2, 5)];
+iobs(epm570) ->
+    [?IOB_LEFT(0, 7),
+     ?IOB_LEFT(0, 6),
+     ?IOB_LEFT(0, 5),
+     ?IOB_LEFT(0, 4),
+     ?IOB_BOTTOM(1, 3),
+     ?IOB_BOTTOM(2, 3),
+     ?IOB_BOTTOM(3, 3),
+     ?IOB_BOTTOM(4, 3),
+     ?IOB_BOTTOM(5, 3),
+     ?IOB_BOTTOM(6, 3),
+     ?IOB_BOTTOM(7, 3),
+     ?IOB_BOTTOM(8, 3),
+     ?IOB_BOTTOM(9, 3),
+     ?IOB_BOTTOM(10, 0),
+     ?IOB_BOTTOM(11, 0),
+     ?IOB_BOTTOM(12, 0),
+     ?IOB_RIGHT(13, 1),
+     ?IOB_RIGHT(13, 2),
+     ?IOB_RIGHT(13, 3),
+     ?IOB_RIGHT(13, 4),
+     ?IOB_RIGHT(13, 5),
+     ?IOB_RIGHT(13, 6),
+     ?IOB_RIGHT(13, 7),
+     ?IOB_TOP(12, 8),
+     ?IOB_TOP(11, 8),
+     ?IOB_TOP(10, 8),
+     ?IOB_TOP(9, 8),
+     ?IOB_TOP(8, 8),
+     ?IOB_TOP(7, 8),
+     ?IOB_TOP(6, 8),
+     ?IOB_TOP(5, 8),
+     ?IOB_TOP(4, 8),
+     ?IOB_TOP(3, 8),
+     ?IOB_TOP(2, 8),
+     ?IOB_TOP(1, 8)];
+iobs(epm1270) ->
+    [?IOB_LEFT(0, 10),
+     ?IOB_LEFT(0, 9),
+     ?IOB_LEFT(0, 8),
+     ?IOB_LEFT(0, 7),
+     ?IOB_LEFT(0, 6),
+     ?IOB_LEFT(0, 5),
+     ?IOB_LEFT(0, 4),
+     ?IOB_BOTTOM(1, 3),
+     ?IOB_BOTTOM(2, 3),
+     ?IOB_BOTTOM(3, 3),
+     ?IOB_BOTTOM(4, 3),
+     ?IOB_BOTTOM(5, 3),
+     ?IOB_BOTTOM(6, 3),
+     ?IOB_BOTTOM(7, 3),
+     ?IOB_BOTTOM(8, 3),
+     ?IOB_BOTTOM(9, 3),
+     ?IOB_BOTTOM(10, 3),
+     ?IOB_BOTTOM(11, 3),
+     ?IOB_BOTTOM(12, 0),
+     ?IOB_BOTTOM(13, 0),
+     ?IOB_BOTTOM(14, 0),
+     ?IOB_BOTTOM(15, 0),
+     ?IOB_BOTTOM(16, 0),
+     ?IOB_RIGHT(17, 1),
+     ?IOB_RIGHT(17, 2),
+     ?IOB_RIGHT(17, 3),
+     ?IOB_RIGHT(17, 4),
+     ?IOB_RIGHT(17, 5),
+     ?IOB_RIGHT(17, 6),
+     ?IOB_RIGHT(17, 7),
+     ?IOB_RIGHT(17, 8),
+     ?IOB_RIGHT(17, 9),
+     ?IOB_RIGHT(17, 10),
+     ?IOB_TOP(16, 11),
+     ?IOB_TOP(15, 11),
+     ?IOB_TOP(14, 11),
+     ?IOB_TOP(13, 11),
+     ?IOB_TOP(12, 11),
+     ?IOB_TOP(11, 11),
+     ?IOB_TOP(10, 11),
+     ?IOB_TOP(9, 11),
+     ?IOB_TOP(8, 11),
+     ?IOB_TOP(7, 11),
+     ?IOB_TOP(6, 11),
+     ?IOB_TOP(5, 11),
+     ?IOB_TOP(4, 11),
+     ?IOB_TOP(3, 11),
+     ?IOB_TOP(2, 11),
+     ?IOB_TOP(1, 11)];
+iobs(epm2210) ->
+    [?IOB_LEFT(0, 13),
+     ?IOB_LEFT(0, 12),
+     ?IOB_LEFT(0, 11),
+     ?IOB_LEFT(0, 10),
+     ?IOB_LEFT(0, 9),
+     ?IOB_LEFT(0, 8),
+     ?IOB_LEFT(0, 7),
+     ?IOB_LEFT(0, 6),
+     ?IOB_LEFT(0, 5),
+     ?IOB_LEFT(0, 4),
+     ?IOB_BOTTOM(1, 3),
+     ?IOB_BOTTOM(2, 3),
+     ?IOB_BOTTOM(3, 3),
+     ?IOB_BOTTOM(4, 3),
+     ?IOB_BOTTOM(5, 3),
+     ?IOB_BOTTOM(6, 3),
+     ?IOB_BOTTOM(7, 3),
+     ?IOB_BOTTOM(8, 3),
+     ?IOB_BOTTOM(9, 3),
+     ?IOB_BOTTOM(10, 3),
+     ?IOB_BOTTOM(11, 3),
+     ?IOB_BOTTOM(12, 3),
+     ?IOB_BOTTOM(13, 3),
+     ?IOB_BOTTOM(14, 0),
+     ?IOB_BOTTOM(15, 0),
+     ?IOB_BOTTOM(16, 0),
+     ?IOB_BOTTOM(17, 0),
+     ?IOB_BOTTOM(18, 0),
+     ?IOB_BOTTOM(19, 0),
+     ?IOB_BOTTOM(20, 0),
+     ?IOB_RIGHT(21, 1),
+     ?IOB_RIGHT(21, 2),
+     ?IOB_RIGHT(21, 3),
+     ?IOB_RIGHT(21, 4),
+     ?IOB_RIGHT(21, 5),
+     ?IOB_RIGHT(21, 6),
+     ?IOB_RIGHT(21, 7),
+     ?IOB_RIGHT(21, 8),
+     ?IOB_RIGHT(21, 9),
+     ?IOB_RIGHT(21, 10),
+     ?IOB_RIGHT(21, 11),
+     ?IOB_RIGHT(21, 12),
+     ?IOB_RIGHT(21, 13),
+     ?IOB_TOP(20, 14),
+     ?IOB_TOP(19, 14),
+     ?IOB_TOP(18, 14),
+     ?IOB_TOP(17, 14),
+     ?IOB_TOP(16, 14),
+     ?IOB_TOP(15, 14),
+     ?IOB_TOP(14, 14),
+     ?IOB_TOP(13, 14),
+     ?IOB_TOP(12, 14),
+     ?IOB_TOP(11, 14),
+     ?IOB_TOP(10, 14),
+     ?IOB_TOP(9, 14),
+     ?IOB_TOP(8, 14),
+     ?IOB_TOP(7, 14),
+     ?IOB_TOP(6, 14),
+     ?IOB_TOP(5, 14),
+     ?IOB_TOP(4, 14),
+     ?IOB_TOP(3, 14),
+     ?IOB_TOP(2, 14),
+     ?IOB_TOP(1, 14)].
 
 %%====================================================================
 %% labs
