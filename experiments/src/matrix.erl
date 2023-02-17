@@ -9,6 +9,7 @@
 -export([pattern_match/2]).
 -export([remove_fuses/2]).
 -export([print/1]).
+-export([print_key/1]).
 
 -export_type([experiment/0]).
 -export_type([experiment_name/0]).
@@ -306,7 +307,9 @@ print_key(Key) when Key >= 26 andalso Key < 36 ->
 print_key(Key) when Key >= 36 andalso Key < 62 ->
     <<($A + Key - 36)>>;
 print_key(Key) when Key >= 62 andalso Key < 72 ->
-    <<($0 + Key - 62)>>.
+    <<($0 + Key - 62)>>;
+print_key(Key) when Key >= 72 andalso Key < 98 ->
+    <<($a + Key - 72)>>.
 
 %%--------------------------------------------------------------------
 
