@@ -217,158 +217,165 @@ pickup_single(JobRef) ->
     compiles :: [compile()]
 }).
 
-batch([Compile | Compiles]) ->
-    Source = experiment_compile:pre(Compile),
-    batch_submit(#batch{
-        count = 1 + length(Compiles),
+-define(PROGRESS_SIZE, 60).
+-define(PROGRESS_DONE,
+    <<"############################################################">>
+).
+-define(PROGRESS_SENT,
+    <<"............................................................">>
+).
+-define(PROGRESS_TODO,
+    <<"                                                            ">>
+).
+
+batch(Compiles) ->
+    io:format("[~s]\r", [?PROGRESS_TODO]),
+    Complete = batch(normal, #batch{
+        count = length(Compiles),
         answers = #{},
         answer_index = 0,
         results = #{},
         pickups = #{},
-        source = Source,
-        source_index = 0,
-        compiles = Compiles
-    }).
-
-%%--------------------------------------------------------------------
-
-batch_submit(Batch = #batch{source = undefined}) ->
-    [] = Batch#batch.compiles,
-    batch_pickup(Batch);
-batch_submit(Batch0 = #batch{}) ->
-    Index = Batch0#batch.source_index,
-    case experiment_server:submit(Batch0#batch.source) of
-        {ok, Answer} ->
-            Batch1 = batch_source(Batch0),
-            case batch_answer(Index, Answer, Batch1) of
-                {continue, Batch} ->
-                    batch_submit(Batch);
-
-                Complete ->
-                    Complete
-            end;
-
-        {pickup, JobRef} ->
-            Pickups = Batch0#batch.pickups,
-            Batch = batch_source(Batch0#batch{
-                pickups = Pickups#{JobRef => Index}
-            }),
-            batch_submit(Batch);
-
-        busy ->
-            batch_busy(Batch0)
-    end.
-
-%%--------------------------------------------------------------------
-
-batch_source(Batch = #batch{compiles = []}) ->
-    Batch#batch{
         source = undefined,
-        source_index = Batch#batch.source_index + 1
-    };
-batch_source(Batch = #batch{compiles = [Compile | Compiles]}) ->
-    Source = experiment_compile:pre(Compile),
-    Batch#batch{
-        source = Source,
-        source_index = Batch#batch.source_index + 1,
+        source_index = -1,
         compiles = Compiles
-    }.
+    }),
+    io:format(" ~s \r", [?PROGRESS_TODO]),
+    Complete.
 
 %%--------------------------------------------------------------------
 
-batch_busy(Batch = #batch{pickups = Pickups}) ->
-    JobRefs = maps:keys(Pickups),
-    case experiment_server:pickup_check(JobRefs) of
-        {ok, Results} ->
-            batch_results(maps:to_list(Results), Batch);
-
-        false ->
-            batch_submit(Batch)
-    end.
-
-%%--------------------------------------------------------------------
-
-batch_pickup(Batch = #batch{pickups = Pickups}) ->
-    JobRefs = maps:keys(Pickups),
-    case experiment_server:pickup_sleep(JobRefs) of
-        {ok, Results} ->
-            batch_results(maps:to_list(Results), Batch);
-
-        false ->
-            batch_pickup(Batch)
-    end.
-
-%%--------------------------------------------------------------------
-
-batch_results([], Batch) ->
-    batch_submit(Batch);
-batch_results([{JobRef, Result} | Results], Batch0) ->
-    {Index, Pickups} = maps:take(JobRef, Batch0#batch.pickups),
-    case batch_result(Index, Result, Batch0#batch{pickups = Pickups}) of
-        {continue, Batch} ->
-            batch_results(Results, Batch);
-
-        Complete ->
-            Complete
-    end.
-
-%%--------------------------------------------------------------------
-
-batch_result(Index, Result, Batch) when Index =:= Batch#batch.answer_index ->
+batch(_, Batch = #batch{count = Count, answer_index = Count}) ->
+    batch_progress(Batch),
+    Count = map_size(Batch#batch.answers),
+    0 = map_size(Batch#batch.results),
+    0 = map_size(Batch#batch.pickups),
+    Count = Batch#batch.source_index + 1,
+    [] = Batch#batch.compiles,
+    batch_collect(Count, Batch#batch.answers, []);
+batch(State, Batch = #batch{answer_index = Index})
+        when is_map_key(Index, Batch#batch.answers) ->
+    batch(State, Batch#batch{answer_index = Index + 1});
+batch(State, Batch = #batch{answer_index = Index})
+        when is_map_key(Index, Batch#batch.results) ->
+    {Result, Results} = maps:take(Index, Batch#batch.results),
     case experiment_compile:post(Result) of
         {ok, Answer} ->
             Answers = Batch#batch.answers,
-            batch_next_answer(Index + 1, Batch#batch{
+            batch(State, Batch#batch{
                 answers = Answers#{Index => Answer},
-                answer_index = Index + 1
+                answer_index = Index + 1,
+                results = Results
             });
 
         error ->
             error
     end;
-batch_result(Index, Result, Batch = #batch{results = Results}) ->
-    {continue, Batch#batch{
-        results = Results#{Index => Result}
-    }}.
-
-%%--------------------------------------------------------------------
-
-batch_answer(Index, Answer, Batch) when Index =:= Batch#batch.answer_index ->
-    Answers = Batch#batch.answers,
-    batch_next_answer(Index + 1, Batch#batch{
-        answers = Answers#{Index => Answer},
-        answer_index = Index + 1
+batch(normal, Batch = #batch{compiles = [Compile | Compiles]})
+        when Batch#batch.source =:= undefined ->
+    Source = experiment_compile:pre(Compile),
+    batch(normal, Batch#batch{
+        source = Source,
+        source_index = Batch#batch.source_index + 1,
+        compiles = Compiles
     });
-batch_answer(Index, Answer, Batch) ->
-    Answers = Batch#batch.answers,
-    {continue, Batch#batch{
-        answers = Answers#{Index => Answer}
-    }}.
+batch(normal, Batch = #batch{source = Source}) when Source =/= undefined ->
+    Index = Batch#batch.source_index,
+    case experiment_server:submit(Source) of
+        {ok, Answer} ->
+            batch_got_answer(Index, Answer, Batch);
 
-%%--------------------------------------------------------------------
+        {pickup, JobRef} ->
+            batch_got_pickup(Index, JobRef, Batch);
 
-batch_next_answer(Count, Batch) when Count =:= Batch#batch.count ->
-    0 = map_size(Batch#batch.results),
-    Count = Batch#batch.source_index,
-    [] = Batch#batch.compiles,
-    batch_collect_answers(Count, Batch#batch.answers, []);
-batch_next_answer(Index, Batch = #batch{}) ->
-    case maps:take(Index, Batch#batch.results) of
-        {Result, Results} ->
-            batch_result(Index, Result, Batch#batch{
-                results = Results
-            });
+        busy ->
+            batch(busy, Batch)
+    end;
+batch(normal, Batch = #batch{pickups = Pickups}) ->
+    JobRefs = [_ | _] = maps:keys(Pickups),
+    case experiment_server:pickup_sleep(JobRefs) of
+        {ok, Results} ->
+            batch_got_results(maps:to_list(Results), Batch);
 
-        _ ->
-            {continue, Batch}
+        false ->
+            %io:format("waiting...                                \n", []),
+            %batch_progress(Batch),
+            batch(normal, Batch)
+    end;
+batch(busy, Batch = #batch{pickups = Pickups}) ->
+    JobRefs = [_ | _] = maps:keys(Pickups),
+    case experiment_server:pickup_check(JobRefs) of
+        {ok, Results} ->
+            batch_got_results(maps:to_list(Results), Batch);
+
+        false ->
+            %io:format("waiting...                                \n", []),
+            %batch_progress(Batch),
+            batch(busy, Batch)
     end.
 
 %%--------------------------------------------------------------------
 
-batch_collect_answers(0, _, Answers) ->
+batch_collect(0, _, Answers) ->
     {ok, Answers};
-batch_collect_answers(PreviousIndex, Map, Answers) ->
+batch_collect(PreviousIndex, Map, Answers) ->
     Index = PreviousIndex - 1,
     #{Index := Answer} = Map,
-    batch_collect_answers(Index, Map, [Answer | Answers]).
+    batch_collect(Index, Map, [Answer | Answers]).
+
+%%--------------------------------------------------------------------
+
+batch_got_answer(Index, Answer, Batch = #batch{answers = Answers}) ->
+    AnswersIndex = case Batch#batch.answer_index of
+        Index ->
+            Index + 1;
+
+        _ ->
+            Batch#batch.answer_index
+    end,
+    batch_made_progress(Batch#batch{
+        answers = Answers#{Index => Answer},
+        answer_index = AnswersIndex,
+        source = undefined
+    }).
+
+%%--------------------------------------------------------------------
+
+batch_got_pickup(Index, JobRef, Batch = #batch{pickups = Pickups}) ->
+    batch_made_progress(Batch#batch{
+        pickups = Pickups#{JobRef => Index},
+        source = undefined
+    }).
+
+%%--------------------------------------------------------------------
+
+batch_got_results([], Batch) ->
+    batch_made_progress(Batch);
+batch_got_results([{JobRef, Result} | More], Batch) ->
+    {Index, Pickups} = maps:take(JobRef, Batch#batch.pickups),
+    Results = Batch#batch.results,
+    batch_got_results(More, Batch#batch{
+        results = Results#{Index => Result},
+        pickups = Pickups
+    }).
+
+%%--------------------------------------------------------------------
+
+batch_made_progress(Batch) ->
+    batch_progress(Batch),
+    batch(normal, Batch).
+
+%%--------------------------------------------------------------------
+
+batch_progress(Batch = #batch{count = Count}) ->
+    DoneCount = map_size(Batch#batch.answers) + map_size(Batch#batch.results),
+    SentCount = DoneCount + map_size(Batch#batch.pickups),
+    DoneWidth = (DoneCount * ?PROGRESS_SIZE) div Count,
+    SentWidth = ((SentCount * ?PROGRESS_SIZE) div Count) - DoneWidth,
+    TodoWidth = ?PROGRESS_SIZE - DoneWidth - SentWidth,
+    io:format("[~s~s~s]\r", [
+        binary:part(?PROGRESS_DONE, 0, DoneWidth),
+        binary:part(?PROGRESS_SENT, 0, SentWidth),
+        binary:part(?PROGRESS_TODO, 0, TodoWidth)
+    ]).
 
