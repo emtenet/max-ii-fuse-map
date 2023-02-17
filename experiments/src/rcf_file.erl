@@ -90,16 +90,18 @@ decode(<<"signal_name = ", Line/binary>>, _) ->
     [Signal, Comment] = binary:split(Line, <<" {\t#">>),
     case Comment of
         <<"LC_", _/binary>> ->
+            {ok, LC, <<>>} = lc:parse(Comment),
             {signal, #{
                 name => decode_name(Signal),
-                lc => lc:parse(Comment),
+                lc => LC,
                 dests => []
             }};
 
         <<"IOC_", _/binary>> ->
+            {ok, IOC, <<>>} = ioc:parse(Comment),
             {signal, #{
                 name => decode_name(Signal),
-                ioc => ioc:parse(Comment),
+                ioc => IOC,
                 dests => []
             }}
     end.
@@ -273,11 +275,12 @@ decode_signal(<<"dest = ( ", Line/binary>>) ->
 
 %%--------------------------------------------------------------------
 
-decode_dest(Name, <<"CLK );\t#", LC/binary>>) ->
+decode_dest(Name, <<"CLK );\t#", LC0/binary>>) ->
+    {ok, LC, <<>>} = lc:parse(LC0),
     {dest, #{
         name => Name,
         port => clk,
-        lc => lc:parse(LC)
+        lc => LC
     }};
 decode_dest(Name, <<"DATAA ), route_port = ", Line/binary>>) ->
     decode_dest_route(Name, data_a, Line);
@@ -287,48 +290,54 @@ decode_dest(Name, <<"DATAC ), route_port = ", Line/binary>>) ->
     decode_dest_route(Name, data_c, Line);
 decode_dest(Name, <<"DATAD ), route_port = ", Line/binary>>) ->
     decode_dest_route(Name, data_d, Line);
-decode_dest(Name, <<"DATAIN );\t#", IOC/binary>>) ->
+decode_dest(Name, <<"DATAIN );\t#", IOC0/binary>>) ->
+    {ok, IOC, <<>>} = ioc:parse(IOC0),
     {dest, #{
         name => Name,
         port => data_in,
-        ioc => ioc:parse(IOC)
+        ioc => IOC
     }};
-decode_dest(Name, <<"SCLR );\t#", LC/binary>>) ->
+decode_dest(Name, <<"SCLR );\t#", LC0/binary>>) ->
+    {ok, LC, <<>>} = lc:parse(LC0),
     {dest, #{
         name => Name,
         port => s_clr,
-        lc => lc:parse(LC)
+        lc => LC
     }}.
 
 %%--------------------------------------------------------------------
 
-decode_dest_route(Name, Port, <<"DATAA;\t#", LC/binary>>) ->
+decode_dest_route(Name, Port, <<"DATAA;\t#", LC0/binary>>) ->
+    {ok, LC, <<>>} = lc:parse(LC0),
     {dest, #{
         name => Name,
         port => Port,
         route_port => data_a,
-        lc => lc:parse(LC)
+        lc => LC
     }};
-decode_dest_route(Name, Port, <<"DATAB;\t#", LC/binary>>) ->
+decode_dest_route(Name, Port, <<"DATAB;\t#", LC0/binary>>) ->
+    {ok, LC, <<>>} = lc:parse(LC0),
     {dest, #{
         name => Name,
         port => Port,
         route_port => data_b,
-        lc => lc:parse(LC)
+        lc => LC
     }};
-decode_dest_route(Name, Port, <<"DATAC;\t#", LC/binary>>) ->
+decode_dest_route(Name, Port, <<"DATAC;\t#", LC0/binary>>) ->
+    {ok, LC, <<>>} = lc:parse(LC0),
     {dest, #{
         name => Name,
         port => Port,
         route_port => data_c,
-        lc => lc:parse(LC)
+        lc => LC
     }};
-decode_dest_route(Name, Port, <<"DATAD;\t#", LC/binary>>) ->
+decode_dest_route(Name, Port, <<"DATAD;\t#", LC0/binary>>) ->
+    {ok, LC, <<>>} = lc:parse(LC0),
     {dest, #{
         name => Name,
         port => Port,
         route_port => data_d,
-        lc => lc:parse(LC)
+        lc => LC
     }}.
 
 %%====================================================================

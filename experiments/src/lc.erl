@@ -1,7 +1,9 @@
 -module(lc).
 
 -export([name/1]).
+-export([from/3]).
 -export([parse/1]).
+-export([write/2]).
 -export([lab/1]).
 
 -export_type([lc/0]).
@@ -17,18 +19,20 @@
 
 -spec name(lc()) -> binary().
 
-name({lc, X, Y, N}) when X < 10 andalso Y < 10 ->
-    <<"LC_X", (X + $0), "_Y", (Y + $0), "_N", (N + $0)>>;
-name({lc, X, Y, N}) when X < 10 ->
-    <<"LC_X", (X + $0), "_Y1", ((Y rem 10) + $0), "_N", (N + $0)>>;
-name({lc, X, Y, N}) when X < 20 andalso Y < 10 ->
-    <<"LC_X1", ((X rem 10) + $0), "_Y", (Y + $0), "_N", (N + $0)>>;
-name({lc, X, Y, N}) when Y < 10 ->
-    <<"LC_X2", ((X rem 10) + $0), "_Y", (Y + $0), "_N", (N + $0)>>;
-name({lc, X, Y, N}) when X < 20 ->
-    <<"LC_X1", ((X rem 10) + $0), "_Y1", ((Y rem 10) + $0), "_N", (N + $0)>>;
-name({lc, X, Y, N}) ->
-    <<"LC_X2", ((X rem 10) + $0), "_Y1", ((Y rem 10) + $0), "_N", (N + $0)>>.
+name(LC) ->
+    write(<<>>, LC).
+
+%%====================================================================
+%% from
+%%====================================================================
+
+-spec from(1..20, 1..13, 0..9) -> lc().
+
+from(X, Y, N)
+        when (X >= 1 andalso X =< 20) andalso
+             (Y >= 1 andalso Y =< 13) andalso
+             (N >= 0 andalso N =< 9) ->
+    {lc, X, Y, N}.
 
 %%====================================================================
 %% parse
@@ -36,24 +40,32 @@ name({lc, X, Y, N}) ->
 
 -spec parse(binary()) -> lc().
 
-parse(<<"LC_X", X, "_Y", Y, "_N", N>>) ->
-    {lc, number(X), number(Y), number(N)};
-parse(<<"LC_X", X, "_Y", Y10, Y1, "_N", N>>) ->
-    {lc, number(X), number(Y10, Y1), number(N)};
-parse(<<"LC_X", X10, X1, "_Y", Y, "_N", N>>) ->
-    {lc, number(X10, X1), number(Y), number(N)};
-parse(<<"LC_X", X10, X1, "_Y", Y10, Y1, "_N", N>>) ->
-    {lc, number(X10, X1), number(Y10, Y1), number(N)}.
+parse(Name) ->
+    {ok, [X, Y, N], Rest} = parse:format(Name, [
+        <<"LC_X">>,
+        number,
+        <<"_Y">>,
+        number,
+        <<"_N">>,
+        number
+    ]),
+    {ok, from(X, Y, N), Rest}.
 
-%%--------------------------------------------------------------------
+%%====================================================================
+%% write
+%%====================================================================
 
-number(D1) when ?IS_DIGIT(D1) ->
-    (D1 - $0).
+-spec write(binary(), lc()) -> binary().
 
-%%--------------------------------------------------------------------
-
-number(D10, D1) when ?IS_DIGIT(D10) andalso ?IS_DIGIT(D1) ->
-    (10 * (D10 - $0)) + (D1 - $0).
+write(To, {lc, X, Y, N}) ->
+    write:format(To, [
+        <<"LC_X">>,
+        X,
+        <<"_Y">>,
+        Y,
+        <<"_N">>,
+        N
+    ]).
 
 %%====================================================================
 %% lab
