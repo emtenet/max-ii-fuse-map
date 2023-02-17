@@ -29,6 +29,7 @@ My experiments are being run in the following
  * [LAB clk2 global](experiments/src/lab_clk2_global_experiment.erl)
  * [LAB clr1 global](experiments/src/lab_clr1_global_experiment.erl)
  * [Local line](experiments/src/local_line_experiment.erl) outputs from LCs
+ * [Output](experiments/src/output_experiment.erl) constant
 
 ## Fuses
 
@@ -46,6 +47,16 @@ Each IOC can have bus-hold or weak pull-up enabled.
 The feature is enabled when the POF bit is `0`.
 
 Warning: only enable *one* at a time.
+
+### `{ioc(), enable_guess}` and `{ioc(), invert_guess}`
+
+These are observed fuses, but the naming is a guess.
+
+The `enable_guess` fuse was observed in the `output_experiment` but
+since all unused pins are outputs by default, the fuse is more likely
+to be an *enable* rather than *direction*.
+
+The `invert_guess` may alternativly be a mux selecting alternative outputs.
 
 ### `{lc(), lut, {a0 | a1, b0 | b1, c0 | c1, d0 | d1}}`
 
