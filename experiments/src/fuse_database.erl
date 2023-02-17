@@ -1,5 +1,6 @@
 -module(fuse_database).
 
+-export([find/2]).
 -export([name/2]).
 
 -export([empty/0]).
@@ -14,6 +15,21 @@
 -type name() :: fuse:name().
 
 -opaque database() :: {fuses, density() | undefined, #{fuse() => name()}}.
+
+%%====================================================================
+%% find
+%%====================================================================
+
+-spec find(fuse(), database()) -> {ok, name()} | false.
+
+find(Fuse, {fuses, _, FuseToName}) ->
+    case FuseToName of
+        #{Fuse := Name} ->
+            {ok, Name};
+
+        _ ->
+            false
+    end.
 
 %%====================================================================
 %% name
@@ -139,7 +155,7 @@ update_merge([{Fuse, Name} | Fuses], Changed, File, Map) ->
 update_file(File, Fuses) ->
     Sorted = lists:sort(maps:to_list(Fuses)),
     Lines = [
-        io_lib:format("~6..0b: ~p~n", [Fuse, Name])
+        io_lib:format("~6..0b: ~w~n", [Fuse, Name])
         ||
         {Fuse, Name} <- Sorted
     ],
