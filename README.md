@@ -31,6 +31,12 @@ My experiments are being run in the following
  * [Local line](experiments/src/local_line_experiment.erl) outputs from LCs
  * [Output](experiments/src/output_experiment.erl) constant
 
+## Fuse map
+
+The `fuse_database` collected during experiments is then
+encoded in source as a [fuse map](experiments/src/fuse_map.erl)
+in both directions.
+
 ## Fuses
 
 ### `{user_code, bit()}`
