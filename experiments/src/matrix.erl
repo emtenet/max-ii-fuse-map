@@ -2,6 +2,7 @@
 
 -export([build/1]).
 -export([build/2]).
+-export([build_with_map/2]).
 -export([is_empty/1]).
 -export([single_ones/1]).
 -export([single_zeros/1]).
@@ -45,8 +46,12 @@
 -spec build([experiment()]) -> matrix().
 
 build(Experiments) ->
-    Database = fuse_database:empty(),
-    build_with(Database, Experiments).
+    build_with(fun name_is_undefined/1, Experiments).
+
+%%--------------------------------------------------------------------
+
+name_is_undefined(_) ->
+    undefined.
 
 %%====================================================================
 %% build
@@ -56,14 +61,36 @@ build(Experiments) ->
 
 build(DensityOrDevice, Experiments) ->
     Database = fuse_database:read(DensityOrDevice),
-    build_with(Database, Experiments).
+    With = fun (Fuse) -> fuse_database:name(Fuse, Database) end,
+    build_with(With, Experiments).
+
+%%====================================================================
+%% build_with_map
+%%====================================================================
+
+-spec build_with_map(density() | device(), [experiment()]) -> matrix().
+
+build_with_map(DensityOrDevice, Experiments) ->
+    Density = density:or_device(DensityOrDevice),
+    With = fun (Fuse) -> fuse_map_to_name(Fuse, Density) end,
+    build_with(With, Experiments).
 
 %%--------------------------------------------------------------------
 
-build_with(Database, Experiments) ->
+fuse_map_to_name(Fuse, Density) ->
+    case fuse_map:to_name(Fuse, Density) of
+        {ok, N} -> N;
+        {error, E} -> E
+    end.
+
+%%====================================================================
+%% build_with
+%%====================================================================
+
+build_with(With, Experiments) ->
     Names = lists:map(fun build_name/1, Experiments),
     Results = lists:map(fun build_result/1, Experiments),
-    Matrix = build_diff(Results, Database, []),
+    Matrix = build_diff(Results, With, []),
     {matrix, Names, Matrix}.
 
 %%--------------------------------------------------------------------
@@ -82,7 +109,7 @@ build_result({_, Result, _}) ->
 
 %%--------------------------------------------------------------------
 
-build_diff(Results, Database, Matrix) ->
+build_diff(Results, With, Matrix) ->
     case build_min_max(Results) of
         finished ->
             lists:reverse(Matrix);
@@ -90,15 +117,15 @@ build_diff(Results, Database, Matrix) ->
         {Fuse, Fuse} ->
             build_diff(
                 build_drop(Results, Fuse),
-                Database,
+                With,
                 Matrix
              );
 
         {Fuse, _} ->
-            Name = fuse_database:name(Fuse, Database),
+            Name = With(Fuse),
             build_diff(
                 build_drop(Results, Fuse),
-                Database,
+                With,
                 [build_row(Results, Fuse, Name) | Matrix]
              )
     end.
