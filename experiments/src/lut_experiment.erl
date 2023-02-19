@@ -78,22 +78,35 @@ run_fuse(Matrix, LC, {Row, Pattern}, Order) ->
 %%--------------------------------------------------------------------
 
 run_order({OrderA, OrderB, OrderC, OrderD}, Row) ->
-    DataA = run_order(OrderA, Row, a0, a1),
-    DataB = run_order(OrderB, Row, b0, b1),
-    DataC = run_order(OrderC, Row, c0, c1),
-    DataD = run_order(OrderD, Row, d0, d1),
-    {DataA, DataB, DataC, DataD}.
+    DataA = run_bit(OrderA, Row),
+    DataB = run_bit(OrderB, Row),
+    DataC = run_bit(OrderC, Row),
+    DataD = run_bit(OrderD, Row),
+    case {DataA, DataB, DataC, DataD} of
+        {0, 0, 0, 0} -> a0b0c0d0;
+        {0, 0, 0, 1} -> a0b0c0d1;
+        {0, 0, 1, 0} -> a0b0c1d0;
+        {0, 0, 1, 1} -> a0b0c1d1;
+        {0, 1, 0, 0} -> a0b1c0d0;
+        {0, 1, 0, 1} -> a0b1c0d1;
+        {0, 1, 1, 0} -> a0b1c1d0;
+        {0, 1, 1, 1} -> a0b1c1d1;
+        {1, 0, 0, 0} -> a1b0c0d0;
+        {1, 0, 0, 1} -> a1b0c0d1;
+        {1, 0, 1, 0} -> a1b0c1d0;
+        {1, 0, 1, 1} -> a1b0c1d1;
+        {1, 1, 0, 0} -> a1b1c0d0;
+        {1, 1, 0, 1} -> a1b1c0d1;
+        {1, 1, 1, 0} -> a1b1c1d0;
+        {1, 1, 1, 1} -> a1b1c1d1
+    end.
 
 %%--------------------------------------------------------------------
 
-run_order(a, {0, _, _, _}, A, _) -> A;
-run_order(a, {1, _, _, _}, _, A) -> A;
-run_order(b, {_, 0, _, _}, B, _) -> B;
-run_order(b, {_, 1, _, _}, _, B) -> B;
-run_order(c, {_, _, 0, _}, C, _) -> C;
-run_order(c, {_, _, 1, _}, _, C) -> C;
-run_order(d, {_, _, _, 0}, D, _) -> D;
-run_order(d, {_, _, _, 1}, _, D) -> D.
+run_bit(a, {A, _, _, _}) -> A;
+run_bit(b, {_, B, _, _}) -> B;
+run_bit(c, {_, _, C, _}) -> C;
+run_bit(d, {_, _, _, D}) -> D.
 
 %%--------------------------------------------------------------------
 

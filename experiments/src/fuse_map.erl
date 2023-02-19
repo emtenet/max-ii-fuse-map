@@ -97,22 +97,22 @@
 ).
 
 -define(LUT_CELLS(),
-    ?LUT_CELL(12, 0, {a1, b1, c0, d1});
-    ?LUT_CELL(12, 1, {a1, b0, c0, d1});
-    ?LUT_CELL(12, 2, {a1, b1, c0, d0});
-    ?LUT_CELL(12, 3, {a1, b0, c0, d0});
-    ?LUT_CELL(13, 0, {a0, b1, c0, d1});
-    ?LUT_CELL(13, 1, {a0, b0, c0, d1});
-    ?LUT_CELL(13, 2, {a0, b1, c0, d0});
-    ?LUT_CELL(13, 3, {a0, b0, c0, d0});
-    ?LUT_CELL(14, 0, {a1, b1, c1, d1});
-    ?LUT_CELL(14, 1, {a1, b0, c1, d1});
-    ?LUT_CELL(14, 2, {a1, b0, c1, d0});
-    ?LUT_CELL(14, 3, {a1, b1, c1, d0});
-    ?LUT_CELL(15, 0, {a0, b1, c1, d1});
-    ?LUT_CELL(15, 1, {a0, b0, c1, d1});
-    ?LUT_CELL(15, 2, {a0, b0, c1, d0});
-    ?LUT_CELL(15, 3, {a0, b1, c1, d0});
+    ?LUT_CELL(12, 0, a1b1c0d1);
+    ?LUT_CELL(12, 1, a1b0c0d1);
+    ?LUT_CELL(12, 2, a1b1c0d0);
+    ?LUT_CELL(12, 3, a1b0c0d0);
+    ?LUT_CELL(13, 0, a0b1c0d1);
+    ?LUT_CELL(13, 1, a0b0c0d1);
+    ?LUT_CELL(13, 2, a0b1c0d0);
+    ?LUT_CELL(13, 3, a0b0c0d0);
+    ?LUT_CELL(14, 0, a1b1c1d1);
+    ?LUT_CELL(14, 1, a1b0c1d1);
+    ?LUT_CELL(14, 2, a1b0c1d0);
+    ?LUT_CELL(14, 3, a1b1c1d0);
+    ?LUT_CELL(15, 0, a0b1c1d1);
+    ?LUT_CELL(15, 1, a0b0c1d1);
+    ?LUT_CELL(15, 2, a0b0c1d0);
+    ?LUT_CELL(15, 3, a0b1c1d0);
 ).
 
 -define(EPM240_USER_CODES(),
