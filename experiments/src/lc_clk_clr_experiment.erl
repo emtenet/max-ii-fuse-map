@@ -100,8 +100,8 @@ run_lc(LAB, N, Density, Device, Sources, Settings0) ->
     % clk2 -> 0
     % clr1 -> 1
     % clr2 -> 0
-    [Clk] = matrix:pattern_is(Matrix, [1,1,0,0]),
-    [Clr] = matrix:pattern_is(Matrix, [1,0,1,0]),
+    [{Clk, _}] = matrix:pattern_is(Matrix, [1,1,0,0]),
+    [{Clr, _}] = matrix:pattern_is(Matrix, [1,0,1,0]),
     fuse_database:update(Density, [
         {Clk, {LC, clk}},
         {Clr, {LC, clr}}

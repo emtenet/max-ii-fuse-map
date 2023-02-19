@@ -110,11 +110,11 @@ run_lab(Density, Device, Sources, Settings0, LAB, X, Y) ->
         {LAB, clk1_global3}
     ]),
     %matrix:print(Matrix),
-    [Clr1Global0] = matrix:pattern_is(Matrix, [0,0,1,1,1]),
-    [Clr1Global1] = matrix:pattern_is(Matrix, [1,1,0,1,1]),
-    [Clr1Global2] = matrix:pattern_is(Matrix, [1,1,1,0,1]),
-    [Clr1Global3] = matrix:pattern_is(Matrix, [1,1,1,1,0]),
-    [Clr1Invert]  = matrix:pattern_is(Matrix, [1,0,1,1,1]),
+    [{Clr1Global0, _}] = matrix:pattern_is(Matrix, [0,0,1,1,1]),
+    [{Clr1Global1, _}] = matrix:pattern_is(Matrix, [1,1,0,1,1]),
+    [{Clr1Global2, _}] = matrix:pattern_is(Matrix, [1,1,1,0,1]),
+    [{Clr1Global3, _}] = matrix:pattern_is(Matrix, [1,1,1,1,0]),
+    [{Clr1Invert, _}]  = matrix:pattern_is(Matrix, [1,0,1,1,1]),
     fuse_database:update(Density, [
         {Clr1Global0, {LAB, clr1_global0}},
         {Clr1Global1, {LAB, clr1_global1}},

@@ -239,7 +239,7 @@ single_ok(Bit, Name, [_ | Bits]) ->
 %% pattern_is
 %%====================================================================
 
--spec pattern_is(matrix(), bits()) -> [fuse()].
+-spec pattern_is(matrix(), bits()) -> [{fuse(), fuse_name()}].
 
 pattern_is({matrix, _, Fuses}, Pattern) ->
     pattern_is(Fuses, Pattern, []).
@@ -248,8 +248,8 @@ pattern_is({matrix, _, Fuses}, Pattern) ->
 
 pattern_is([], _, Found) ->
     lists:reverse(Found);
-pattern_is([{Fuse, Pattern, _} | Fuses], Pattern, Found) ->
-    pattern_is(Fuses, Pattern, [Fuse | Found]);
+pattern_is([{Fuse, Pattern, Name} | Fuses], Pattern, Found) ->
+    pattern_is(Fuses, Pattern, [{Fuse, Name} | Found]);
 pattern_is([_ | Fuses], Pattern, Found) ->
     pattern_is(Fuses, Pattern, Found).
 
@@ -257,7 +257,7 @@ pattern_is([_ | Fuses], Pattern, Found) ->
 %% pattern_match
 %%====================================================================
 
--spec pattern_match(matrix(), match()) -> [fuse()].
+-spec pattern_match(matrix(), match()) -> [{fuse(), fuse_name()}].
 
 pattern_match({matrix, _, Fuses}, Match) ->
     pattern_match(Fuses, Match, []).
@@ -266,10 +266,10 @@ pattern_match({matrix, _, Fuses}, Match) ->
 
 pattern_match([], _, Found) ->
     lists:reverse(Found);
-pattern_match([{Fuse, Pattern, _} | Fuses], Match, Found) ->
+pattern_match([{Fuse, Pattern, Name} | Fuses], Match, Found) ->
     case match(Pattern, Match) of
         true ->
-            pattern_match(Fuses, Match, [Fuse | Found]);
+            pattern_match(Fuses, Match, [{Fuse, Name} | Found]);
 
         false ->
             pattern_match(Fuses, Match, Found)

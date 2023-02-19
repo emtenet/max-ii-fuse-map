@@ -72,7 +72,7 @@ run_rcf(#{signals := #{a := A, b := B, c := C, d := D}}) ->
 %%--------------------------------------------------------------------
 
 run_fuse(Matrix, LC, {Row, Pattern}, Order) ->
-    [Fuse] = matrix:pattern_is(Matrix, Pattern),
+    [{Fuse, _}] = matrix:pattern_is(Matrix, Pattern),
     {Fuse, {LC, lut, run_order(Order, Row)}}.
 
 %%--------------------------------------------------------------------
