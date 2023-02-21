@@ -1037,37 +1037,60 @@ run(Fuse, Density, Db) ->
                             ok;
 
                         {ok, MapFuse} ->
-                            throw({fuse, Density, Fuse, db, DbName, from_name, different, MapFuse});
+                            throw({
+                                fuse, Density, Fuse,
+                                db, DbName,
+                                from_name, different, MapFuse
+                            });
 
                         {error, Error} ->
-                            throw({fuse, Density, Fuse, to, DbName, from_name, error, Error})
+                            throw({
+                                fuse, Density, Fuse,
+                                to, DbName,
+                                from_name, error, Error
+                            })
                     end;
 
                 {ok, MapName} ->
-                    throw({fuse, Density, Fuse, db, DbName, to_name, different, MapName});
+                    throw({
+                        fuse, Density, Fuse,
+                        db, DbName,
+                        to_name, different, MapName
+                    });
 
                 {error, Error} ->
-                    throw({fuse, Density, Fuse, db, DbName, to_name, error, Error})
+                    throw({
+                        fuse, Density, Fuse,
+                        db, DbName,
+                        to_name, error, Error
+                    })
             end;
 
         false ->
-            ok
-            %case to_name(Fuse, Density) of
-            %    {ok, MapName} ->
-            %        case from_name(MapName, Density) of
-            %            {ok, MapFuse} when MapFuse =:= Fuse ->
-            %                ok;
+            case to_name(Fuse, Density) of
+                {ok, MapName} ->
+                    case from_name(MapName, Density) of
+                        {ok, MapFuse} when MapFuse =:= Fuse ->
+                            ok;
 
-            %            {ok, MapFuse} ->
-            %                throw({fuse, Density, Fuse, to, MapName, from_name, different, MapFuse});
+                        {ok, MapFuse} ->
+                            throw({
+                                fuse, Density, Fuse,
+                                to, MapName,
+                                from_name, different, MapFuse
+                            });
 
-            %            {error, Error} ->
-            %                throw({fuse, Density, Fuse, to, MapName, from_name, error, Error})
-            %        end;
+                        {error, Error} ->
+                            throw({
+                                fuse, Density, Fuse,
+                                to, MapName,
+                                from_name, error, Error
+                            })
+                    end;
 
-            %    {error, _} ->
-            %        ok
-            %end
+                {error, _} ->
+                    ok
+            end
     end.
 
 %%====================================================================
@@ -1175,7 +1198,10 @@ from_density({{lc, X0, Y, N}, Name}, With = #with{}) ->
 
         X when X > With#with.grow_x andalso X =< With#with.side_x andalso
                Y > 0 andalso Y =< With#with.top_y ->
-            from_lc(X, Y, N, Name, With)
+            from_lc(X, Y, N, Name, With);
+
+        X ->
+            throw({from_density, {X, Y}, Name, With})
     end;
 from_density({{lc, X0, Y, N}, lut, Name}, With = #with{}) ->
     case X0 - With#with.offset_x of
@@ -1825,8 +1851,10 @@ to_side_line(X, Sector, Y, Offset, _With) ->
 %%--------------------------------------------------------------------
 
 -define(IOC_SIDE(Sector, Index, Name),
+    to_side(X, Sector, Y, N, Index, _) when N >= 2 andalso N =< 8 ->
+        {ok, {{ioc, X, Y, N - 2}, Name}};
     to_side(X, Sector, Y, N, Index, _) ->
-        {ok, {{ioc, X, Y, N - 2}, Name}}
+        {error, {side, X, Sector, Y, N, Index, Name}}
 ).
 
 ?IOC_SIDES()
@@ -1842,6 +1870,9 @@ to_side(X, Sector, Y, N, I, _With) ->
         {ok, {{lab, X, Y}, Name}}
 ).
 
+to_cell_line(X, Sector, Y, Offset, With = #with{})
+        when X =< With#with.grow_x andalso Y =< 3 ->
+    {error, {cell_line, X, Sector, Y, Offset}};
 ?LAB_LINES()
 to_cell_line(X, Sector, Y, Offset, _With) ->
     {error, {cell_line, X, Sector, Y, Offset}}.
@@ -1863,6 +1894,9 @@ to_cell_line(X, Sector, Y, Offset, _With) ->
         {ok, {{lc, X, Y, N}, lut, Name}}
 ).
 
+to_cell(X, Sector, Y, N, I, With = #with{})
+        when X =< With#with.grow_x andalso Y =< 3 ->
+    {error, {cell, X, Sector, Y, N, I}};
 ?LAB_CELLS()
 ?LC_CELLS()
 ?LUT_CELLS()
