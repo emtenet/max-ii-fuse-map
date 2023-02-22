@@ -1575,14 +1575,14 @@ to_density(Fuse, With = #with{}) ->
     LongColumn = ?COLUMN_SECTORS * LongSector,
     if
         Fuse < With#with.left_base ->
-            {error, {header, Fuse}};
+            {error, {Fuse, header}};
 
         Fuse < With#with.short_base ->
             SectorOffset = Fuse - With#with.left_base,
             to_column(
-                OffsetX,
                 side,
                 SectorOffset div ShortSector,
+                OffsetX,
                 SectorOffset rem ShortSector,
                 With,
                 With#with.short_y
@@ -1592,9 +1592,9 @@ to_density(Fuse, With = #with{}) ->
             ColumnOffset = Fuse - With#with.short_base,
             SectorOffset = ColumnOffset rem ShortColumn,
             to_column(
-                OffsetX + 1 + (ColumnOffset div ShortColumn),
                 cell,
                 SectorOffset div ShortSector,
+                OffsetX + 1 + (ColumnOffset div ShortColumn),
                 SectorOffset rem ShortSector,
                 With,
                 With#with.short_y
@@ -1605,9 +1605,9 @@ to_density(Fuse, With = #with{}) ->
             case Fuse - With#with.grow_base of
                 SectorOffset when SectorOffset < GrowOffset ->
                     to_column(
-                        OffsetX + With#with.grow_x,
                         cell,
                         SectorOffset div ShortSector,
+                        OffsetX + With#with.grow_x,
                         SectorOffset rem ShortSector,
                         With,
                         With#with.short_y
@@ -1616,9 +1616,9 @@ to_density(Fuse, With = #with{}) ->
                 SectorOffset0 ->
                     SectorOffset = SectorOffset0 - GrowOffset,
                     to_column(
-                        OffsetX + With#with.grow_x,
                         cell,
                         (SectorOffset div LongSector) + ?SHORT_SECTORS,
+                        OffsetX + With#with.grow_x,
                         SectorOffset rem LongSector,
                         With,
                         With#with.long_y
@@ -1629,36 +1629,36 @@ to_density(Fuse, With = #with{}) ->
             ColumnOffset = Fuse - With#with.long_base,
             SectorOffset = ColumnOffset rem LongColumn,
             to_column(
-                OffsetX + With#with.grow_x + 1 + (ColumnOffset div LongColumn),
                 cell,
                 SectorOffset div LongSector,
+                OffsetX + With#with.grow_x + 1 + (ColumnOffset div LongColumn),
                 SectorOffset rem LongSector,
                 With,
                 With#with.long_y
             );
 
         Fuse < With#with.right_base ->
-            {error, {middle, Fuse}};
+            {error, {Fuse, middle}};
 
         Fuse < With#with.end_base ->
             SectorOffset = Fuse - With#with.right_base,
             to_column(
-                OffsetX + With#with.side_x,
                 side,
                 SectorOffset div LongSector,
+                OffsetX + With#with.side_x,
                 SectorOffset rem LongSector,
                 With,
                 With#with.long_y
             );
 
         true ->
-            {error, {footer, Fuse}}
+            {error, {Fuse, footer}}
     end.
 
 %%--------------------------------------------------------------------
 
 to_strip(Row, Col, With = #with{}) when Row < With#with.left_strip ->
-    {error, {strip, Row, Col}};
+    {error, {Row, Col, strip}};
 to_strip(Row0, Col, With = #with{}) when Row0 < With#with.top_strip ->
     Row = Row0 - With#with.left_strip,
     to_strip(left, Row div 6, Row rem 6, Col, With);
@@ -1678,7 +1678,7 @@ to_strip(Row0, Col, With = #with{}) when Row0 < With#with.end_strip ->
     Row = Row0 - With#with.bottom_strip,
     to_strip(bottom, Row div 6, 5 - (Row rem 6), Col, With);
 to_strip(Row, Col, _With) ->
-    {error, {strip, Row, Col}}.
+    {error, {Row, Col, strip}}.
 
 %%--------------------------------------------------------------------
 
@@ -1700,7 +1700,7 @@ to_strip(Side, Index, R, C, #with{density = epm2210}) ->
 
 ?EPM240_STRIPS()
 to_epm240_strip(Side, Index, R, C) ->
-    {error, {strip, Side, Index, R, C}}.
+    {error, {Side, Index, strip, R, C}}.
 
 -undef(STRIP).
 
@@ -1713,7 +1713,7 @@ to_epm240_strip(Side, Index, R, C) ->
 
 ?EPM570_STRIPS()
 to_epm570_strip(Side, Index, R, C) ->
-    {error, {strip, Side, Index, R, C}}.
+    {error, {Side, Index, strip, R, C}}.
 
 -undef(STRIP).
 
@@ -1726,7 +1726,7 @@ to_epm570_strip(Side, Index, R, C) ->
 
 ?EPM1270_STRIPS()
 to_epm1270_strip(Side, Index, R, C) ->
-    {error, {strip, Side, Index, R, C}}.
+    {error, {Side, Index, strip, R, C}}.
 
 -undef(STRIP).
 
@@ -1739,7 +1739,7 @@ to_epm1270_strip(Side, Index, R, C) ->
 
 ?EPM2210_STRIPS()
 to_epm2210_strip(Side, Index, R, C) ->
-    {error, {strip, Side, Index, R, C}}.
+    {error, {Side, Index, strip, R, C}}.
 
 -undef(STRIP).
 
@@ -1751,157 +1751,157 @@ to_epm2210_strip(Side, Index, R, C) ->
 
 ?IOC_STRIPS()
 to_ioc_strip(X, Y, N, R, C) ->
-    {error, {strip, X, Y, N, R, C}}.
+    {error, {X, Y, N, strip, R, C}}.
 
 -undef(IOC_STRIP).
 
 %%--------------------------------------------------------------------
 
-to_column(X, Type, Sector, Offset0, With = #with{}, Lines) ->
+to_column(Type, Sector, X, Offset0, With = #with{}, Lines) ->
     Skip = With#with.sector_skip,
     Top = With#with.long_y,
     End = ?HEAD_WIDTH + 1 + (Lines * ?LINE_WIDTH),
     Padding = 3 * (1 + (Offset0 div With#with.strip_width)),
     case Offset0 - Padding of
         Offset when Offset < ?HEAD_WIDTH ->
-            to_head(X, Type, Sector, Offset, With);
+            to_head(Type, Sector, X, Offset, With);
 
         Offset when Offset < Skip ->
             Trimmed = Offset - ?HEAD_WIDTH,
             to_line(
-                X,
                 Type,
                 Sector,
+                X,
                 Top - (Trimmed div ?LINE_WIDTH),
                 Trimmed rem ?LINE_WIDTH,
                 With
             );
 
         Offset when Offset =:= Skip ->
-            {error, {sector, X, Type, Sector, skip}};
+            {error, {X, skip, Offset, Type, Sector}};
 
         Offset when Offset < End ->
             Trimmed = Offset - ?HEAD_WIDTH - 1,
             to_line(
-                X,
                 Type,
                 Sector,
+                X,
                 Top - (Trimmed div ?LINE_WIDTH),
                 Trimmed rem ?LINE_WIDTH,
                 With
             );
 
         Offset when Offset < End + ?HEAD_WIDTH ->
-            to_tail(X, Type, Sector, 10 + End - Offset, With);
+            to_tail(Type, Sector, X, 10 + End - Offset, With);
 
         Offset ->
-            {error, {column, X, Type, Sector, Offset - 1}}
+            {error, {X, column, Offset, Type, Sector}}
     end.
 
 %%--------------------------------------------------------------------
 
 -define(IOC_HEAD(Sector, Index, N, Name),
-    to_head(X, cell, Sector, Index, With) ->
+    to_head(cell, Sector, X, Index, With) ->
         {ok, {{ioc, X, With#with.top_y, N}, Name}}
 ).
 
 ?IOC_HEADS()
-to_head(X, Type, Sector, Offset, _With) ->
-    {error, {head, X, Type, Sector, Offset}}.
+to_head(Type, Sector, X, Offset, _With) ->
+    {error, {X, head, Offset, Type, Sector}}.
 
 -undef(IOC_HEAD).
 
 %%--------------------------------------------------------------------
 
 -define(IOC_TAIL(Sector, Index, N, Name),
-    to_tail(X, cell, Sector, Index, With) when X =< With#with.grow_x ->
+    to_tail(cell, Sector, X, Index, With) when X =< With#with.grow_x ->
         {ok, {{ioc, X, 3, N}, Name}};
-    to_tail(X, cell, Sector, Index, With) when X > With#with.grow_x ->
+    to_tail(cell, Sector, X, Index, With) when X > With#with.grow_x ->
         {ok, {{ioc, X, 0, N}, Name}}
 ).
 
 ?IOC_TAILS()
-to_tail(X, Type, Sector, Offset, _With) ->
-    {error, {tail, X, Type, Sector, Offset}}.
+to_tail(Type, Sector, X, Offset, _With) ->
+    {error, {X, tail, Offset, Type, Sector}}.
 
 -undef(IOC_TAIL).
 
 %%--------------------------------------------------------------------
 
-to_line(X, side, Sector, Y, Index, With) when Index < 20 ->
-    to_side(X, Sector, Y, Index div 4, Index rem 4, With);
-to_line(X, side, Sector, Y, Index, With) when Index < 26 ->
-    to_side_line(X, Sector, Y, Index, With);
-to_line(X, side, Sector, Y, Index0, With) ->
+to_line(side, Sector, X, Y, Index, With) when Index < 20 ->
+    to_side(Sector, X, Y, Index div 4, Index rem 4, With);
+to_line(side, Sector, X, Y, Index, With) when Index < 26 ->
+    to_side_line(Sector, X, Y, Index, With);
+to_line(side, Sector, X, Y, Index0, With) ->
     Index = Index0 - 6,
-    to_side(X, Sector, Y, Index div 4, 3 - (Index rem 4), With);
-to_line(X, cell, Sector, Y, Index, With) when Index < 20 ->
-    to_cell(X, Sector, Y, Index div 4, Index rem 4, With);
-to_line(X, cell, Sector, Y, Index, With) when Index < 26 ->
-    to_cell_line(X, Sector, Y, Index, With);
-to_line(X, cell, Sector, Y, Index0, With) ->
+    to_side(Sector, X, Y, Index div 4, 3 - (Index rem 4), With);
+to_line(cell, Sector, X, Y, Index, With) when Index < 20 ->
+    to_cell(Sector, X, Y, Index div 4, Index rem 4, With);
+to_line(cell, Sector, X, Y, Index, With) when Index < 26 ->
+    to_cell_line(Sector, X, Y, Index, With);
+to_line(cell, Sector, X, Y, Index0, With) ->
     Index = 65 - Index0,
-    to_cell(X, Sector, Y, Index div 4, Index rem 4, With).
+    to_cell(Sector, X, Y, Index div 4, Index rem 4, With).
 
 %%--------------------------------------------------------------------
 
-to_side_line(X, Sector, Y, Offset, _With) ->
-    {error, {side_line, X, Sector, Y, Offset}}.
+to_side_line(Sector, X, Y, Offset, _With) ->
+    {error, {X, Y, line, Offset, side, Sector}}.
 
 %%--------------------------------------------------------------------
 
 -define(IOC_SIDE(Sector, Index, Name),
-    to_side(X, Sector, Y, N, Index, _) when N >= 2 andalso N =< 8 ->
+    to_side(Sector, X, Y, N, Index, _) when N >= 2 andalso N =< 8 ->
         {ok, {{ioc, X, Y, N - 2}, Name}};
-    to_side(X, Sector, Y, N, Index, _) ->
-        {error, {side, X, Sector, Y, N, Index, Name}}
+    to_side(Sector, X, Y, N, Index, _) ->
+        {error, {X, Y, N, Index, side, Sector}}
 ).
 
 ?IOC_SIDES()
-to_side(X, Sector, Y, N, I, _With) ->
-    {error, {side, X, Sector, Y, N, I}}.
+to_side(Sector, X, Y, N, I, _With) ->
+    {error, {X, Y, N, I, side, Sector}}.
 
 -undef(IOC_SIDE).
 
 %%--------------------------------------------------------------------
 
 -define(LAB_LINE(Sector, Index, Name),
-    to_cell_line(X, Sector, Y, Index, _) ->
+    to_cell_line(Sector, X, Y, Index, _) ->
         {ok, {{lab, X, Y}, Name}}
 ).
 
-to_cell_line(X, Sector, Y, Offset, With = #with{})
+to_cell_line(Sector, X, Y, Offset, With = #with{})
         when X =< With#with.grow_x andalso Y =< 3 ->
-    {error, {cell_line, X, Sector, Y, Offset}};
+    {error, {X, Y, line, Offset, cell, Sector}};
 ?LAB_LINES()
-to_cell_line(X, Sector, Y, Offset, _With) ->
-    {error, {cell_line, X, Sector, Y, Offset}}.
+to_cell_line(Sector, X, Y, Offset, _With) ->
+    {error, {X, Y, line, Offset, cell, Sector}}.
 
 -undef(LAB_LINE).
 
 %%--------------------------------------------------------------------
 
 -define(LAB_CELL(Sector, N, I, Name),
-    to_cell(X, Sector, Y, N, I, _) ->
+    to_cell(Sector, X, Y, N, I, _) ->
         {ok, {{lab, X, Y}, Name}}
 ).
 -define(LC_CELL(Sector, I, Name),
-    to_cell(X, Sector, Y, N, I, _) ->
+    to_cell(Sector, X, Y, N, I, _) ->
         {ok, {{lc, X, Y, N}, Name}}
 ).
 -define(LUT_CELL(Sector, I, Name),
-    to_cell(X, Sector, Y, N, I, _) ->
+    to_cell(Sector, X, Y, N, I, _) ->
         {ok, {{lc, X, Y, N}, lut, Name}}
 ).
 
-to_cell(X, Sector, Y, N, I, With = #with{})
+to_cell(Sector, X, Y, N, I, With = #with{})
         when X =< With#with.grow_x andalso Y =< 3 ->
-    {error, {cell, X, Sector, Y, N, I}};
+    {error, {X, Y, N, I, cell, Sector}};
 ?LAB_CELLS()
 ?LC_CELLS()
 ?LUT_CELLS()
-to_cell(X, Sector, Y, N, I, _With) ->
-    {error, {cell, X, Sector, Y, N, I}}.
+to_cell(Sector, X, Y, N, I, _With) ->
+    {error, {X, Y, N, I, cell, Sector}}.
 
 -undef(LAB_CELL).
 -undef(LC_CELL).
