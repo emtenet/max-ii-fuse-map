@@ -4,11 +4,47 @@
 -export([run/2]).
 
 -export([from_name/2]).
+-export([to_location/2]).
 -export([to_name/2]).
+
+-export_type([location/0]).
+-export_type([row/0]).
+-export_type([col/0]).
+-export_type([side/0]).
+-export_type([type/0]).
+-export_type([index/0]).
+-export_type([sector/0]).
+-export_type([x/0]).
+-export_type([y/0]).
+-export_type([n/0]).
+-export_type([i/0]).
 
 -type density() :: density:density().
 -type fuse() :: fuse:fuse().
 -type name() :: name:name().
+
+-type location() ::
+    {fuse(), header} |
+    {fuse(), middle} |
+    {fuse(), footer} |
+    {row(), col(), strip} |
+    {side(), index(), strip, row(), col()} |
+    {y(), column, index(), type(), sector()} |
+    {x(), skip, index(), type(), sector()} |
+    {x(), head, index(), type(), sector()} |
+    {x(), tail, index(), type(), sector()} |
+    {x(), y(), line, index(), type(), sector()} |
+    {x(), y(), n(), i(), type(), sector()}.
+-type row() :: non_neg_integer().
+-type col() :: non_neg_integer().
+-type side() :: left | top | right | bottom.
+-type type() :: cell | side.
+-type index() :: non_neg_integer().
+-type sector() :: non_neg_integer().
+-type x() :: 0..21.
+-type y() :: 0..13.
+-type n() :: 0..9.
+-type i() :: 0..3.
 
 -record(with, {
     density :: density(),
@@ -1498,67 +1534,19 @@ from_sector(X, Sector, Offset, _With) ->
     {error, {sector, X, Sector, Offset}}.
 
 %%====================================================================
-%% to_name
+%% to_location
 %%====================================================================
 
--spec to_name(fuse(), density()) -> {ok, name()} | {error, term()}.
+-spec to_location(fuse(), density()) -> location().
 
-to_name(Fuse, epm240) ->
-    to_epm240(Fuse);
-to_name(Fuse, epm570) ->
-    to_epm570(Fuse);
-to_name(Fuse, epm1270) ->
-    to_epm1270(Fuse);
-to_name(Fuse, epm2210) ->
-    to_epm2210(Fuse).
-
-%%--------------------------------------------------------------------
-
--define(USER_CODE(Bit, Fuse),
-    to_epm240(Fuse) -> {ok, {user_code, Bit}}
-).
-
-?EPM240_USER_CODES()
-to_epm240(Name) ->
-    to_density(Name, epm240()).
-
--undef(USER_CODE).
-
-%%--------------------------------------------------------------------
-
--define(USER_CODE(Bit, Fuse),
-    to_epm570(Fuse) -> {ok, {user_code, Bit}}
-).
-
-?EPM570_USER_CODES()
-to_epm570(Name) ->
-    to_density(Name, epm570()).
-
--undef(USER_CODE).
-
-%%--------------------------------------------------------------------
-
--define(USER_CODE(Bit, Fuse),
-    to_epm1270(Fuse) -> {ok, {user_code, Bit}}
-).
-
-?EPM1270_USER_CODES()
-to_epm1270(Name) ->
-    to_density(Name, epm1270()).
-
--undef(USER_CODE).
-
-%%--------------------------------------------------------------------
-
--define(USER_CODE(Bit, Fuse),
-    to_epm2210(Fuse) -> {ok, {user_code, Bit}}
-).
-
-?EPM2210_USER_CODES()
-to_epm2210(Name) ->
-    to_density(Name, epm2210()).
-
--undef(USER_CODE).
+to_location(Fuse, epm240) ->
+    to_density(Fuse, epm240());
+to_location(Fuse, epm570) ->
+    to_density(Fuse, epm570());
+to_location(Fuse, epm1270) ->
+    to_density(Fuse, epm1270());
+to_location(Fuse, epm2210) ->
+    to_density(Fuse, epm2210()).
 
 %%--------------------------------------------------------------------
 
@@ -1575,7 +1563,7 @@ to_density(Fuse, With = #with{}) ->
     LongColumn = ?COLUMN_SECTORS * LongSector,
     if
         Fuse < With#with.left_base ->
-            {error, {Fuse, header}};
+            {Fuse, header};
 
         Fuse < With#with.short_base ->
             SectorOffset = Fuse - With#with.left_base,
@@ -1638,7 +1626,7 @@ to_density(Fuse, With = #with{}) ->
             );
 
         Fuse < With#with.right_base ->
-            {error, {Fuse, middle}};
+            {Fuse, middle};
 
         Fuse < With#with.end_base ->
             SectorOffset = Fuse - With#with.right_base,
@@ -1652,33 +1640,180 @@ to_density(Fuse, With = #with{}) ->
             );
 
         true ->
-            {error, {Fuse, footer}}
+            {Fuse, footer}
     end.
 
 %%--------------------------------------------------------------------
 
 to_strip(Row, Col, With = #with{}) when Row < With#with.left_strip ->
-    {error, {Row, Col, strip}};
+    {Row, Col, strip};
 to_strip(Row0, Col, With = #with{}) when Row0 < With#with.top_strip ->
     Row = Row0 - With#with.left_strip,
-    to_strip(left, Row div 6, Row rem 6, Col, With);
+    {left, Row div 6, strip, Row rem 6, Col};
 to_strip(Row0, Col, With = #with{}) when Row0 < With#with.right_strip ->
     Row = Row0 - With#with.top_strip,
-    to_strip(top, Row div 6, Row rem 6, Col, With);
+    {top, Row div 6, strip, Row rem 6, Col};
 to_strip(Row0, Col, With = #with{})
         when Row0 < With#with.bottom_strip andalso
              (With#with.density =:= epm1270 orelse
               With#with.density =:= epm2210) ->
     Row = Row0 - With#with.right_strip,
-    to_strip(right, Row div 7, 5 - (Row rem 7), Col, With);
+    {right, Row div 7, strip, 5 - (Row rem 7), Col};
 to_strip(Row0, Col, With = #with{}) when Row0 < With#with.bottom_strip ->
     Row = Row0 - With#with.right_strip,
-    to_strip(right, Row div 6, 5 - (Row rem 6), Col, With);
+    {right, Row div 6, strip, 5 - (Row rem 6), Col};
 to_strip(Row0, Col, With = #with{}) when Row0 < With#with.end_strip ->
     Row = Row0 - With#with.bottom_strip,
-    to_strip(bottom, Row div 6, 5 - (Row rem 6), Col, With);
+    {bottom, Row div 6, strip, 5 - (Row rem 6), Col};
 to_strip(Row, Col, _With) ->
-    {error, {Row, Col, strip}}.
+    {Row, Col, strip}.
+
+%%--------------------------------------------------------------------
+
+to_column(Type, Sector, X, Offset0, With = #with{}, Lines) ->
+    Skip = With#with.sector_skip,
+    Top = With#with.long_y,
+    End = ?HEAD_WIDTH + 1 + (Lines * ?LINE_WIDTH),
+    Padding = 3 * (1 + (Offset0 div With#with.strip_width)),
+    case Offset0 - Padding of
+        Offset when Offset < ?HEAD_WIDTH ->
+            {X, head, Offset, Type, Sector};
+
+        Offset when Offset < Skip ->
+            Trimmed = Offset - ?HEAD_WIDTH,
+            to_line(
+                Type,
+                Sector,
+                X,
+                Top - (Trimmed div ?LINE_WIDTH),
+                Trimmed rem ?LINE_WIDTH
+            );
+
+        Offset when Offset =:= Skip ->
+            {X, skip, Offset, Type, Sector};
+
+        Offset when Offset < End ->
+            Trimmed = Offset - ?HEAD_WIDTH - 1,
+            to_line(
+                Type,
+                Sector,
+                X,
+                Top - (Trimmed div ?LINE_WIDTH),
+                Trimmed rem ?LINE_WIDTH
+            );
+
+        Offset when Offset < End + ?HEAD_WIDTH ->
+            {X, tail, 10 + End - Offset, Type, Sector};
+
+        Offset ->
+            {X, column, Offset, Type, Sector}
+    end.
+
+%%--------------------------------------------------------------------
+
+to_line(side, Sector, X, Y, Index) when Index < 20 ->
+    {X, Y, Index div 4, Index rem 4, side, Sector};
+to_line(side, Sector, X, Y, Index) when Index < 26 ->
+    {X, Y, line, Index, side, Sector};
+to_line(side, Sector, X, Y, Index0) ->
+    Index = Index0 - 6,
+    {X, Y, Index div 4, 3 - (Index rem 4), side, Sector};
+to_line(cell, Sector, X, Y, Index) when Index < 20 ->
+    {X, Y, Index div 4, Index rem 4, cell, Sector};
+to_line(cell, Sector, X, Y, Index) when Index < 26 ->
+    {X, Y, line, Index, cell, Sector};
+to_line(cell, Sector, X, Y, Index0) ->
+    Index = 65 - Index0,
+    {X, Y, Index div 4, Index rem 4, cell, Sector}.
+
+%%====================================================================
+%% to_name
+%%====================================================================
+
+-spec to_name(fuse(), density()) -> {ok, name()} | {error, location()}.
+
+to_name(Fuse, epm240) ->
+    to_epm240(Fuse);
+to_name(Fuse, epm570) ->
+    to_epm570(Fuse);
+to_name(Fuse, epm1270) ->
+    to_epm1270(Fuse);
+to_name(Fuse, epm2210) ->
+    to_epm2210(Fuse).
+
+%%--------------------------------------------------------------------
+
+-define(USER_CODE(Bit, Fuse),
+    to_epm240(Fuse) -> {ok, {user_code, Bit}}
+).
+
+?EPM240_USER_CODES()
+to_epm240(Fuse) ->
+    to_name_with(Fuse, epm240()).
+
+-undef(USER_CODE).
+
+%%--------------------------------------------------------------------
+
+-define(USER_CODE(Bit, Fuse),
+    to_epm570(Fuse) -> {ok, {user_code, Bit}}
+).
+
+?EPM570_USER_CODES()
+to_epm570(Fuse) ->
+    to_name_with(Fuse, epm570()).
+
+-undef(USER_CODE).
+
+%%--------------------------------------------------------------------
+
+-define(USER_CODE(Bit, Fuse),
+    to_epm1270(Fuse) -> {ok, {user_code, Bit}}
+).
+
+?EPM1270_USER_CODES()
+to_epm1270(Fuse) ->
+    to_name_with(Fuse, epm1270()).
+
+-undef(USER_CODE).
+
+%%--------------------------------------------------------------------
+
+-define(USER_CODE(Bit, Fuse),
+    to_epm2210(Fuse) -> {ok, {user_code, Bit}}
+).
+
+?EPM2210_USER_CODES()
+to_epm2210(Fuse) ->
+    to_name_with(Fuse, epm2210()).
+
+-undef(USER_CODE).
+
+%%--------------------------------------------------------------------
+
+to_name_with(Fuse, With) ->
+    case to_density(Fuse, With) of
+        {Side, Index, strip, R, C} ->
+            to_strip(Side, Index, R, C, With);
+
+        {X, head, Index, cell, Sector} ->
+            to_cell_head(X, Index, Sector, With);
+
+        {X, tail, Index, cell, Sector} ->
+            to_cell_tail(X, Index, Sector, With);
+
+        {X, Y, N, I, side, Sector} ->
+            to_side(X, Y, N, I, Sector);
+
+        {X, Y, line, Index, cell, Sector} ->
+            to_cell_line(X, Y, Index, Sector, With);
+
+        {X, Y, N, I, cell, Sector} ->
+            to_cell(X, Y, N, I, Sector, With);
+
+        Location ->
+            {error, Location}
+    end.
 
 %%--------------------------------------------------------------------
 
@@ -1746,7 +1881,8 @@ to_epm2210_strip(Side, Index, R, C) ->
 %%--------------------------------------------------------------------
 
 -define(IOC_STRIP(R, C, Name),
-    to_ioc_strip(X, Y, N, R, C) -> {ok, {{ioc, X, Y, N}, Name}}
+    to_ioc_strip(X, Y, N, R, C) ->
+        {ok, {{ioc, X, Y, N}, Name}}
 ).
 
 ?IOC_STRIPS()
@@ -1757,108 +1893,43 @@ to_ioc_strip(X, Y, N, R, C) ->
 
 %%--------------------------------------------------------------------
 
-to_column(Type, Sector, X, Offset0, With = #with{}, Lines) ->
-    Skip = With#with.sector_skip,
-    Top = With#with.long_y,
-    End = ?HEAD_WIDTH + 1 + (Lines * ?LINE_WIDTH),
-    Padding = 3 * (1 + (Offset0 div With#with.strip_width)),
-    case Offset0 - Padding of
-        Offset when Offset < ?HEAD_WIDTH ->
-            to_head(Type, Sector, X, Offset, With);
-
-        Offset when Offset < Skip ->
-            Trimmed = Offset - ?HEAD_WIDTH,
-            to_line(
-                Type,
-                Sector,
-                X,
-                Top - (Trimmed div ?LINE_WIDTH),
-                Trimmed rem ?LINE_WIDTH,
-                With
-            );
-
-        Offset when Offset =:= Skip ->
-            {error, {X, skip, Offset, Type, Sector}};
-
-        Offset when Offset < End ->
-            Trimmed = Offset - ?HEAD_WIDTH - 1,
-            to_line(
-                Type,
-                Sector,
-                X,
-                Top - (Trimmed div ?LINE_WIDTH),
-                Trimmed rem ?LINE_WIDTH,
-                With
-            );
-
-        Offset when Offset < End + ?HEAD_WIDTH ->
-            to_tail(Type, Sector, X, 10 + End - Offset, With);
-
-        Offset ->
-            {error, {X, column, Offset, Type, Sector}}
-    end.
-
-%%--------------------------------------------------------------------
-
 -define(IOC_HEAD(Sector, Index, N, Name),
-    to_head(cell, Sector, X, Index, With) ->
+    to_cell_head(X, Index, Sector, With) ->
         {ok, {{ioc, X, With#with.top_y, N}, Name}}
 ).
 
 ?IOC_HEADS()
-to_head(Type, Sector, X, Offset, _With) ->
-    {error, {X, head, Offset, Type, Sector}}.
+to_cell_head(X, Index, Sector, _With) ->
+    {error, {X, head, Index, cell, Sector}}.
 
 -undef(IOC_HEAD).
 
 %%--------------------------------------------------------------------
 
 -define(IOC_TAIL(Sector, Index, N, Name),
-    to_tail(cell, Sector, X, Index, With) when X =< With#with.grow_x ->
+    to_cell_tail(X, Index, Sector, With) when X =< With#with.grow_x ->
         {ok, {{ioc, X, 3, N}, Name}};
-    to_tail(cell, Sector, X, Index, With) when X > With#with.grow_x ->
+    to_cell_tail(X, Index, Sector, With) when X > With#with.grow_x ->
         {ok, {{ioc, X, 0, N}, Name}}
 ).
 
 ?IOC_TAILS()
-to_tail(Type, Sector, X, Offset, _With) ->
-    {error, {X, tail, Offset, Type, Sector}}.
+to_cell_tail(X, Index, Sector, _With) ->
+    {error, {X, tail, Index, cell, Sector}}.
 
 -undef(IOC_TAIL).
 
 %%--------------------------------------------------------------------
 
-to_line(side, Sector, X, Y, Index, With) when Index < 20 ->
-    to_side(Sector, X, Y, Index div 4, Index rem 4, With);
-to_line(side, Sector, X, Y, Index, With) when Index < 26 ->
-    to_side_line(Sector, X, Y, Index, With);
-to_line(side, Sector, X, Y, Index0, With) ->
-    Index = Index0 - 6,
-    to_side(Sector, X, Y, Index div 4, 3 - (Index rem 4), With);
-to_line(cell, Sector, X, Y, Index, With) when Index < 20 ->
-    to_cell(Sector, X, Y, Index div 4, Index rem 4, With);
-to_line(cell, Sector, X, Y, Index, With) when Index < 26 ->
-    to_cell_line(Sector, X, Y, Index, With);
-to_line(cell, Sector, X, Y, Index0, With) ->
-    Index = 65 - Index0,
-    to_cell(Sector, X, Y, Index div 4, Index rem 4, With).
-
-%%--------------------------------------------------------------------
-
-to_side_line(Sector, X, Y, Offset, _With) ->
-    {error, {X, Y, line, Offset, side, Sector}}.
-
-%%--------------------------------------------------------------------
-
--define(IOC_SIDE(Sector, Index, Name),
-    to_side(Sector, X, Y, N, Index, _) when N >= 2 andalso N =< 8 ->
+-define(IOC_SIDE(Sector, I, Name),
+    to_side(X, Y, N, I, Sector) when N >= 2 andalso N =< 8 ->
         {ok, {{ioc, X, Y, N - 2}, Name}};
-    to_side(Sector, X, Y, N, Index, _) ->
-        {error, {X, Y, N, Index, side, Sector}}
+    to_side(X, Y, N, I, Sector) ->
+        {error, {X, Y, N, I, side, Sector}}
 ).
 
 ?IOC_SIDES()
-to_side(Sector, X, Y, N, I, _With) ->
+to_side(X, Y, N, I, Sector) ->
     {error, {X, Y, N, I, side, Sector}}.
 
 -undef(IOC_SIDE).
@@ -1866,41 +1937,41 @@ to_side(Sector, X, Y, N, I, _With) ->
 %%--------------------------------------------------------------------
 
 -define(LAB_LINE(Sector, Index, Name),
-    to_cell_line(Sector, X, Y, Index, _) ->
+    to_cell_line(X, Y, Index, Sector, _) ->
         {ok, {{lab, X, Y}, Name}}
 ).
 
-to_cell_line(Sector, X, Y, Offset, With = #with{})
+to_cell_line(X, Y, Index, Sector, With = #with{})
         when X =< With#with.grow_x andalso Y =< 3 ->
-    {error, {X, Y, line, Offset, cell, Sector}};
+    {error, {X, Y, line, Index, cell, Sector}};
 ?LAB_LINES()
-to_cell_line(Sector, X, Y, Offset, _With) ->
-    {error, {X, Y, line, Offset, cell, Sector}}.
+to_cell_line(X, Y, Index, Sector, _With) ->
+    {error, {X, Y, line, Index, cell, Sector}}.
 
 -undef(LAB_LINE).
 
 %%--------------------------------------------------------------------
 
 -define(LAB_CELL(Sector, N, I, Name),
-    to_cell(Sector, X, Y, N, I, _) ->
+    to_cell(X, Y, N, I, Sector, _) ->
         {ok, {{lab, X, Y}, Name}}
 ).
 -define(LC_CELL(Sector, I, Name),
-    to_cell(Sector, X, Y, N, I, _) ->
+    to_cell(X, Y, N, I, Sector, _) ->
         {ok, {{lc, X, Y, N}, Name}}
 ).
 -define(LUT_CELL(Sector, I, Name),
-    to_cell(Sector, X, Y, N, I, _) ->
+    to_cell(X, Y, N, I, Sector, _) ->
         {ok, {{lc, X, Y, N}, lut, Name}}
 ).
 
-to_cell(Sector, X, Y, N, I, With = #with{})
+to_cell(X, Y, N, I, Sector, With = #with{})
         when X =< With#with.grow_x andalso Y =< 3 ->
     {error, {X, Y, N, I, cell, Sector}};
 ?LAB_CELLS()
 ?LC_CELLS()
 ?LUT_CELLS()
-to_cell(Sector, X, Y, N, I, _With) ->
+to_cell(X, Y, N, I, Sector, _With) ->
     {error, {X, Y, N, I, cell, Sector}}.
 
 -undef(LAB_CELL).
