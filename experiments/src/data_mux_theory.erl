@@ -170,113 +170,113 @@ fuses(Density, Fuses) ->
 %%--------------------------------------------------------------------
 
 fuse(Density, Fuse, LCs) ->
-    case fuse_map:to_name(Fuse, Density) of
-        {error, {X, Y, N, 0, cell, 3}} ->
+    case fuse_map:to_location(Fuse, Density) of
+        {X, Y, N, 0, cell, 3} ->
             fuse_mux({lc, X, Y, N}, data_a6, mux6_0, LCs);
 
-        {error, {X, Y, N, 1, cell, 3}} ->
+        {X, Y, N, 1, cell, 3} ->
             fuse_mux({lc, X, Y, N}, data_a6, mux6_1, LCs);
 
-        {error, {X, Y, N, 0, cell, 4}} ->
+        {X, Y, N, 0, cell, 4} ->
             fuse_mux({lc, X, Y, N}, data_a6, mux6_2, LCs);
 
-        {error, {X, Y, N, 1, cell, 4}} ->
+        {X, Y, N, 1, cell, 4} ->
             fuse_mux({lc, X, Y, N}, data_a6, mux6_3, LCs);
 
-        {error, {X, Y, N, 0, cell, 8}} ->
+        {X, Y, N, 0, cell, 8} ->
             fuse_mux({lc, X, Y, N}, data_a6, mux6_4, LCs);
 
-        {error, {X, Y, N, 1, cell, 8}} ->
+        {X, Y, N, 1, cell, 8} ->
             fuse_mux({lc, X, Y, N}, data_a6, mux6_5, LCs);
 
-        {error, {X, Y, N, 0, cell, 5}} ->
+        {X, Y, N, 0, cell, 5} ->
             fuse_mux({lc, X, Y, N}, data_b6, mux6_0, LCs);
 
-        {error, {X, Y, N, 1, cell, 5}} ->
+        {X, Y, N, 1, cell, 5} ->
             fuse_mux({lc, X, Y, N}, data_b6, mux6_1, LCs);
 
-        {error, {X, Y, N, 0, cell, 6}} ->
+        {X, Y, N, 0, cell, 6} ->
             fuse_mux({lc, X, Y, N}, data_b6, mux6_2, LCs);
 
-        {error, {X, Y, N, 1, cell, 6}} ->
+        {X, Y, N, 1, cell, 6} ->
             fuse_mux({lc, X, Y, N}, data_b6, mux6_3, LCs);
 
-        {error, {X, Y, N, 0, cell, 7}} ->
+        {X, Y, N, 0, cell, 7} ->
             fuse_mux({lc, X, Y, N}, data_b6, mux6_4, LCs);
 
-        {error, {X, Y, N, 1, cell, 7}} ->
+        {X, Y, N, 1, cell, 7} ->
             fuse_mux({lc, X, Y, N}, data_b6, mux6_5, LCs);
 
-        {error, {X, Y, N, 2, cell, 3}} ->
+        {X, Y, N, 2, cell, 3} ->
             fuse_mux({lc, X, Y, N}, data_c6, mux6_0, LCs);
 
-        {error, {X, Y, N, 3, cell, 3}} ->
+        {X, Y, N, 3, cell, 3} ->
             fuse_mux({lc, X, Y, N}, data_c6, mux6_1, LCs);
 
-        {error, {X, Y, N, 2, cell, 4}} ->
+        {X, Y, N, 2, cell, 4} ->
             fuse_mux({lc, X, Y, N}, data_c6, mux6_2, LCs);
 
-        {error, {X, Y, N, 3, cell, 4}} ->
+        {X, Y, N, 3, cell, 4} ->
             fuse_mux({lc, X, Y, N}, data_c6, mux6_3, LCs);
 
-        {error, {X, Y, N, 2, cell, 5}} ->
+        {X, Y, N, 2, cell, 5} ->
             fuse_mux({lc, X, Y, N}, data_c6, mux6_4, LCs);
 
-        {error, {X, Y, N, 3, cell, 5}} ->
+        {X, Y, N, 3, cell, 5} ->
             fuse_mux({lc, X, Y, N}, data_c6, mux6_5, LCs);
 
-        {error, {X, Y, N, 2, cell, 6}} ->
+        {X, Y, N, 2, cell, 6} ->
             fuse_mux({lc, X, Y, N}, data_d6, mux6_0, LCs);
 
-        {error, {X, Y, N, 3, cell, 6}} ->
+        {X, Y, N, 3, cell, 6} ->
             fuse_mux({lc, X, Y, N}, data_d6, mux6_1, LCs);
 
-        {error, {X, Y, N, 2, cell, 7}} ->
+        {X, Y, N, 2, cell, 7} ->
             fuse_mux({lc, X, Y, N}, data_d6, mux6_2, LCs);
 
-        {error, {X, Y, N, 3, cell, 7}} ->
+        {X, Y, N, 3, cell, 7} ->
             fuse_mux({lc, X, Y, N}, data_d6, mux6_3, LCs);
 
-        {error, {X, Y, N, 2, cell, 8}} ->
+        {X, Y, N, 2, cell, 8} ->
             fuse_mux({lc, X, Y, N}, data_d6, mux6_4, LCs);
 
-        {error, {X, Y, N, 3, cell, 8}} ->
+        {X, Y, N, 3, cell, 8} ->
             fuse_mux({lc, X, Y, N}, data_d6, mux6_5, LCs);
 
-        {error, {X, Y, N, 0, cell, 9}} ->
+        {X, Y, N, 0, cell, 9} ->
             fuse_mux({lc, X, Y, N}, data_a3, mux3_0, LCs);
 
-        {error, {X, Y, N, 1, cell, 9}} ->
+        {X, Y, N, 1, cell, 9} ->
             fuse_mux({lc, X, Y, N}, data_b3, mux3_0, LCs);
 
-        {error, {X, Y, N, 2, cell, 9}} ->
+        {X, Y, N, 2, cell, 9} ->
             fuse_mux({lc, X, Y, N}, data_c3, mux3_0, LCs);
 
-        {error, {X, Y, N, 3, cell, 9}} ->
+        {X, Y, N, 3, cell, 9} ->
             fuse_mux({lc, X, Y, N}, data_d3, mux3_0, LCs);
 
-        {error, {X, Y, N, 0, cell, 10}} ->
+        {X, Y, N, 0, cell, 10} ->
             fuse_mux({lc, X, Y, N}, data_a3, mux3_1, LCs);
 
-        {error, {X, Y, N, 1, cell, 10}} ->
+        {X, Y, N, 1, cell, 10} ->
             fuse_mux({lc, X, Y, N}, data_b3, mux3_1, LCs);
 
-        {error, {X, Y, N, 2, cell, 10}} ->
+        {X, Y, N, 2, cell, 10} ->
             fuse_mux({lc, X, Y, N}, data_c3, mux3_1, LCs);
 
-        {error, {X, Y, N, 3, cell, 10}} ->
+        {X, Y, N, 3, cell, 10} ->
             fuse_mux({lc, X, Y, N}, data_d3, mux3_1, LCs);
 
-        {error, {X, Y, N, 0, cell, 11}} ->
+        {X, Y, N, 0, cell, 11} ->
             fuse_mux({lc, X, Y, N}, data_a3, mux3_2, LCs);
 
-        {error, {X, Y, N, 1, cell, 11}} ->
+        {X, Y, N, 1, cell, 11} ->
             fuse_mux({lc, X, Y, N}, data_b3, mux3_2, LCs);
 
-        {error, {X, Y, N, 2, cell, 11}} ->
+        {X, Y, N, 2, cell, 11} ->
             fuse_mux({lc, X, Y, N}, data_c3, mux3_2, LCs);
 
-        {error, {X, Y, N, 3, cell, 11}} ->
+        {X, Y, N, 3, cell, 11} ->
             fuse_mux({lc, X, Y, N}, data_d3, mux3_2, LCs);
 
         _ ->
