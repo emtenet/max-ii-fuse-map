@@ -321,22 +321,28 @@ print(Experiments) ->
 
 print_headers(Names) ->
     print_keys(Names, 0),
-    io:format("       ", []),
-    print_header(Names, 0),
-    io:format("~n", []).
+    case length(Names) of
+        N when N =< 26 ->
+            io:format("       ", []),
+            print_header0(Names, 0),
+            io:format("~n", []);
+
+        N when N =< 27 * 26 ->
+            io:format("       ", []),
+            print_header1(Names, 0),
+            io:format("~n", []),
+            io:format("       ", []),
+            print_header0(Names, 0),
+            io:format("~n", [])
+    end.
 
 %%--------------------------------------------------------------------
 
 print_key(Key) when Key >= 0 andalso Key < 26 ->
-    <<($a + Key)>>;
-print_key(Key) when Key >= 26 andalso Key < 36 ->
-    <<($0 + Key - 26)>>;
-print_key(Key) when Key >= 36 andalso Key < 62 ->
-    <<($A + Key - 36)>>;
-print_key(Key) when Key >= 62 andalso Key < 72 ->
-    <<($0 + Key - 62)>>;
-print_key(Key) when Key >= 72 andalso Key < 98 ->
-    <<($a + Key - 72)>>.
+    <<" ", ($a + Key)>>;
+print_key(Key0) when Key0 >= 26 andalso Key0 < 27 * 26 ->
+    Key = Key0 - 26,
+    <<($a + (Key div 26)), ($a + (Key rem 26))>>.
 
 %%--------------------------------------------------------------------
 
@@ -351,11 +357,21 @@ print_keys([Name | Names], Key) ->
 
 %%--------------------------------------------------------------------
 
-print_header([], _) ->
+print_header1([], _) ->
     ok;
-print_header([_ | Names], Key) ->
-    io:format(" ~s", [print_key(Key)]),
-    print_header(Names, Key + 1).
+print_header1([_ | Names], Key) ->
+    <<Header:1/binary, _>> = print_key(Key),
+    io:format(" ~s", [Header]),
+    print_header1(Names, Key + 1).
+
+%%--------------------------------------------------------------------
+
+print_header0([], _) ->
+    ok;
+print_header0([_ | Names], Key) ->
+    <<_, Header:1/binary>> = print_key(Key),
+    io:format(" ~s", [Header]),
+    print_header0(Names, Key + 1).
 
 %%--------------------------------------------------------------------
 
