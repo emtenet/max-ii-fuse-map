@@ -25,7 +25,6 @@
 
 -type location() ::
     {fuse(), header} |
-    {fuse(), middle} |
     {fuse(), footer} |
     {row(), col(), strip} |
     {side(), index(), strip, row(), col()} |
@@ -61,7 +60,6 @@
     short_base :: non_neg_integer(),
     grow_base :: non_neg_integer(),
     long_base :: non_neg_integer(),
-    gap_base :: non_neg_integer(),
     right_base :: non_neg_integer(),
     end_base :: non_neg_integer(),
     sector_skip :: non_neg_integer(),
@@ -75,28 +73,27 @@
 -define(HEAD_WIDTH, 11).
 -define(LINE_WIDTH, 46).
 
--define(HEADER_SECTORS, 2).
--define(SIDE_SECTORS, 14).
+-define(SIDE_SECTORS, 13).
 -define(COLUMN_SECTORS, 28).
--define(SHORT_SECTORS, 17).
+-define(SHORT_SECTORS, 20).
 -define(LONG_SECTORS, (?COLUMN_SECTORS - ?SHORT_SECTORS)).
 
 -define(IOC_SIDES(),
-    ?IOC_SIDE(0, 1, invert_guess);
+    ?IOC_SIDE(2, 1, invert_guess);
 ).
 
 -define(IOC_HEADS(),
-    ?IOC_HEAD(6, 2, 2, invert_guess);
-    ?IOC_HEAD(6, 4, 3, invert_guess);
-    ?IOC_HEAD(10, 2, 0, invert_guess);
-    ?IOC_HEAD(10, 4, 1, invert_guess);
+    ?IOC_HEAD(9, 2, 2, invert_guess);
+    ?IOC_HEAD(9, 4, 3, invert_guess);
+    ?IOC_HEAD(13, 2, 0, invert_guess);
+    ?IOC_HEAD(13, 4, 1, invert_guess);
 ).
 
 -define(IOC_TAILS(),
-    ?IOC_TAIL(6, 2, 2, invert_guess);
-    ?IOC_TAIL(6, 4, 3, invert_guess);
-    ?IOC_TAIL(10, 2, 0, invert_guess);
-    ?IOC_TAIL(10, 4, 1, invert_guess);
+    ?IOC_TAIL(9, 2, 2, invert_guess);
+    ?IOC_TAIL(9, 4, 3, invert_guess);
+    ?IOC_TAIL(13, 2, 0, invert_guess);
+    ?IOC_TAIL(13, 4, 1, invert_guess);
 ).
 
 -define(IOC_STRIPS(),
@@ -106,88 +103,88 @@
 ).
 
 -define(LAB_CELLS(),
-    ?LAB_CELL(0, 4, 2, clk1_global0);
-    ?LAB_CELL(0, 4, 3, clk1_global1);
-    ?LAB_CELL(0, 9, 3, clk1_global3);
-    ?LAB_CELL(0, 9, 2, clk1_global2);
-    ?LAB_CELL(1, 4, 2, clk2_global0);
-    ?LAB_CELL(1, 4, 3, clk2_global1);
-    ?LAB_CELL(1, 9, 3, clk2_global3);
-    ?LAB_CELL(1, 9, 2, clk2_global2);
-    ?LAB_CELL(2, 4, 2, clr1_global0);
-    ?LAB_CELL(2, 4, 3, clr1_global1);
-    ?LAB_CELL(2, 9, 3, clr1_global3);
-    ?LAB_CELL(2, 9, 2, clr1_global2);
+    ?LAB_CELL(3, 4, 2, clk1_global0);
+    ?LAB_CELL(3, 4, 3, clk1_global1);
+    ?LAB_CELL(3, 9, 3, clk1_global3);
+    ?LAB_CELL(3, 9, 2, clk1_global2);
+    ?LAB_CELL(4, 4, 2, clk2_global0);
+    ?LAB_CELL(4, 4, 3, clk2_global1);
+    ?LAB_CELL(4, 9, 3, clk2_global3);
+    ?LAB_CELL(4, 9, 2, clk2_global2);
+    ?LAB_CELL(5, 4, 2, clr1_global0);
+    ?LAB_CELL(5, 4, 3, clr1_global1);
+    ?LAB_CELL(5, 9, 3, clr1_global3);
+    ?LAB_CELL(5, 9, 2, clr1_global2);
 ).
 
 -define(LAB_LINES(),
-    ?LAB_LINE(12, 21, clk1_invert);
-    ?LAB_LINE(16, 22, clk2_invert);
-    ?LAB_LINE(18, 23, clr1_invert);
+    ?LAB_LINE(15, 21, clk1_invert);
+    ?LAB_LINE(19, 22, clk2_invert);
+    ?LAB_LINE(21, 23, clr1_invert);
 ).
 
 -define(LC_CELLS(),
-    ?LC_CELL(16, 2, clk);
-    ?LC_CELL(17, 3, clr);
-    ?LC_CELL(18, 3, local_line);
+    ?LC_CELL(19, 2, clk);
+    ?LC_CELL(20, 3, clr);
+    ?LC_CELL(21, 3, local_line);
 ).
 
 -define(LUT_CELLS(),
-    ?LUT_CELL(12, 0, a1b1c0d1);
-    ?LUT_CELL(12, 1, a1b0c0d1);
-    ?LUT_CELL(12, 2, a1b1c0d0);
-    ?LUT_CELL(12, 3, a1b0c0d0);
-    ?LUT_CELL(13, 0, a0b1c0d1);
-    ?LUT_CELL(13, 1, a0b0c0d1);
-    ?LUT_CELL(13, 2, a0b1c0d0);
-    ?LUT_CELL(13, 3, a0b0c0d0);
-    ?LUT_CELL(14, 0, a1b1c1d1);
-    ?LUT_CELL(14, 1, a1b0c1d1);
-    ?LUT_CELL(14, 2, a1b0c1d0);
-    ?LUT_CELL(14, 3, a1b1c1d0);
-    ?LUT_CELL(15, 0, a0b1c1d1);
-    ?LUT_CELL(15, 1, a0b0c1d1);
-    ?LUT_CELL(15, 2, a0b0c1d0);
-    ?LUT_CELL(15, 3, a0b1c1d0);
+    ?LUT_CELL(15, 0, a1b1c0d1);
+    ?LUT_CELL(15, 1, a1b0c0d1);
+    ?LUT_CELL(15, 2, a1b1c0d0);
+    ?LUT_CELL(15, 3, a1b0c0d0);
+    ?LUT_CELL(16, 0, a0b1c0d1);
+    ?LUT_CELL(16, 1, a0b0c0d1);
+    ?LUT_CELL(16, 2, a0b1c0d0);
+    ?LUT_CELL(16, 3, a0b0c0d0);
+    ?LUT_CELL(17, 0, a1b1c1d1);
+    ?LUT_CELL(17, 1, a1b0c1d1);
+    ?LUT_CELL(17, 2, a1b0c1d0);
+    ?LUT_CELL(17, 3, a1b1c1d0);
+    ?LUT_CELL(18, 0, a0b1c1d1);
+    ?LUT_CELL(18, 1, a0b0c1d1);
+    ?LUT_CELL(18, 2, a0b0c1d0);
+    ?LUT_CELL(18, 3, a0b1c1d0);
 ).
 
 -define(MUX_CELLS(),
-    ?MUX_CELL( 3, 0, data_a6, mux0);
-    ?MUX_CELL( 3, 1, data_a6, mux1);
-    ?MUX_CELL( 4, 0, data_a6, mux2);
-    ?MUX_CELL( 4, 1, data_a6, mux3);
-    ?MUX_CELL( 8, 0, data_a6, mux4);
-    ?MUX_CELL( 8, 1, data_a6, mux5);
-    ?MUX_CELL( 5, 0, data_b6, mux0);
-    ?MUX_CELL( 5, 1, data_b6, mux1);
-    ?MUX_CELL( 6, 0, data_b6, mux2);
-    ?MUX_CELL( 6, 1, data_b6, mux3);
-    ?MUX_CELL( 7, 0, data_b6, mux4);
-    ?MUX_CELL( 7, 1, data_b6, mux5);
-    ?MUX_CELL( 3, 2, data_c6, mux0);
-    ?MUX_CELL( 3, 3, data_c6, mux1);
-    ?MUX_CELL( 4, 2, data_c6, mux2);
-    ?MUX_CELL( 4, 3, data_c6, mux3);
-    ?MUX_CELL( 5, 2, data_c6, mux4);
-    ?MUX_CELL( 5, 3, data_c6, mux5);
-    ?MUX_CELL( 6, 2, data_d6, mux0);
-    ?MUX_CELL( 6, 3, data_d6, mux1);
-    ?MUX_CELL( 7, 2, data_d6, mux2);
-    ?MUX_CELL( 7, 3, data_d6, mux3);
-    ?MUX_CELL( 8, 2, data_d6, mux4);
-    ?MUX_CELL( 8, 3, data_d6, mux5);
-    ?MUX_CELL( 9, 0, data_a3, mux0);
-    ?MUX_CELL(10, 0, data_a3, mux1);
-    ?MUX_CELL(11, 0, data_a3, mux2);
-    ?MUX_CELL( 9, 1, data_b3, mux0);
-    ?MUX_CELL(10, 1, data_b3, mux1);
-    ?MUX_CELL(11, 1, data_b3, mux2);
-    ?MUX_CELL( 9, 2, data_c3, mux0);
-    ?MUX_CELL(10, 2, data_c3, mux1);
-    ?MUX_CELL(11, 2, data_c3, mux2);
-    ?MUX_CELL( 9, 3, data_d3, mux0);
-    ?MUX_CELL(10, 3, data_d3, mux1);
-    ?MUX_CELL(11, 3, data_d3, mux2);
+    ?MUX_CELL( 6, 0, data_a6, mux0);
+    ?MUX_CELL( 6, 1, data_a6, mux1);
+    ?MUX_CELL( 7, 0, data_a6, mux2);
+    ?MUX_CELL( 7, 1, data_a6, mux3);
+    ?MUX_CELL(11, 0, data_a6, mux4);
+    ?MUX_CELL(11, 1, data_a6, mux5);
+    ?MUX_CELL( 8, 0, data_b6, mux0);
+    ?MUX_CELL( 8, 1, data_b6, mux1);
+    ?MUX_CELL( 9, 0, data_b6, mux2);
+    ?MUX_CELL( 9, 1, data_b6, mux3);
+    ?MUX_CELL(10, 0, data_b6, mux4);
+    ?MUX_CELL(10, 1, data_b6, mux5);
+    ?MUX_CELL( 6, 2, data_c6, mux0);
+    ?MUX_CELL( 6, 3, data_c6, mux1);
+    ?MUX_CELL( 7, 2, data_c6, mux2);
+    ?MUX_CELL( 7, 3, data_c6, mux3);
+    ?MUX_CELL( 8, 2, data_c6, mux4);
+    ?MUX_CELL( 8, 3, data_c6, mux5);
+    ?MUX_CELL( 9, 2, data_d6, mux0);
+    ?MUX_CELL( 9, 3, data_d6, mux1);
+    ?MUX_CELL(10, 2, data_d6, mux2);
+    ?MUX_CELL(10, 3, data_d6, mux3);
+    ?MUX_CELL(11, 2, data_d6, mux4);
+    ?MUX_CELL(11, 3, data_d6, mux5);
+    ?MUX_CELL(12, 0, data_a3, mux0);
+    ?MUX_CELL(13, 0, data_a3, mux1);
+    ?MUX_CELL(14, 0, data_a3, mux2);
+    ?MUX_CELL(12, 1, data_b3, mux0);
+    ?MUX_CELL(13, 1, data_b3, mux1);
+    ?MUX_CELL(14, 1, data_b3, mux2);
+    ?MUX_CELL(12, 2, data_c3, mux0);
+    ?MUX_CELL(13, 2, data_c3, mux1);
+    ?MUX_CELL(14, 2, data_c3, mux2);
+    ?MUX_CELL(12, 3, data_d3, mux0);
+    ?MUX_CELL(13, 3, data_d3, mux1);
+    ?MUX_CELL(14, 3, data_d3, mux2);
 ).
 
 -define(EPM240_USER_CODES(),
@@ -1498,10 +1495,14 @@ from_base_strip7(Base, Index, R, C, #with{strip_width = Width}) ->
 
 %%--------------------------------------------------------------------
 
-from_side(X, Sector, Y, N, I, With) when N < 5 ->
+from_side(X, Sector, Y, N, I, With) when N < 5 andalso X < 2 ->
     from_line(X, Sector, Y, (N * 4) + I, With);
+from_side(X, Sector, Y, N, I, With) when X < 2 ->
+    from_line(X, Sector, Y, 9 + (N * 4) - I, With);
+from_side(X, Sector, Y, N, I, With) when N < 5 ->
+    from_line(X, ?SIDE_SECTORS - 1 - Sector, Y, (N * 4) + I, With);
 from_side(X, Sector, Y, N, I, With) ->
-    from_line(X, Sector, Y, 9 + (N * 4) - I, With).
+    from_line(X, ?SIDE_SECTORS - 1 - Sector, Y, 9 + (N * 4) - I, With).
 
 %%--------------------------------------------------------------------
 
@@ -1678,7 +1679,7 @@ to_density(Fuse, With = #with{}) ->
                     )
             end;
 
-        Fuse < With#with.gap_base ->
+        Fuse < With#with.right_base ->
             ColumnOffset = Fuse - With#with.long_base,
             SectorOffset = ColumnOffset rem LongColumn,
             to_column(
@@ -1690,14 +1691,11 @@ to_density(Fuse, With = #with{}) ->
                 With#with.long_y
             );
 
-        Fuse < With#with.right_base ->
-            {Fuse, middle};
-
         Fuse < With#with.end_base ->
             SectorOffset = Fuse - With#with.right_base,
             to_column(
                 side,
-                SectorOffset div LongSector,
+                ?SIDE_SECTORS - 1 - (SectorOffset div LongSector),
                 OffsetX + With#with.side_x,
                 SectorOffset rem LongSector,
                 With,
@@ -2067,13 +2065,12 @@ epm240() ->
         top_y = 5,
         short_sector = 256,
         long_sector = 256,
-        left_base = 544,
-        short_base = 4128,
-        grow_base = 4128,
-        long_base = 4128,
-        gap_base = 47136,
-        right_base = 48928,
-        end_base = 52512,
+        left_base = 32,
+        short_base = 3360,
+        grow_base = 3360,
+        long_base = 3360,
+        right_base = 46368,
+        end_base = 49696,
         sector_skip = 103,
         left_strip = 1081,
         top_strip = 1177,
@@ -2096,13 +2093,12 @@ epm570() ->
         top_y = 8,
         short_sector = 256,
         long_sector = 384,
-        left_base = 544,
-        short_base = 4128,
-        grow_base = 61472,
-        long_base = 70048,
-        gap_base = 102304,
-        right_base = 104992,
-        end_base = 108576,
+        left_base = 32,
+        short_base = 3360,
+        grow_base = 60704,
+        long_base = 68896,
+        right_base = 101152,
+        end_base = 106144,
         sector_skip = 149,
         left_strip = 2369,
         top_strip = 2561,
@@ -2125,13 +2121,12 @@ epm1270() ->
         top_y = 11,
         short_sector = 384,
         long_sector = 512,
-        left_base = 832,
-        short_base = 6208,
-        grow_base = 113728,
-        long_base = 125888,
-        gap_base = 197568,
-        right_base = 201152,
-        end_base = 206848,
+        left_base = 64,
+        short_base = 5056,
+        grow_base = 112576,
+        long_base = 124352,
+        right_base = 196032,
+        end_base = 202688,
         sector_skip = 241,
         left_strip = 1848,
         top_strip = 2154,
@@ -2154,13 +2149,12 @@ epm2210() ->
         top_y = 14,
         short_sector = 512,
         long_sector = 704,
-        left_base = 1088,
-        short_base = 8256,
-        grow_base = 180288,
-        long_base = 196736,
-        gap_base = 334720,
-        right_base = 339648,
-        end_base = 346816,
+        left_base = 64,
+        short_base = 6720,
+        grow_base = 178752,
+        long_base = 194624,
+        right_base = 332608,
+        end_base = 341760,
         sector_skip = 287,
         left_strip = 3647,
         top_strip = 4055,
