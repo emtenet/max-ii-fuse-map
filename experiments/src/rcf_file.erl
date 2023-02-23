@@ -275,13 +275,10 @@ decode_signal(<<"dest = ( ", Line/binary>>) ->
 
 %%--------------------------------------------------------------------
 
-decode_dest(Name, <<"CLK );\t#", LC0/binary>>) ->
-    {ok, LC, <<>>} = lc:parse(LC0),
-    {dest, #{
-        name => Name,
-        port => clk,
-        lc => LC
-    }};
+decode_dest(Name, <<"ACLR )", Line/binary>>) ->
+    decode_dest_lc(Name, a_clr, Line);
+decode_dest(Name, <<"CLK )", Line/binary>>) ->
+    decode_dest_lc(Name, clk, Line);
 decode_dest(Name, <<"DATAA ), route_port = ", Line/binary>>) ->
     decode_dest_route(Name, data_a, Line);
 decode_dest(Name, <<"DATAB ), route_port = ", Line/binary>>) ->
@@ -290,18 +287,32 @@ decode_dest(Name, <<"DATAC ), route_port = ", Line/binary>>) ->
     decode_dest_route(Name, data_c, Line);
 decode_dest(Name, <<"DATAD ), route_port = ", Line/binary>>) ->
     decode_dest_route(Name, data_d, Line);
-decode_dest(Name, <<"DATAIN );\t#", IOC0/binary>>) ->
+decode_dest(Name, <<"DATAIN )", Line/binary>>) ->
+    decode_dest_ioc(Name, data_in, Line);
+decode_dest(Name, <<"SCLR )", Line/binary>>) ->
+    decode_dest_lc(Name, s_clr, Line);
+decode_dest(Name, <<"SLOAD )", Line/binary>>) ->
+    decode_dest_lc(Name, s_load, Line);
+decode_dest(Name, <<"SYNCH_DATA ), route_port = ", Line/binary>>) ->
+    decode_dest_route(Name, s_data, Line).
+
+%%--------------------------------------------------------------------
+
+decode_dest_ioc(Name, Port, <<";\t#", IOC0/binary>>) ->
     {ok, IOC, <<>>} = ioc:parse(IOC0),
     {dest, #{
         name => Name,
-        port => data_in,
+        port => Port,
         ioc => IOC
-    }};
-decode_dest(Name, <<"SCLR );\t#", LC0/binary>>) ->
+    }}.
+
+%%--------------------------------------------------------------------
+
+decode_dest_lc(Name, Port, <<";\t#", LC0/binary>>) ->
     {ok, LC, <<>>} = lc:parse(LC0),
     {dest, #{
         name => Name,
-        port => s_clr,
+        port => Port,
         lc => LC
     }}.
 
