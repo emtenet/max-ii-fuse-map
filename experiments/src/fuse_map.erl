@@ -121,8 +121,8 @@
 ).
 
 -define(LAB_LINES(),
-    ?LAB_LINE(16, 22, clk2_invert);
     ?LAB_LINE(12, 21, clk1_invert);
+    ?LAB_LINE(16, 22, clk2_invert);
     ?LAB_LINE(18, 23, clr1_invert);
 ).
 
@@ -149,6 +149,45 @@
     ?LUT_CELL(15, 1, a0b0c1d1);
     ?LUT_CELL(15, 2, a0b0c1d0);
     ?LUT_CELL(15, 3, a0b1c1d0);
+).
+
+-define(MUX_CELLS(),
+    ?MUX_CELL( 3, 0, data_a6, mux0);
+    ?MUX_CELL( 3, 1, data_a6, mux1);
+    ?MUX_CELL( 4, 0, data_a6, mux2);
+    ?MUX_CELL( 4, 1, data_a6, mux3);
+    ?MUX_CELL( 8, 0, data_a6, mux4);
+    ?MUX_CELL( 8, 1, data_a6, mux5);
+    ?MUX_CELL( 5, 0, data_b6, mux0);
+    ?MUX_CELL( 5, 1, data_b6, mux1);
+    ?MUX_CELL( 6, 0, data_b6, mux2);
+    ?MUX_CELL( 6, 1, data_b6, mux3);
+    ?MUX_CELL( 7, 0, data_b6, mux4);
+    ?MUX_CELL( 7, 1, data_b6, mux5);
+    ?MUX_CELL( 3, 2, data_c6, mux0);
+    ?MUX_CELL( 3, 3, data_c6, mux1);
+    ?MUX_CELL( 4, 2, data_c6, mux2);
+    ?MUX_CELL( 4, 3, data_c6, mux3);
+    ?MUX_CELL( 5, 2, data_c6, mux4);
+    ?MUX_CELL( 5, 3, data_c6, mux5);
+    ?MUX_CELL( 6, 2, data_d6, mux0);
+    ?MUX_CELL( 6, 3, data_d6, mux1);
+    ?MUX_CELL( 7, 2, data_d6, mux2);
+    ?MUX_CELL( 7, 3, data_d6, mux3);
+    ?MUX_CELL( 8, 2, data_d6, mux4);
+    ?MUX_CELL( 8, 3, data_d6, mux5);
+    ?MUX_CELL( 9, 0, data_a3, mux0);
+    ?MUX_CELL(10, 0, data_a3, mux1);
+    ?MUX_CELL(11, 0, data_a3, mux2);
+    ?MUX_CELL( 9, 1, data_b3, mux0);
+    ?MUX_CELL(10, 1, data_b3, mux1);
+    ?MUX_CELL(11, 1, data_b3, mux2);
+    ?MUX_CELL( 9, 2, data_c3, mux0);
+    ?MUX_CELL(10, 2, data_c3, mux1);
+    ?MUX_CELL(11, 2, data_c3, mux2);
+    ?MUX_CELL( 9, 3, data_d3, mux0);
+    ?MUX_CELL(10, 3, data_d3, mux1);
+    ?MUX_CELL(11, 3, data_d3, mux2);
 ).
 
 -define(EPM240_USER_CODES(),
@@ -1249,6 +1288,19 @@ from_density({{lc, X0, Y, N}, lut, Name}, With = #with{}) ->
                Y > 0 andalso Y =< With#with.top_y ->
             from_lut(X, Y, N, Name, With)
     end;
+from_density({{lc, X0, Y, N}, Name, Value}, With = #with{}) ->
+    case X0 - With#with.offset_x of
+        X when X > 0 andalso X =< With#with.grow_x andalso
+               Y > 3 andalso Y =< With#with.top_y ->
+            from_lc(X, Y, N, Name, Value, With);
+
+        X when X > With#with.grow_x andalso X =< With#with.side_x andalso
+               Y > 0 andalso Y =< With#with.top_y ->
+            from_lc(X, Y, N, Name, Value, With);
+
+        X ->
+            throw({from_density, {X, Y}, Name, Value, With})
+    end;
 from_density(_Name, _With = #with{}) ->
     {error, density}.
 
@@ -1329,6 +1381,19 @@ from_lc(X, Y, N, Name, _With) ->
     {error, {lc, X, Y, N, Name}}.
 
 -undef(LC_CELL).
+
+%%--------------------------------------------------------------------
+
+-define(MUX_CELL(Sector, I, Name, Value),
+    from_lc(X, Y, N, Name, Value, With) ->
+        from_cell(X, Sector, Y, N, I, With)
+).
+
+?MUX_CELLS()
+from_lc(X, Y, N, Name, Value, _With) ->
+    {error, {lc, X, Y, N, Name, Value}}.
+
+-undef(MUX_CELL).
 
 %%--------------------------------------------------------------------
 
@@ -1964,6 +2029,10 @@ to_cell_line(X, Y, Index, Sector, _With) ->
     to_cell(X, Y, N, I, Sector, _) ->
         {ok, {{lc, X, Y, N}, lut, Name}}
 ).
+-define(MUX_CELL(Sector, I, Name, Value),
+    to_cell(X, Y, N, I, Sector, _) ->
+        {ok, {{lc, X, Y, N}, Name, Value}}
+).
 
 to_cell(X, Y, N, I, Sector, With = #with{})
         when X =< With#with.grow_x andalso Y =< 3 ->
@@ -1971,12 +2040,14 @@ to_cell(X, Y, N, I, Sector, With = #with{})
 ?LAB_CELLS()
 ?LC_CELLS()
 ?LUT_CELLS()
+?MUX_CELLS()
 to_cell(X, Y, N, I, Sector, _With) ->
     {error, {X, Y, N, I, cell, Sector}}.
 
 -undef(LAB_CELL).
 -undef(LC_CELL).
 -undef(LUT_CELL).
+-undef(MUX_CELL).
 
 %%====================================================================
 %% density
