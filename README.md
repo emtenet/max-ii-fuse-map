@@ -30,6 +30,8 @@ My experiments are being run in the following
  * [LAB clr1 global](experiments/src/lab_clr1_global_experiment.erl)
  * [Local line](experiments/src/local_line_experiment.erl) outputs from LCs
  * [Output](experiments/src/output_experiment.erl) constant
+ * data mux [playground](experiments/src/data_mux_playground.erl)
+   and [theory](experiments/src/data_mux_theory.erl)
 
 ## Fuse map
 
