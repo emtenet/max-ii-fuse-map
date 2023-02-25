@@ -41,6 +41,13 @@ The `fuse_database` collected during experiments is then
 encoded in source as a [fuse map](experiments/src/fuse_map.erl)
 in both directions.
 
+## Mux map
+
+The following mux mappings are encoded:
+
+ * [data mux](experiments/src/data_mux_map.erl)
+ * [output mux](experiments/src/output_mux_map.erl)
+
 ## Fuses
 
 ### `{user_code, bit()}`

@@ -213,7 +213,7 @@ pickup_single(JobRef) ->
     results :: #{index() => experiment_compile:result()},
     pickups :: #{job_ref() => index()},
     source :: source() | undefined,
-    source_index :: index(),
+    source_index :: -1 | index(),
     compiles :: [compile()]
 }).
 

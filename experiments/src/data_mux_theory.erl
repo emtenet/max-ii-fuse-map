@@ -29,7 +29,7 @@
 %
 % For an example LUT in {lc,X,Y,N}.
 %
-% The 6-to-1 muxes have the following fuses, mux6_[0-5]:
+% The 6-to-1 muxes have the following fuses, mux[0-5]:
 %
 %   data_a6            data_b6            data_c6            data_d6
 %   -------            -------            -------            -------
@@ -40,7 +40,7 @@
 %   {X,Y,N,0,cell,8}   {X,Y,N,0,cell,7}   {X,Y,N,2,cell,5}   {X,Y,N,2,cell,8}
 %   {X,Y,N,1,cell,8}   {X,Y,N,1,cell,7}   {X,Y,N,3,cell,5}   {X,Y,N,3,cell,8}
 %
-% The 3-to-1 muxes have the following fuses, mux3_[0-2]:
+% The 3-to-1 muxes have the following fuses, mux[0-2]:
 %
 %   data_a3            data_b3            data_c3            data_d3
 %   -------            -------            -------            -------
@@ -50,14 +50,14 @@
 %
 % For example, the combined data_a mux is:
 %
-%           mux3_0              mux3_1              mux3_2
+%           mux0              mux3_1              mux3_2
 %           ------              ------              ------
-%   mux6_0: interconnect,0      interconnect,3      interconnect,8
-%   mux6_1: interconnect,9      interconnect,11     interconnect,14
-%   mux6_2: interconnect,18     interconnect,22     interconnect,25
-%   mux6_3: local_line,4        local_line,5        local_line,6
-%   mux6_4: interconnect,1      interconnect,6      interconnect,15
-%   mux6_5: interconnect,19     local_line,3        local_line,8
+%   mux0: interconnect,0      interconnect,3      interconnect,8
+%   mux1: interconnect,9      interconnect,11     interconnect,14
+%   mux2: interconnect,18     interconnect,22     interconnect,25
+%   mux3: local_line,4        local_line,5        local_line,6
+%   mux4: interconnect,1      interconnect,6      interconnect,15
+%   mux5: interconnect,19     local_line,3        local_line,8
 %
 %  Checking
 % ==========
@@ -78,7 +78,7 @@
 %
 % As of this writting, two outlier experiments where found that
 % contained data_#6 fuses _without_ a data_#3 fuse! (zero-hot!)
-% Assuming a mux3_0 fuse as default is enough to pass this theoryi
+% Assuming a mux0 fuse as default is enough to pass this theoryi
 % check for those two experiments.
 
 %%====================================================================
@@ -111,17 +111,6 @@ experiments({Device, Experiment, Iterator}) ->
 
 %%--------------------------------------------------------------------
 
-%skip({cached, "cache/W6/E3eRH3uQ3KvgCQhdAb1vcf8obs1gTvlu_5OiYk0A0"}) ->
-%    % mux3 are missing!
-%    % i.e.
-%    % #{data_a6 => mux6_5,
-%        data_b6 => mux6_4,
-%        data_c6 => mux6_1,
-%        data_d6 => mux6_0}
-%    true;
-%skip({cached, "cache/nb/D_5XwElyalw_RYNZlvLPDxwL_QfcLoiyREXtoeWnQ"}) ->
-%    % same as above
-%    true;
 skip(_) -> false.
 
 %%--------------------------------------------------------------------
@@ -142,6 +131,7 @@ experiment(Density, Experiment) ->
 
 contradiction(Density, Dir, Fuses0, Signals, Error) ->
     io:format("~n => ~s~n", [Dir]),
+    io:format("~nDENSITY: ~s~n", [Density]),
     io:format("~nFUSES:~n", []),
     Fuses = fuses:subtract(Fuses0, density:minimal_fuses(Density)),
     lists:foreach(fun (Fuse) -> contradiction(Density, Fuse) end, Fuses),
@@ -152,13 +142,14 @@ contradiction(Density, Dir, Fuses0, Signals, Error) ->
 %%--------------------------------------------------------------------
 
 contradiction(Density, Fuse) ->
-    case fuse_map:to_name(Fuse, Density) of
-        {ok, Name} ->
-            io:format("  ~w~n", [Name]);
+    io:format("  ~w~n", [fuse_map:to_location(Fuse, Density)]).
+    %case fuse_map:to_name(Fuse, Density) of
+    %    {ok, Name} ->
+    %        io:format("  ~w~n", [Name]);
 
-        {error, Error} ->
-            io:format("  ~w~n", [Error])
-    end.
+    %    {error, Error} ->
+    %        io:format("  ~w~n", [Error])
+    %end.
 
 %%====================================================================
 %% fuses
@@ -169,115 +160,49 @@ fuses(Density, Fuses) ->
 
 %%--------------------------------------------------------------------
 
+-define(FUSE(Sector, Index, Key, Value),
+        {X, Y, N, Index, cell, Sector} ->
+            fuse_mux({lc, X, Y, N}, Key, Value, LCs)
+).
+
 fuse(Density, Fuse, LCs) ->
     case fuse_map:to_location(Fuse, Density) of
-        {X, Y, N, 0, cell, 3} ->
-            fuse_mux({lc, X, Y, N}, data_a6, mux6_0, LCs);
-
-        {X, Y, N, 1, cell, 3} ->
-            fuse_mux({lc, X, Y, N}, data_a6, mux6_1, LCs);
-
-        {X, Y, N, 0, cell, 4} ->
-            fuse_mux({lc, X, Y, N}, data_a6, mux6_2, LCs);
-
-        {X, Y, N, 1, cell, 4} ->
-            fuse_mux({lc, X, Y, N}, data_a6, mux6_3, LCs);
-
-        {X, Y, N, 0, cell, 8} ->
-            fuse_mux({lc, X, Y, N}, data_a6, mux6_4, LCs);
-
-        {X, Y, N, 1, cell, 8} ->
-            fuse_mux({lc, X, Y, N}, data_a6, mux6_5, LCs);
-
-        {X, Y, N, 0, cell, 5} ->
-            fuse_mux({lc, X, Y, N}, data_b6, mux6_0, LCs);
-
-        {X, Y, N, 1, cell, 5} ->
-            fuse_mux({lc, X, Y, N}, data_b6, mux6_1, LCs);
-
-        {X, Y, N, 0, cell, 6} ->
-            fuse_mux({lc, X, Y, N}, data_b6, mux6_2, LCs);
-
-        {X, Y, N, 1, cell, 6} ->
-            fuse_mux({lc, X, Y, N}, data_b6, mux6_3, LCs);
-
-        {X, Y, N, 0, cell, 7} ->
-            fuse_mux({lc, X, Y, N}, data_b6, mux6_4, LCs);
-
-        {X, Y, N, 1, cell, 7} ->
-            fuse_mux({lc, X, Y, N}, data_b6, mux6_5, LCs);
-
-        {X, Y, N, 2, cell, 3} ->
-            fuse_mux({lc, X, Y, N}, data_c6, mux6_0, LCs);
-
-        {X, Y, N, 3, cell, 3} ->
-            fuse_mux({lc, X, Y, N}, data_c6, mux6_1, LCs);
-
-        {X, Y, N, 2, cell, 4} ->
-            fuse_mux({lc, X, Y, N}, data_c6, mux6_2, LCs);
-
-        {X, Y, N, 3, cell, 4} ->
-            fuse_mux({lc, X, Y, N}, data_c6, mux6_3, LCs);
-
-        {X, Y, N, 2, cell, 5} ->
-            fuse_mux({lc, X, Y, N}, data_c6, mux6_4, LCs);
-
-        {X, Y, N, 3, cell, 5} ->
-            fuse_mux({lc, X, Y, N}, data_c6, mux6_5, LCs);
-
-        {X, Y, N, 2, cell, 6} ->
-            fuse_mux({lc, X, Y, N}, data_d6, mux6_0, LCs);
-
-        {X, Y, N, 3, cell, 6} ->
-            fuse_mux({lc, X, Y, N}, data_d6, mux6_1, LCs);
-
-        {X, Y, N, 2, cell, 7} ->
-            fuse_mux({lc, X, Y, N}, data_d6, mux6_2, LCs);
-
-        {X, Y, N, 3, cell, 7} ->
-            fuse_mux({lc, X, Y, N}, data_d6, mux6_3, LCs);
-
-        {X, Y, N, 2, cell, 8} ->
-            fuse_mux({lc, X, Y, N}, data_d6, mux6_4, LCs);
-
-        {X, Y, N, 3, cell, 8} ->
-            fuse_mux({lc, X, Y, N}, data_d6, mux6_5, LCs);
-
-        {X, Y, N, 0, cell, 9} ->
-            fuse_mux({lc, X, Y, N}, data_a3, mux3_0, LCs);
-
-        {X, Y, N, 1, cell, 9} ->
-            fuse_mux({lc, X, Y, N}, data_b3, mux3_0, LCs);
-
-        {X, Y, N, 2, cell, 9} ->
-            fuse_mux({lc, X, Y, N}, data_c3, mux3_0, LCs);
-
-        {X, Y, N, 3, cell, 9} ->
-            fuse_mux({lc, X, Y, N}, data_d3, mux3_0, LCs);
-
-        {X, Y, N, 0, cell, 10} ->
-            fuse_mux({lc, X, Y, N}, data_a3, mux3_1, LCs);
-
-        {X, Y, N, 1, cell, 10} ->
-            fuse_mux({lc, X, Y, N}, data_b3, mux3_1, LCs);
-
-        {X, Y, N, 2, cell, 10} ->
-            fuse_mux({lc, X, Y, N}, data_c3, mux3_1, LCs);
-
-        {X, Y, N, 3, cell, 10} ->
-            fuse_mux({lc, X, Y, N}, data_d3, mux3_1, LCs);
-
-        {X, Y, N, 0, cell, 11} ->
-            fuse_mux({lc, X, Y, N}, data_a3, mux3_2, LCs);
-
-        {X, Y, N, 1, cell, 11} ->
-            fuse_mux({lc, X, Y, N}, data_b3, mux3_2, LCs);
-
-        {X, Y, N, 2, cell, 11} ->
-            fuse_mux({lc, X, Y, N}, data_c3, mux3_2, LCs);
-
-        {X, Y, N, 3, cell, 11} ->
-            fuse_mux({lc, X, Y, N}, data_d3, mux3_2, LCs);
+        ?FUSE( 6, 0, data_a6, mux0);
+        ?FUSE( 6, 1, data_a6, mux1);
+        ?FUSE( 6, 2, data_c6, mux0);
+        ?FUSE( 6, 3, data_c6, mux1);
+        ?FUSE( 7, 0, data_a6, mux2);
+        ?FUSE( 7, 1, data_a6, mux3);
+        ?FUSE( 7, 2, data_c6, mux2);
+        ?FUSE( 7, 3, data_c6, mux3);
+        ?FUSE( 8, 0, data_b6, mux0);
+        ?FUSE( 8, 1, data_b6, mux1);
+        ?FUSE( 8, 2, data_c6, mux4);
+        ?FUSE( 8, 3, data_c6, mux5);
+        ?FUSE( 9, 0, data_b6, mux2);
+        ?FUSE( 9, 1, data_b6, mux3);
+        ?FUSE( 9, 2, data_d6, mux0);
+        ?FUSE( 9, 3, data_d6, mux1);
+        ?FUSE(10, 0, data_b6, mux4);
+        ?FUSE(10, 1, data_b6, mux5);
+        ?FUSE(10, 2, data_d6, mux2);
+        ?FUSE(10, 3, data_d6, mux3);
+        ?FUSE(11, 0, data_a6, mux4);
+        ?FUSE(11, 1, data_a6, mux5);
+        ?FUSE(11, 2, data_d6, mux4);
+        ?FUSE(11, 3, data_d6, mux5);
+        ?FUSE(12, 0, data_a3, mux0);
+        ?FUSE(12, 1, data_b3, mux0);
+        ?FUSE(12, 2, data_c3, mux0);
+        ?FUSE(12, 3, data_d3, mux0);
+        ?FUSE(13, 0, data_a3, mux1);
+        ?FUSE(13, 1, data_b3, mux1);
+        ?FUSE(13, 2, data_c3, mux1);
+        ?FUSE(13, 3, data_d3, mux1);
+        ?FUSE(14, 0, data_a3, mux2);
+        ?FUSE(14, 1, data_b3, mux2);
+        ?FUSE(14, 2, data_c3, mux2);
+        ?FUSE(14, 3, data_d3, mux2);
 
         _ ->
             LCs
@@ -291,7 +216,7 @@ fuse_mux(LC, Key, Value, LCs) ->
             LCs;
 
         #{LC := #{Key := Existing}} ->
-            throw({LC, Key, Value, existing, Existing});
+            throw({LC, Key, Value, existing, Existing, LCs});
 
         #{LC := Muxes} ->
             LCs#{LC => Muxes#{Key => Value}};
@@ -333,11 +258,11 @@ signal_dest(_, _) ->
 
 theory(LC = {lc, X, Y, _}, data_a, Model) ->
     case Model of
-        #{LC := #{data_a3 := Mux3, data_a6 := Mux6}}  ->
-            theory(X, Y, data_a, Mux3, Mux6);
+        #{LC := #{data_a6 := Mux6, data_a3 := Mux3}}  ->
+            theory(X, Y, data_a, Mux6, Mux3);
 
         #{LC := #{data_a6 := Mux6}}  ->
-            theory(X, Y, data_a, mux3_0, Mux6);
+            theory(X, Y, data_a, Mux6, mux0);
 
         #{LC := Muxes} ->
             Muxes;
@@ -347,11 +272,11 @@ theory(LC = {lc, X, Y, _}, data_a, Model) ->
     end;
 theory(LC = {lc, X, Y, _}, data_b, Model) ->
     case Model of
-        #{LC := #{data_b3 := Mux3, data_b6 := Mux6}} ->
-            theory(X, Y, data_b, Mux3, Mux6);
+        #{LC := #{data_b6 := Mux6, data_b3 := Mux3}} ->
+            theory(X, Y, data_b, Mux6, Mux3);
 
         #{LC := #{data_b6 := Mux6}}  ->
-            theory(X, Y, data_b, mux3_0, Mux6);
+            theory(X, Y, data_b, Mux6, mux0);
 
         #{LC := Muxes} ->
             Muxes;
@@ -361,11 +286,11 @@ theory(LC = {lc, X, Y, _}, data_b, Model) ->
     end;
 theory(LC = {lc, X, Y, _}, data_c, Model) ->
     case Model of
-        #{LC := #{data_c3 := Mux3, data_c6 := Mux6}} ->
-            theory(X, Y, data_c, Mux3, Mux6);
+        #{LC := #{data_c6 := Mux6, data_c3 := Mux3}} ->
+            theory(X, Y, data_c, Mux6, Mux3);
 
         #{LC := #{data_c6 := Mux6}}  ->
-            theory(X, Y, data_c, mux3_0, Mux6);
+            theory(X, Y, data_c, Mux6, mux0);
 
         #{LC := Muxes} ->
             Muxes;
@@ -375,11 +300,11 @@ theory(LC = {lc, X, Y, _}, data_c, Model) ->
     end;
 theory(LC = {lc, X, Y, _}, data_d, Model) ->
     case Model of
-        #{LC := #{data_d3 := Mux3, data_d6 := Mux6}} ->
-            theory(X, Y, data_d, Mux3, Mux6);
+        #{LC := #{data_d6 := Mux6, data_d3 := Mux3}} ->
+            theory(X, Y, data_d, Mux6, Mux3);
 
         #{LC := #{data_d6 := Mux6}}  ->
-            theory(X, Y, data_d, mux3_0, Mux6);
+            theory(X, Y, data_d, Mux6, mux0);
 
         #{LC := Muxes} ->
             Muxes;
@@ -390,78 +315,12 @@ theory(LC = {lc, X, Y, _}, data_d, Model) ->
 
 %%--------------------------------------------------------------------
 
-theory(X, Y, data_a, mux3_0, mux6_0) -> {local_interconnect, X, Y, 0, 0};
-theory(X, Y, data_a, mux3_0, mux6_1) -> {local_interconnect, X, Y, 0, 9};
-theory(X, Y, data_a, mux3_0, mux6_2) -> {local_interconnect, X, Y, 0, 18};
-theory(X, Y, data_a, mux3_0, mux6_3) -> {local_line, X, Y, 0, 4};
-theory(X, Y, data_a, mux3_0, mux6_4) -> {local_interconnect, X, Y, 0, 1};
-theory(X, Y, data_a, mux3_0, mux6_5) -> {local_interconnect, X, Y, 0, 19};
-theory(X, Y, data_a, mux3_1, mux6_0) -> {local_interconnect, X, Y, 0, 3};
-theory(X, Y, data_a, mux3_1, mux6_1) -> {local_interconnect, X, Y, 0, 11};
-theory(X, Y, data_a, mux3_1, mux6_2) -> {local_interconnect, X, Y, 0, 22};
-theory(X, Y, data_a, mux3_1, mux6_3) -> {local_line, X, Y, 0, 5};
-theory(X, Y, data_a, mux3_1, mux6_4) -> {local_interconnect, X, Y, 0, 6};
-theory(X, Y, data_a, mux3_1, mux6_5) -> {local_line, X, Y, 0, 3};
-theory(X, Y, data_a, mux3_2, mux6_0) -> {local_interconnect, X, Y, 0, 8};
-theory(X, Y, data_a, mux3_2, mux6_1) -> {local_interconnect, X, Y, 0, 14};
-theory(X, Y, data_a, mux3_2, mux6_2) -> {local_interconnect, X, Y, 0, 25};
-theory(X, Y, data_a, mux3_2, mux6_3) -> {local_line, X, Y, 0, 6};
-theory(X, Y, data_a, mux3_2, mux6_4) -> {local_interconnect, X, Y, 0, 15};
-theory(X, Y, data_a, mux3_2, mux6_5) -> {local_line, X, Y, 0, 8};
-theory(X, Y, data_b, mux3_0, mux6_0) -> {local_interconnect, X, Y, 0, 17};
-theory(X, Y, data_b, mux3_0, mux6_1) -> {local_line, X, Y, 0, 7};
-theory(X, Y, data_b, mux3_0, mux6_2) -> {local_interconnect, X, Y, 0, 10};
-theory(X, Y, data_b, mux3_0, mux6_3) -> {local_interconnect, X, Y, 0, 16};
-theory(X, Y, data_b, mux3_0, mux6_4) -> {local_interconnect, X, Y, 0, 24};
-theory(X, Y, data_b, mux3_0, mux6_5) -> {local_line, X, Y, 0, 9};
-theory(X, Y, data_b, mux3_1, mux6_0) -> {local_interconnect, X, Y, 0, 7};
-theory(X, Y, data_b, mux3_1, mux6_1) -> {local_line, X, Y, 0, 0};
-theory(X, Y, data_b, mux3_1, mux6_2) -> {local_interconnect, X, Y, 0, 5};
-theory(X, Y, data_b, mux3_1, mux6_3) -> {local_interconnect, X, Y, 0, 13};
-theory(X, Y, data_b, mux3_1, mux6_4) -> {local_interconnect, X, Y, 0, 23};
-theory(X, Y, data_b, mux3_1, mux6_5) -> {local_line, X, Y, 0, 2};
-theory(X, Y, data_b, mux3_2, mux6_0) -> {local_interconnect, X, Y, 0, 2};
-theory(X, Y, data_b, mux3_2, mux6_1) -> {local_interconnect, X, Y, 0, 21};
-theory(X, Y, data_b, mux3_2, mux6_2) -> {local_interconnect, X, Y, 0, 4};
-theory(X, Y, data_b, mux3_2, mux6_3) -> {local_interconnect, X, Y, 0, 12};
-theory(X, Y, data_b, mux3_2, mux6_4) -> {local_interconnect, X, Y, 0, 20};
-theory(X, Y, data_b, mux3_2, mux6_5) -> {local_line, X, Y, 0, 1};
-theory(X, Y, data_c, mux3_0, mux6_0) -> {local_interconnect, X, Y, 0, 0};
-theory(X, Y, data_c, mux3_0, mux6_1) -> {local_interconnect, X, Y, 0, 9};
-theory(X, Y, data_c, mux3_0, mux6_2) -> {local_interconnect, X, Y, 0, 18};
-theory(X, Y, data_c, mux3_0, mux6_3) -> {local_line, X, Y, 0, 4};
-theory(X, Y, data_c, mux3_0, mux6_4) -> {local_interconnect, X, Y, 0, 2};
-theory(X, Y, data_c, mux3_0, mux6_5) -> {local_interconnect, X, Y, 0, 21};
-theory(X, Y, data_c, mux3_1, mux6_0) -> {local_interconnect, X, Y, 0, 3};
-theory(X, Y, data_c, mux3_1, mux6_1) -> {local_interconnect, X, Y, 0, 11};
-theory(X, Y, data_c, mux3_1, mux6_2) -> {local_interconnect, X, Y, 0, 22};
-theory(X, Y, data_c, mux3_1, mux6_3) -> {local_line, X, Y, 0, 5};
-theory(X, Y, data_c, mux3_1, mux6_4) -> {local_interconnect, X, Y, 0, 7};
-theory(X, Y, data_c, mux3_1, mux6_5) -> {local_line, X, Y, 0, 0};
-theory(X, Y, data_c, mux3_2, mux6_0) -> {local_interconnect, X, Y, 0, 8};
-theory(X, Y, data_c, mux3_2, mux6_1) -> {local_interconnect, X, Y, 0, 14};
-theory(X, Y, data_c, mux3_2, mux6_2) -> {local_interconnect, X, Y, 0, 25};
-theory(X, Y, data_c, mux3_2, mux6_3) -> {local_line, X, Y, 0, 6};
-theory(X, Y, data_c, mux3_2, mux6_4) -> {local_interconnect, X, Y, 0, 17};
-theory(X, Y, data_c, mux3_2, mux6_5) -> {local_line, X, Y, 0, 7};
-theory(X, Y, data_d, mux3_0, mux6_0) -> {local_interconnect, X, Y, 0, 10};
-theory(X, Y, data_d, mux3_0, mux6_1) -> {local_interconnect, X, Y, 0, 16};
-theory(X, Y, data_d, mux3_0, mux6_2) -> {local_interconnect, X, Y, 0, 24};
-theory(X, Y, data_d, mux3_0, mux6_3) -> {local_line, X, Y, 0, 9};
-theory(X, Y, data_d, mux3_0, mux6_4) -> {local_interconnect, X, Y, 0, 15};
-theory(X, Y, data_d, mux3_0, mux6_5) -> {local_line, X, Y, 0, 8};
-theory(X, Y, data_d, mux3_1, mux6_0) -> {local_interconnect, X, Y, 0, 5};
-theory(X, Y, data_d, mux3_1, mux6_1) -> {local_interconnect, X, Y, 0, 13};
-theory(X, Y, data_d, mux3_1, mux6_2) -> {local_interconnect, X, Y, 0, 23};
-theory(X, Y, data_d, mux3_1, mux6_3) -> {local_line, X, Y, 0, 2};
-theory(X, Y, data_d, mux3_1, mux6_4) -> {local_interconnect, X, Y, 0, 6};
-theory(X, Y, data_d, mux3_1, mux6_5) -> {local_line, X, Y, 0, 3};
-theory(X, Y, data_d, mux3_2, mux6_0) -> {local_interconnect, X, Y, 0, 4};
-theory(X, Y, data_d, mux3_2, mux6_1) -> {local_interconnect, X, Y, 0, 12};
-theory(X, Y, data_d, mux3_2, mux6_2) -> {local_interconnect, X, Y, 0, 20};
-theory(X, Y, data_d, mux3_2, mux6_3) -> {local_line, X, Y, 0, 1};
-theory(X, Y, data_d, mux3_2, mux6_4) -> {local_interconnect, X, Y, 0, 1};
-theory(X, Y, data_d, mux3_2, mux6_5) -> {local_interconnect, X, Y, 0, 19};
-theory(X, Y, Port, Mux3, Mux6) ->
-    {X, Y, Port, Mux3, Mux6}.
+theory(X, Y, Port, Mux6, Mux3) ->
+    case data_mux_map:to_interconnect(Port, Mux6, Mux3) of
+        {local_line, N} ->
+            {local_line, X, Y, 0, N};
+
+        {interconnect, N} ->
+            {local_interconnect, X, Y, 0, N}
+    end.
 

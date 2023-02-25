@@ -324,41 +324,18 @@ theory(IOC = {ioc, X, Y, N}, Model) ->
 
 %%--------------------------------------------------------------------
 
-%theory_cell(X, Y, x, mux0, mux0) -> {local_interconnect, X, Y, 0, _};
-theory_cell(X, Y, x, mux0, mux1) -> {local_interconnect, X, Y, 0, 0};
-theory_cell(X, Y, x, mux0, mux2) -> {local_interconnect, X, Y, 0, 1};
-theory_cell(X, Y, x, mux1, mux0) -> {local_interconnect, X, Y, 0, 2};
-theory_cell(X, Y, x, mux1, mux1) -> {local_interconnect, X, Y, 0, 3};
-theory_cell(X, Y, x, mux1, mux2) -> {local_interconnect, X, Y, 0, 4};
-theory_cell(X, Y, N, mux2, mux0) -> {io_bypass_out, X, Y, N, 0};
-theory_cell(X, Y, x, mux2, mux1) -> {local_interconnect, X, Y, 0, 5};
-theory_cell(X, Y, x, mux2, mux2) -> {local_interconnect, X, Y, 0, 6};
-theory_cell(X, Y, x, mux3, mux0) -> {local_interconnect, X, Y, 0, 7};
-theory_cell(X, Y, x, mux3, mux1) -> {local_interconnect, X, Y, 0, 8};
-theory_cell(X, Y, x, mux3, mux2) -> {local_interconnect, X, Y, 0, 9};
 theory_cell(X, Y, Bypass, Mux4, Mux3) ->
-    {X, Y, Bypass, Mux4, Mux3}.
+    case output_mux_map:to_interconnect4(Mux4, Mux3) of
+        {interconnect, N} when Bypass =:= x ->
+            {local_interconnect, X, Y, 0, N};
+
+        bypass when Bypass =/= x ->
+            {io_bypass_out, X, Y, Bypass, 0}
+    end.
 
 %%--------------------------------------------------------------------
 
-theory_side(X, Y, mux0, mux0) -> {local_interconnect, X, Y, 0, 0};
-theory_side(X, Y, mux0, mux1) -> {local_interconnect, X, Y, 0, 1};
-theory_side(X, Y, mux0, mux2) -> {local_interconnect, X, Y, 0, 2};
-theory_side(X, Y, mux1, mux0) -> {local_interconnect, X, Y, 0, 3};
-theory_side(X, Y, mux1, mux1) -> {local_interconnect, X, Y, 0, 4};
-theory_side(X, Y, mux1, mux2) -> {local_interconnect, X, Y, 0, 5};
-theory_side(X, Y, mux2, mux0) -> {local_interconnect, X, Y, 0, 6};
-theory_side(X, Y, mux2, mux1) -> {local_interconnect, X, Y, 0, 7};
-theory_side(X, Y, mux2, mux2) -> {local_interconnect, X, Y, 0, 8};
-theory_side(X, Y, mux3, mux0) -> {local_interconnect, X, Y, 0, 9};
-theory_side(X, Y, mux3, mux1) -> {local_interconnect, X, Y, 0, 10};
-theory_side(X, Y, mux3, mux2) -> {local_interconnect, X, Y, 0, 11};
-theory_side(X, Y, mux4, mux0) -> {local_interconnect, X, Y, 0, 12};
-theory_side(X, Y, mux4, mux1) -> {local_interconnect, X, Y, 0, 13};
-theory_side(X, Y, mux4, mux2) -> {local_interconnect, X, Y, 0, 14};
-theory_side(X, Y, mux5, mux0) -> {local_interconnect, X, Y, 0, 15};
-theory_side(X, Y, mux5, mux1) -> {local_interconnect, X, Y, 0, 16};
-theory_side(X, Y, mux5, mux2) -> {local_interconnect, X, Y, 0, 17};
 theory_side(X, Y, Mux6, Mux3) ->
-    {X, Y, Mux6, Mux3}.
+    {interconnect, N} = output_mux_map:to_interconnect7(Mux6, Mux3),
+    {local_interconnect, X, Y, 0, N}.
 

@@ -6,8 +6,20 @@
 
 -export_type([lab/0]).
 
--type lab() :: {lab, non_neg_integer(), non_neg_integer()}.
+-export_type([local_line/0]).
+-export_type([interconnect/0]).
+-export_type([interconnect_or_local_line/0]).
+
+-type x() :: max_ii:x().
+-type y() :: max_ii:y().
+-type n() :: max_ii:n().
 -type lc() :: lc:lc().
+
+-type lab() :: {lab, x(), y()}.
+
+-type local_line() :: {local_line, n()}.
+-type interconnect() :: {interconnect, 0..25}.
+-type interconnect_or_local_line() :: interconnect() | local_line().
 
 %%====================================================================
 %% name

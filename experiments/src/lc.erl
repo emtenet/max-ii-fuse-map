@@ -5,11 +5,19 @@
 -export([parse/1]).
 -export([write/2]).
 -export([lab/1]).
+-export([inputs/0]).
 
 -export_type([lc/0]).
+-export_type([input/0]).
 
 -type lab() :: lab:lab().
--type lc() :: {lc, non_neg_integer(), non_neg_integer(), non_neg_integer()}.
+-type x() :: max_ii:x().
+-type y() :: max_ii:y().
+-type n() :: max_ii:n().
+
+-type lc() :: {lc, x(), y(), n()}.
+
+-type input() :: data_a | data_b | data_c | data_d.
 
 -define(IS_DIGIT(C), ((C) >= $0 andalso (C) =< $9)).
 
@@ -75,4 +83,13 @@ write(To, {lc, X, Y, N}) ->
 
 lab({lc, X, Y, _}) ->
     {lab, X, Y}.
+
+%%====================================================================
+%% inputs
+%%====================================================================
+
+-spec inputs() -> [input()].
+
+inputs() ->
+    [data_a, data_b, data_c, data_d].
 

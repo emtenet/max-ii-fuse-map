@@ -14,14 +14,10 @@
 -export_type([type/0]).
 -export_type([index/0]).
 -export_type([sector/0]).
--export_type([x/0]).
--export_type([y/0]).
--export_type([n/0]).
--export_type([i/0]).
 
 -type density() :: density:density().
 -type fuse() :: fuse:fuse().
--type name() :: name:name().
+-type name() :: fuse:name().
 
 -type location() ::
     {fuse(), header} |
@@ -40,10 +36,10 @@
 -type type() :: cell | side.
 -type index() :: non_neg_integer().
 -type sector() :: non_neg_integer().
--type x() :: 0..21.
--type y() :: 0..13.
--type n() :: 0..9.
--type i() :: 0..3.
+-type x() :: max_ii:x().
+-type y() :: max_ii:y().
+-type n() :: max_ii:n().
+-type i() :: max_ii:i().
 
 -record(with, {
     density :: density(),
