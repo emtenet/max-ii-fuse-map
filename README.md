@@ -33,6 +33,7 @@ My experiments are being run in the following
  * data mux [playground](experiments/src/data_mux_playground.erl)
    and [theory](experiments/src/data_mux_theory.erl)
  * output mux [playground](experiments/src/output_mux_playground.erl)
+   and [theory](experiments/src/output_mux_theory.erl)
 
 ## Fuse map
 
@@ -66,6 +67,23 @@ since all unused pins are outputs by default, the fuse is more likely
 to be an __enable__ rather than __direction__.
 
 The `invert` may alternativly be a mux selecting alternative outputs.
+
+### `{ioc(), output3, mux#}`, `{ioc(), output4, mux#}`  and `{ioc(), output6, mux#}`
+
+The IOC outputs are selected from local interconnects
+via two dimentional muxes.
+Side IOCs have one of size 3, and the other of size 6.
+Top/bottom IOCS have one of size 3, and the other of size 4.
+
+These muxes are one-cold.
+
+For example the fuses
+`{ioc(), output6, mux2}` and `{ioc(), output3, mux1}`
+select local interconnect 7.
+
+For example the fuses
+`{ioc(), output4, mux3}` and `{ioc(), output3, mux2}`
+select local line 9.
 
 ### `{lc(), data_#3, mux#}` and `{lc(), data_#6, mux#}`
 
