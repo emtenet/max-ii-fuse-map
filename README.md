@@ -66,6 +66,22 @@ to be an *enable* rather than *direction*.
 
 The `invert_guess` may alternativly be a mux selecting alternative outputs.
 
+### `{lc(), data_#3, mux#}` and `{lc(), data_#6, mux#}`
+
+The LUT inputs `data_a`, `data_b`, `data_c` & `data_d` are
+selected from local interconnects via two dimentional muxes,
+one of size 3, and the other of size 6.
+
+These muxes are one-cold.
+
+For example the fuses
+`{lc(), data_a3, mux1}` and `{lc(), data_a6, mux0}`
+select local interconnect 3.
+
+For example the fuses
+`{lc(), data_c3, mux2}` and `{lc(), data_c6, mux5}`
+select local line 7.
+
 ### `{lc(), lut, a#b#c#d#}`
 
 Each LC as a 16-entry LUT with a fuse per entry.
