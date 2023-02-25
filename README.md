@@ -32,6 +32,7 @@ My experiments are being run in the following
  * [Output](experiments/src/output_experiment.erl) constant
  * data mux [playground](experiments/src/data_mux_playground.erl)
    and [theory](experiments/src/data_mux_theory.erl)
+ * output mux [playground](experiments/src/output_mux_playground.erl)
 
 ## Fuse map
 
