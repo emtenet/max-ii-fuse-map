@@ -79,21 +79,95 @@
 -define(LONG_SECTORS, (?COLUMN_SECTORS - ?SHORT_SECTORS)).
 
 -define(IOC_SIDES(),
-    ?IOC_SIDE(2, 1, invert_guess);
+    ?IOC_SIDE( 1, 1, bypass_guess);
+    ?IOC_SIDE( 2, 0, {output3, mux0});
+    ?IOC_SIDE( 2, 1, invert_guess);
+    ?IOC_SIDE( 3, 0, {output3, mux1});
+    ?IOC_SIDE( 3, 1, {output3, mux2});
+    ?IOC_SIDE( 4, 0, {output6, mux0});
+    ?IOC_SIDE( 4, 1, {output6, mux1});
+    ?IOC_SIDE( 5, 0, {output6, mux2});
+    ?IOC_SIDE( 5, 1, {output6, mux3});
+    ?IOC_SIDE( 6, 0, {output6, mux4});
+    ?IOC_SIDE( 6, 1, {output6, mux5});
 ).
 
 -define(IOC_HEADS(),
-    ?IOC_HEAD(9, 2, 2, invert_guess);
-    ?IOC_HEAD(9, 4, 3, invert_guess);
+    ?IOC_HEAD( 6, 1, 2, {output4, mux0});
+    ?IOC_HEAD( 6, 2, 2, {output4, mux1});
+    ?IOC_HEAD( 6, 3, 3, {output4, mux0});
+    ?IOC_HEAD( 6, 4, 3, {output4, mux1});
+    ?IOC_HEAD( 7, 1, 2, {output4, mux2});
+    ?IOC_HEAD( 7, 2, 2, {output4, mux3});
+    ?IOC_HEAD( 7, 3, 3, {output4, mux2});
+    ?IOC_HEAD( 7, 4, 3, {output4, mux3});
+    ?IOC_HEAD( 8, 1, 2, {output3, mux0});
+    ?IOC_HEAD( 8, 2, 2, {output3, mux1});
+    ?IOC_HEAD( 8, 3, 3, {output3, mux0});
+    ?IOC_HEAD( 8, 4, 3, {output3, mux1});
+    ?IOC_HEAD( 9, 1, 2, {output3, mux2});
+    ?IOC_HEAD( 9, 2, 2, invert_guess);
+    ?IOC_HEAD( 9, 3, 3, {output3, mux2});
+    ?IOC_HEAD( 9, 4, 3, invert_guess);
+    ?IOC_HEAD(10, 2, 2, bypass_guess);
+    ?IOC_HEAD(10, 4, 3, bypass_guess);
+    ?IOC_HEAD(12, 2, 0, bypass_guess);
+    ?IOC_HEAD(12, 4, 1, bypass_guess);
+    ?IOC_HEAD(13, 1, 0, {output3, mux2});
     ?IOC_HEAD(13, 2, 0, invert_guess);
+    ?IOC_HEAD(13, 3, 1, {output3, mux2});
     ?IOC_HEAD(13, 4, 1, invert_guess);
+    ?IOC_HEAD(15, 1, 0, {output3, mux0});
+    ?IOC_HEAD(15, 2, 0, {output3, mux1});
+    ?IOC_HEAD(15, 3, 1, {output3, mux0});
+    ?IOC_HEAD(15, 4, 1, {output3, mux1});
+    ?IOC_HEAD(16, 1, 0, {output4, mux2});
+    ?IOC_HEAD(16, 2, 0, {output4, mux3});
+    ?IOC_HEAD(16, 3, 1, {output4, mux2});
+    ?IOC_HEAD(16, 4, 1, {output4, mux3});
+    ?IOC_HEAD(17, 1, 0, {output4, mux0});
+    ?IOC_HEAD(17, 2, 0, {output4, mux1});
+    ?IOC_HEAD(17, 3, 1, {output4, mux0});
+    ?IOC_HEAD(17, 4, 1, {output4, mux1});
 ).
 
 -define(IOC_TAILS(),
-    ?IOC_TAIL(9, 2, 2, invert_guess);
-    ?IOC_TAIL(9, 4, 3, invert_guess);
+    ?IOC_TAIL( 6, 1, 2, {output4, mux0});
+    ?IOC_TAIL( 6, 2, 2, {output4, mux1});
+    ?IOC_TAIL( 6, 3, 3, {output4, mux0});
+    ?IOC_TAIL( 6, 4, 3, {output4, mux1});
+    ?IOC_TAIL( 7, 1, 2, {output4, mux2});
+    ?IOC_TAIL( 7, 2, 2, {output4, mux3});
+    ?IOC_TAIL( 7, 3, 3, {output4, mux2});
+    ?IOC_TAIL( 7, 4, 3, {output4, mux3});
+    ?IOC_TAIL( 8, 1, 2, {output3, mux0});
+    ?IOC_TAIL( 8, 2, 2, {output3, mux1});
+    ?IOC_TAIL( 8, 3, 3, {output3, mux0});
+    ?IOC_TAIL( 8, 4, 3, {output3, mux1});
+    ?IOC_TAIL( 9, 1, 2, {output3, mux2});
+    ?IOC_TAIL( 9, 2, 2, invert_guess);
+    ?IOC_TAIL( 9, 3, 3, {output3, mux2});
+    ?IOC_TAIL( 9, 4, 3, invert_guess);
+    ?IOC_TAIL(10, 2, 2, bypass_guess);
+    ?IOC_TAIL(10, 4, 3, bypass_guess);
+    ?IOC_TAIL(12, 2, 0, bypass_guess);
+    ?IOC_TAIL(12, 4, 1, bypass_guess);
+    ?IOC_TAIL(13, 1, 0, {output3, mux2});
     ?IOC_TAIL(13, 2, 0, invert_guess);
+    ?IOC_TAIL(13, 3, 1, {output3, mux2});
     ?IOC_TAIL(13, 4, 1, invert_guess);
+    ?IOC_TAIL(15, 1, 0, {output3, mux0});
+    ?IOC_TAIL(15, 2, 0, {output3, mux1});
+    ?IOC_TAIL(15, 3, 1, {output3, mux0});
+    ?IOC_TAIL(15, 4, 1, {output3, mux1});
+    ?IOC_TAIL(16, 1, 0, {output4, mux2});
+    ?IOC_TAIL(16, 2, 0, {output4, mux3});
+    ?IOC_TAIL(16, 3, 1, {output4, mux2});
+    ?IOC_TAIL(16, 4, 1, {output4, mux3});
+    ?IOC_TAIL(17, 1, 0, {output4, mux0});
+    ?IOC_TAIL(17, 2, 0, {output4, mux1});
+    ?IOC_TAIL(17, 3, 1, {output4, mux0});
+    ?IOC_TAIL(17, 4, 1, {output4, mux1});
 ).
 
 -define(IOC_STRIPS(),
@@ -124,67 +198,61 @@
 ).
 
 -define(LC_CELLS(),
+    ?LC_CELL( 6, 0, {data_a6, mux0});
+    ?LC_CELL( 6, 1, {data_a6, mux1});
+    ?LC_CELL( 6, 2, {data_c6, mux0});
+    ?LC_CELL( 6, 3, {data_c6, mux1});
+    ?LC_CELL( 7, 0, {data_a6, mux2});
+    ?LC_CELL( 7, 1, {data_a6, mux3});
+    ?LC_CELL( 7, 2, {data_c6, mux2});
+    ?LC_CELL( 7, 3, {data_c6, mux3});
+    ?LC_CELL( 8, 0, {data_b6, mux0});
+    ?LC_CELL( 8, 1, {data_b6, mux1});
+    ?LC_CELL( 8, 2, {data_c6, mux4});
+    ?LC_CELL( 8, 3, {data_c6, mux5});
+    ?LC_CELL( 9, 0, {data_b6, mux2});
+    ?LC_CELL( 9, 1, {data_b6, mux3});
+    ?LC_CELL( 9, 2, {data_d6, mux0});
+    ?LC_CELL( 9, 3, {data_d6, mux1});
+    ?LC_CELL(10, 0, {data_b6, mux4});
+    ?LC_CELL(10, 1, {data_b6, mux5});
+    ?LC_CELL(10, 2, {data_d6, mux2});
+    ?LC_CELL(10, 3, {data_d6, mux3});
+    ?LC_CELL(11, 0, {data_a6, mux4});
+    ?LC_CELL(11, 1, {data_a6, mux5});
+    ?LC_CELL(11, 2, {data_d6, mux4});
+    ?LC_CELL(11, 3, {data_d6, mux5});
+    ?LC_CELL(12, 0, {data_a3, mux0});
+    ?LC_CELL(12, 1, {data_b3, mux0});
+    ?LC_CELL(12, 2, {data_c3, mux0});
+    ?LC_CELL(12, 3, {data_d3, mux0});
+    ?LC_CELL(13, 0, {data_a3, mux1});
+    ?LC_CELL(13, 1, {data_b3, mux1});
+    ?LC_CELL(13, 2, {data_c3, mux1});
+    ?LC_CELL(13, 3, {data_d3, mux1});
+    ?LC_CELL(14, 0, {data_a3, mux2});
+    ?LC_CELL(14, 1, {data_b3, mux2});
+    ?LC_CELL(14, 2, {data_c3, mux2});
+    ?LC_CELL(14, 3, {data_d3, mux2});
+    ?LC_CELL(15, 0, {lut, a1b1c0d1});
+    ?LC_CELL(15, 1, {lut, a1b0c0d1});
+    ?LC_CELL(15, 2, {lut, a1b1c0d0});
+    ?LC_CELL(15, 3, {lut, a1b0c0d0});
+    ?LC_CELL(16, 0, {lut, a0b1c0d1});
+    ?LC_CELL(16, 1, {lut, a0b0c0d1});
+    ?LC_CELL(16, 2, {lut, a0b1c0d0});
+    ?LC_CELL(16, 3, {lut, a0b0c0d0});
+    ?LC_CELL(17, 0, {lut, a1b1c1d1});
+    ?LC_CELL(17, 1, {lut, a1b0c1d1});
+    ?LC_CELL(17, 2, {lut, a1b0c1d0});
+    ?LC_CELL(17, 3, {lut, a1b1c1d0});
+    ?LC_CELL(18, 0, {lut, a0b1c1d1});
+    ?LC_CELL(18, 1, {lut, a0b0c1d1});
+    ?LC_CELL(18, 2, {lut, a0b0c1d0});
+    ?LC_CELL(18, 3, {lut, a0b1c1d0});
     ?LC_CELL(19, 2, clk);
     ?LC_CELL(20, 3, clr);
     ?LC_CELL(21, 3, local_line);
-).
-
--define(LUT_CELLS(),
-    ?LUT_CELL(15, 0, a1b1c0d1);
-    ?LUT_CELL(15, 1, a1b0c0d1);
-    ?LUT_CELL(15, 2, a1b1c0d0);
-    ?LUT_CELL(15, 3, a1b0c0d0);
-    ?LUT_CELL(16, 0, a0b1c0d1);
-    ?LUT_CELL(16, 1, a0b0c0d1);
-    ?LUT_CELL(16, 2, a0b1c0d0);
-    ?LUT_CELL(16, 3, a0b0c0d0);
-    ?LUT_CELL(17, 0, a1b1c1d1);
-    ?LUT_CELL(17, 1, a1b0c1d1);
-    ?LUT_CELL(17, 2, a1b0c1d0);
-    ?LUT_CELL(17, 3, a1b1c1d0);
-    ?LUT_CELL(18, 0, a0b1c1d1);
-    ?LUT_CELL(18, 1, a0b0c1d1);
-    ?LUT_CELL(18, 2, a0b0c1d0);
-    ?LUT_CELL(18, 3, a0b1c1d0);
-).
-
--define(MUX_CELLS(),
-    ?MUX_CELL( 6, 0, data_a6, mux0);
-    ?MUX_CELL( 6, 1, data_a6, mux1);
-    ?MUX_CELL( 7, 0, data_a6, mux2);
-    ?MUX_CELL( 7, 1, data_a6, mux3);
-    ?MUX_CELL(11, 0, data_a6, mux4);
-    ?MUX_CELL(11, 1, data_a6, mux5);
-    ?MUX_CELL( 8, 0, data_b6, mux0);
-    ?MUX_CELL( 8, 1, data_b6, mux1);
-    ?MUX_CELL( 9, 0, data_b6, mux2);
-    ?MUX_CELL( 9, 1, data_b6, mux3);
-    ?MUX_CELL(10, 0, data_b6, mux4);
-    ?MUX_CELL(10, 1, data_b6, mux5);
-    ?MUX_CELL( 6, 2, data_c6, mux0);
-    ?MUX_CELL( 6, 3, data_c6, mux1);
-    ?MUX_CELL( 7, 2, data_c6, mux2);
-    ?MUX_CELL( 7, 3, data_c6, mux3);
-    ?MUX_CELL( 8, 2, data_c6, mux4);
-    ?MUX_CELL( 8, 3, data_c6, mux5);
-    ?MUX_CELL( 9, 2, data_d6, mux0);
-    ?MUX_CELL( 9, 3, data_d6, mux1);
-    ?MUX_CELL(10, 2, data_d6, mux2);
-    ?MUX_CELL(10, 3, data_d6, mux3);
-    ?MUX_CELL(11, 2, data_d6, mux4);
-    ?MUX_CELL(11, 3, data_d6, mux5);
-    ?MUX_CELL(12, 0, data_a3, mux0);
-    ?MUX_CELL(13, 0, data_a3, mux1);
-    ?MUX_CELL(14, 0, data_a3, mux2);
-    ?MUX_CELL(12, 1, data_b3, mux0);
-    ?MUX_CELL(13, 1, data_b3, mux1);
-    ?MUX_CELL(14, 1, data_b3, mux2);
-    ?MUX_CELL(12, 2, data_c3, mux0);
-    ?MUX_CELL(13, 2, data_c3, mux1);
-    ?MUX_CELL(14, 2, data_c3, mux2);
-    ?MUX_CELL(12, 3, data_d3, mux0);
-    ?MUX_CELL(13, 3, data_d3, mux1);
-    ?MUX_CELL(14, 3, data_d3, mux2);
 ).
 
 -define(EPM240_USER_CODES(),
@@ -1231,75 +1299,76 @@ from_epm2210(Name) ->
 %%--------------------------------------------------------------------
 
 from_density({{ioc, X0, Y, N}, Name}, With = #with{}) ->
+    case from_density_iob(X0, Y, With) of
+        {side, X} ->
+            from_ioc_side(X, Y, N, Name, With);
+
+        {cell, X} ->
+            from_ioc(X, Y, N, Name, With)
+    end;
+from_density({{ioc, X0, Y, N}, Name, Value}, With = #with{}) ->
+    case from_density_iob(X0, Y, With) of
+        {side, X} ->
+            from_ioc_side(X, Y, N, {Name, Value}, With);
+
+        {cell, X} ->
+            from_ioc(X, Y, N, {Name, Value}, With)
+    end;
+from_density({{lab, X0, Y}, Name}, With = #with{}) ->
+    X = from_density_lab(X0, Y, With),
+    from_lab(X, Y, Name, With);
+from_density({{lc, X0, Y, N}, Name}, With = #with{}) ->
+    X = from_density_lab(X0, Y, With),
+    from_lc(X, Y, N, Name, With);
+from_density({{lc, X0, Y, N}, Name, Value}, With = #with{}) ->
+    X = from_density_lab(X0, Y, With),
+    from_lc(X, Y, N, {Name, Value}, With);
+from_density(_Name, _With = #with{}) ->
+    {error, density}.
+
+%%--------------------------------------------------------------------
+
+from_density_iob(X0, Y, With = #with{}) ->
     case X0 - With#with.offset_x of
         X when X =:= 0 andalso X < With#with.grow_x andalso
                Y > 3 andalso Y =< With#with.top_y ->
-            from_ioc_side(X, Y, N, Name, With);
+            {side, X};
 
         X when X =:= 0 andalso X =:= With#with.grow_x andalso
                Y > 0 andalso Y =< With#with.top_y ->
-            from_ioc_side(X, Y, N, Name, With);
+            {side, X};
 
         X when X > 0 andalso X =< With#with.grow_x andalso
                (Y =:= 3 orelse Y =:= With#with.top_y) ->
-            from_ioc(X, Y, N, Name, With);
+            {cell, X};
 
         X when X > With#with.grow_x andalso X =< With#with.side_x andalso
                (Y =:= 0 orelse Y =:= With#with.top_y) ->
-            from_ioc(X, Y, N, Name, With);
+            {cell, X};
 
         X when X =:= With#with.side_x andalso
                Y > 0 andalso Y =< With#with.top_y ->
-            from_ioc_side(X, Y, N, Name, With)
-    end;
-from_density({{lab, X0, Y}, Name}, With = #with{}) ->
-    case X0 - With#with.offset_x of
-        X when X > 0 andalso X =< With#with.grow_x andalso
-               Y > 3 andalso Y =< With#with.top_y ->
-            from_lab(X, Y, Name, With);
-
-        X when X > With#with.grow_x andalso X =< With#with.side_x andalso
-               Y > 0 andalso Y =< With#with.top_y ->
-            from_lab(X, Y, Name, With)
-    end;
-from_density({{lc, X0, Y, N}, Name}, With = #with{}) ->
-    case X0 - With#with.offset_x of
-        X when X > 0 andalso X =< With#with.grow_x andalso
-               Y > 3 andalso Y =< With#with.top_y ->
-            from_lc(X, Y, N, Name, With);
-
-        X when X > With#with.grow_x andalso X =< With#with.side_x andalso
-               Y > 0 andalso Y =< With#with.top_y ->
-            from_lc(X, Y, N, Name, With);
+            {side, X};
 
         X ->
-            throw({from_density, {X, Y}, Name, With})
-    end;
-from_density({{lc, X0, Y, N}, lut, Name}, With = #with{}) ->
+            throw({from_density, {iob, X, Y}, With})
+    end.
+
+%%--------------------------------------------------------------------
+
+from_density_lab(X0, Y, With = #with{}) ->
     case X0 - With#with.offset_x of
         X when X > 0 andalso X =< With#with.grow_x andalso
                Y > 3 andalso Y =< With#with.top_y ->
-            from_lut(X, Y, N, Name, With);
+            X;
 
         X when X > With#with.grow_x andalso X =< With#with.side_x andalso
                Y > 0 andalso Y =< With#with.top_y ->
-            from_lut(X, Y, N, Name, With)
-    end;
-from_density({{lc, X0, Y, N}, Name, Value}, With = #with{}) ->
-    case X0 - With#with.offset_x of
-        X when X > 0 andalso X =< With#with.grow_x andalso
-               Y > 3 andalso Y =< With#with.top_y ->
-            from_lc(X, Y, N, Name, Value, With);
-
-        X when X > With#with.grow_x andalso X =< With#with.side_x andalso
-               Y > 0 andalso Y =< With#with.top_y ->
-            from_lc(X, Y, N, Name, Value, With);
+            X;
 
         X ->
-            throw({from_density, {X, Y}, Name, Value, With})
-    end;
-from_density(_Name, _With = #with{}) ->
-    {error, density}.
+            throw({from_density, {lab, X, Y}, With})
+    end.
 
 %%--------------------------------------------------------------------
 
@@ -1327,9 +1396,9 @@ from_ioc_side(X, Y, N, Name, _With) ->
         from_head(X, Sector, Index, With)
 ).
 -define(IOC_TAIL(Sector, Index, N, Name),
-    from_ioc(X, 3, N, invert_guess, With) when X =< With#with.grow_x ->
+    from_ioc(X, 3, N, Name, With) when X =< With#with.grow_x ->
         from_tail(X, Sector, Index, With, With#with.short_y);
-    from_ioc(X, 0, N, invert_guess, With) when X > With#with.grow_x ->
+    from_ioc(X, 0, N, Name, With) when X > With#with.grow_x ->
         from_tail(X, Sector, Index, With, With#with.long_y)
 ).
 -define(IOC_STRIP(R, C, Name),
@@ -1378,32 +1447,6 @@ from_lc(X, Y, N, Name, _With) ->
     {error, {lc, X, Y, N, Name}}.
 
 -undef(LC_CELL).
-
-%%--------------------------------------------------------------------
-
--define(MUX_CELL(Sector, I, Name, Value),
-    from_lc(X, Y, N, Name, Value, With) ->
-        from_cell(X, Sector, Y, N, I, With)
-).
-
-?MUX_CELLS()
-from_lc(X, Y, N, Name, Value, _With) ->
-    {error, {lc, X, Y, N, Name, Value}}.
-
--undef(MUX_CELL).
-
-%%--------------------------------------------------------------------
-
--define(LUT_CELL(Sector, I, Name),
-    from_lut(X, Y, N, Name, With) ->
-        from_cell(X, Sector, Y, N, I, With)
-).
-
-?LUT_CELLS()
-from_lut(X, Y, N, Name, _With) ->
-    {error, {lut, X, Y, N, Name}}.
-
--undef(LUT_CELL).
 
 %%--------------------------------------------------------------------
 
@@ -1945,7 +1988,7 @@ to_epm2210_strip(Side, Index, R, C) ->
 
 -define(IOC_STRIP(R, C, Name),
     to_ioc_strip(X, Y, N, R, C) ->
-        {ok, {{ioc, X, Y, N}, Name}}
+        to_ioc(X, Y, N, Name)
 ).
 
 ?IOC_STRIPS()
@@ -1958,7 +2001,7 @@ to_ioc_strip(X, Y, N, R, C) ->
 
 -define(IOC_HEAD(Sector, Index, N, Name),
     to_cell_head(X, Index, Sector, With) ->
-        {ok, {{ioc, X, With#with.top_y, N}, Name}}
+        to_ioc(X, With#with.top_y, N, Name)
 ).
 
 ?IOC_HEADS()
@@ -1971,9 +2014,9 @@ to_cell_head(X, Index, Sector, _With) ->
 
 -define(IOC_TAIL(Sector, Index, N, Name),
     to_cell_tail(X, Index, Sector, With) when X =< With#with.grow_x ->
-        {ok, {{ioc, X, 3, N}, Name}};
+        to_ioc(X, 3, N, Name);
     to_cell_tail(X, Index, Sector, With) when X > With#with.grow_x ->
-        {ok, {{ioc, X, 0, N}, Name}}
+        to_ioc(X, 0, N, Name)
 ).
 
 ?IOC_TAILS()
@@ -1984,16 +2027,16 @@ to_cell_tail(X, Index, Sector, _With) ->
 
 %%--------------------------------------------------------------------
 
--define(IOC_SIDE(Sector, I, Name),
-    to_side(X, Y, N, I, Sector) when N >= 2 andalso N =< 8 ->
-        {ok, {{ioc, X, Y, N - 2}, Name}};
-    to_side(X, Y, N, I, Sector) ->
-        {error, {X, Y, N, I, side, Sector}}
+-define(IOC_SIDE(Sector, Index, Name),
+    to_side(X, Y, N, Index, Sector) when N >= 2 andalso N =< 8 ->
+        to_ioc(X, Y, N - 2, Name);
+    to_side(X, Y, N, Index, Sector) ->
+        {error, {X, Y, N, Index, side, Sector}}
 ).
 
 ?IOC_SIDES()
-to_side(X, Y, N, I, Sector) ->
-    {error, {X, Y, N, I, side, Sector}}.
+to_side(X, Y, N, Index, Sector) ->
+    {error, {X, Y, N, Index, side, Sector}}.
 
 -undef(IOC_SIDE).
 
@@ -2001,7 +2044,7 @@ to_side(X, Y, N, I, Sector) ->
 
 -define(LAB_LINE(Sector, Index, Name),
     to_cell_line(X, Y, Index, Sector, _) ->
-        {ok, {{lab, X, Y}, Name}}
+        to_lab(X, Y, Name)
 ).
 
 to_cell_line(X, Y, Index, Sector, With = #with{})
@@ -2017,19 +2060,11 @@ to_cell_line(X, Y, Index, Sector, _With) ->
 
 -define(LAB_CELL(Sector, N, I, Name),
     to_cell(X, Y, N, I, Sector, _) ->
-        {ok, {{lab, X, Y}, Name}}
+        to_lab(X, Y, Name)
 ).
 -define(LC_CELL(Sector, I, Name),
     to_cell(X, Y, N, I, Sector, _) ->
-        {ok, {{lc, X, Y, N}, Name}}
-).
--define(LUT_CELL(Sector, I, Name),
-    to_cell(X, Y, N, I, Sector, _) ->
-        {ok, {{lc, X, Y, N}, lut, Name}}
-).
--define(MUX_CELL(Sector, I, Name, Value),
-    to_cell(X, Y, N, I, Sector, _) ->
-        {ok, {{lc, X, Y, N}, Name, Value}}
+        to_lc(X, Y, N, Name)
 ).
 
 to_cell(X, Y, N, I, Sector, With = #with{})
@@ -2037,15 +2072,32 @@ to_cell(X, Y, N, I, Sector, With = #with{})
     {error, {X, Y, N, I, cell, Sector}};
 ?LAB_CELLS()
 ?LC_CELLS()
-?LUT_CELLS()
-?MUX_CELLS()
 to_cell(X, Y, N, I, Sector, _With) ->
     {error, {X, Y, N, I, cell, Sector}}.
 
 -undef(LAB_CELL).
 -undef(LC_CELL).
--undef(LUT_CELL).
--undef(MUX_CELL).
+
+%%--------------------------------------------------------------------
+
+to_ioc(X, Y, N, {Name, Value}) ->
+    {ok, {{ioc, X, Y, N}, Name, Value}};
+to_ioc(X, Y, N, Name) ->
+    {ok, {{ioc, X, Y, N}, Name}}.
+
+%%--------------------------------------------------------------------
+
+to_lab(X, Y, {Name, Value}) ->
+    {ok, {{lab, X, Y}, Name, Value}};
+to_lab(X, Y, Name) ->
+    {ok, {{lab, X, Y}, Name}}.
+
+%%--------------------------------------------------------------------
+
+to_lc(X, Y, N, {Name, Value}) ->
+    {ok, {{lc, X, Y, N}, Name, Value}};
+to_lc(X, Y, N, Name) ->
+    {ok, {{lc, X, Y, N}, Name}}.
 
 %%====================================================================
 %% density
