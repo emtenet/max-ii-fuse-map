@@ -55,17 +55,17 @@ Each IOC can have bus-hold or weak pull-up enabled.
 
 The feature is enabled when the POF bit is `0`.
 
-Warning: only enable *one* at a time.
+Warning: only enable __one__ at a time.
 
-### `{ioc(), enable_guess}` and `{ioc(), invert_guess}`
+### `{ioc(), enable}` and `{ioc(), invert}`
 
-These are observed fuses, but the naming is a guess.
+These are observed fuses, but the naming is a __guess__.
 
-The `enable_guess` fuse was observed in the `output_experiment` but
+The `enable` fuse was observed in the `output_experiment` but
 since all unused pins are outputs by default, the fuse is more likely
-to be an *enable* rather than *direction*.
+to be an __enable__ rather than __direction__.
 
-The `invert_guess` may alternativly be a mux selecting alternative outputs.
+The `invert` may alternativly be a mux selecting alternative outputs.
 
 ### `{lc(), data_#3, mux#}` and `{lc(), data_#6, mux#}`
 
@@ -106,7 +106,7 @@ The fuse bit selects:
 ### `{lc(), local_line}`
 
 Each LC can drive the LUT or register output to the local interconnect
-via it's *local line*.
+via it's __local line__.
 
 This fuse either:
 

@@ -79,9 +79,9 @@
 -define(LONG_SECTORS, (?COLUMN_SECTORS - ?SHORT_SECTORS)).
 
 -define(IOC_SIDES(),
-    ?IOC_SIDE( 1, 1, bypass_guess);
+    ?IOC_SIDE( 1, 1, bypass);
     ?IOC_SIDE( 2, 0, {output3, mux0});
-    ?IOC_SIDE( 2, 1, invert_guess);
+    ?IOC_SIDE( 2, 1, invert);
     ?IOC_SIDE( 3, 0, {output3, mux1});
     ?IOC_SIDE( 3, 1, {output3, mux2});
     ?IOC_SIDE( 4, 0, {output6, mux0});
@@ -106,17 +106,17 @@
     ?IOC_HEAD( 8, 3, 3, {output3, mux0});
     ?IOC_HEAD( 8, 4, 3, {output3, mux1});
     ?IOC_HEAD( 9, 1, 2, {output3, mux2});
-    ?IOC_HEAD( 9, 2, 2, invert_guess);
+    ?IOC_HEAD( 9, 2, 2, invert);
     ?IOC_HEAD( 9, 3, 3, {output3, mux2});
-    ?IOC_HEAD( 9, 4, 3, invert_guess);
-    ?IOC_HEAD(10, 2, 2, bypass_guess);
-    ?IOC_HEAD(10, 4, 3, bypass_guess);
-    ?IOC_HEAD(12, 2, 0, bypass_guess);
-    ?IOC_HEAD(12, 4, 1, bypass_guess);
+    ?IOC_HEAD( 9, 4, 3, invert);
+    ?IOC_HEAD(10, 2, 2, bypass);
+    ?IOC_HEAD(10, 4, 3, bypass);
+    ?IOC_HEAD(12, 2, 0, bypass);
+    ?IOC_HEAD(12, 4, 1, bypass);
     ?IOC_HEAD(13, 1, 0, {output3, mux2});
-    ?IOC_HEAD(13, 2, 0, invert_guess);
+    ?IOC_HEAD(13, 2, 0, invert);
     ?IOC_HEAD(13, 3, 1, {output3, mux2});
-    ?IOC_HEAD(13, 4, 1, invert_guess);
+    ?IOC_HEAD(13, 4, 1, invert);
     ?IOC_HEAD(15, 1, 0, {output3, mux0});
     ?IOC_HEAD(15, 2, 0, {output3, mux1});
     ?IOC_HEAD(15, 3, 1, {output3, mux0});
@@ -145,17 +145,17 @@
     ?IOC_TAIL( 8, 3, 3, {output3, mux0});
     ?IOC_TAIL( 8, 4, 3, {output3, mux1});
     ?IOC_TAIL( 9, 1, 2, {output3, mux2});
-    ?IOC_TAIL( 9, 2, 2, invert_guess);
+    ?IOC_TAIL( 9, 2, 2, invert);
     ?IOC_TAIL( 9, 3, 3, {output3, mux2});
-    ?IOC_TAIL( 9, 4, 3, invert_guess);
-    ?IOC_TAIL(10, 2, 2, bypass_guess);
-    ?IOC_TAIL(10, 4, 3, bypass_guess);
-    ?IOC_TAIL(12, 2, 0, bypass_guess);
-    ?IOC_TAIL(12, 4, 1, bypass_guess);
+    ?IOC_TAIL( 9, 4, 3, invert);
+    ?IOC_TAIL(10, 2, 2, bypass);
+    ?IOC_TAIL(10, 4, 3, bypass);
+    ?IOC_TAIL(12, 2, 0, bypass);
+    ?IOC_TAIL(12, 4, 1, bypass);
     ?IOC_TAIL(13, 1, 0, {output3, mux2});
-    ?IOC_TAIL(13, 2, 0, invert_guess);
+    ?IOC_TAIL(13, 2, 0, invert);
     ?IOC_TAIL(13, 3, 1, {output3, mux2});
-    ?IOC_TAIL(13, 4, 1, invert_guess);
+    ?IOC_TAIL(13, 4, 1, invert);
     ?IOC_TAIL(15, 1, 0, {output3, mux0});
     ?IOC_TAIL(15, 2, 0, {output3, mux1});
     ?IOC_TAIL(15, 3, 1, {output3, mux0});
@@ -172,7 +172,7 @@
 
 -define(IOC_STRIPS(),
     ?IOC_STRIP(1, 2, bus_hold);
-    ?IOC_STRIP(2, 2, enable_guess);
+    ?IOC_STRIP(2, 2, enable);
     ?IOC_STRIP(3, 2, weak_pull_up);
 ).
 

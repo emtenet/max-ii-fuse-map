@@ -62,8 +62,8 @@ run() ->
     {ok, Experiments} = experiment:compile_to_fuses_and_rcf(sources()),
     Matrix0 = matrix:build_with_map(?DENSITY, Experiments),
     Matrix1 = matrix:remove_fuses(Matrix0, fun
-        ({_, enable_guess}) -> true;
-        ({_, invert_guess}) -> true;
+        ({_, enable}) -> true;
+        ({_, invert}) -> true;
         ({_, local_line}) -> true;
         ({_, lut, _}) -> true;
         (_) -> false

@@ -39,7 +39,7 @@ enable(Density) ->
     Count = length(Experiments),
     Count = length(Zeros),
     fuse_database:update(Density, [
-        {Fuse, {IOC, enable_guess}}
+        {Fuse, {IOC, enable}}
         ||
         {Fuse, {output, IOC, as, 0}} <- Zeros
     ]).
@@ -61,12 +61,12 @@ invert(Density) ->
     Count = length(Ones),
     Count = length(Zeros),
     fuse_database:update(Density, [
-        {Fuse, {IOC, enable_guess}}
+        {Fuse, {IOC, enable}}
         ||
         {Fuse, {output, IOC, as, 1}} <- Zeros
     ]),
     fuse_database:update(Density, [
-        {Fuse, {IOC, invert_guess}}
+        {Fuse, {IOC, invert}}
         ||
         {Fuse, {output, IOC, as, 1}} <- Ones
     ]).

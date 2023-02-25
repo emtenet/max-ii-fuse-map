@@ -56,8 +56,8 @@ fuse(Fuse, Database) ->
     case fuse_database:name(Fuse, Database) of
         Name when is_integer(Name) -> $.;
         {_IOC, bus_hold} -> $B;
-        {_IOC, enable_guess} -> $E;
-        {_IOC, invert_guess} -> $I;
+        {_IOC, enable} -> $E;
+        {_IOC, invert} -> $I;
         {_IOC, weak_pull_up} -> $W;
         {_LAB, clk1_global0} -> $k;
         {_LAB, clk1_global1} -> $k;
@@ -76,11 +76,6 @@ fuse(Fuse, Database) ->
         {_LAB, clr1_invert} -> $r;
         {_LC, clk} -> $K;
         {_LC, clr} -> $R;
-        {_LC, data_a, mux} -> $A;
-        {_LC, data_b, mux} -> $B;
-        {_LC, data_c, mux} -> $C;
-        {_LC, data_d, mux} -> $D;
-        {_LC, data_d, lut_chain} -> $>;
         {_LC, local_line} -> $L;
         {_LC, lut, _} -> $#;
         {user_code, _} -> $U;
