@@ -78,7 +78,7 @@ flush(#{device := Device, settings := Settings, vhdl := VHDL}) ->
 
 iterate() ->
     {ok, Outers} = file:list_dir("cache"),
-    iterate([], undefined, Outers).
+    iterate([], undefined, lists:sort(Outers)).
 
 %%--------------------------------------------------------------------
 
@@ -91,9 +91,11 @@ iterate({cache, Inners, Outer, Outers}) ->
 %%--------------------------------------------------------------------
 
 iterate([], _, []) ->
+    io:format("                           \r", []),
     false;
 iterate([], _, [Outer | Outers]) ->
     {ok, Inners} = file:list_dir(filename:join("cache", Outer)),
+    io:format("cache ~s\r", [Outer]),
     iterate(Inners, Outer, Outers);
 iterate([Inner | Inners], Outer, Outers) ->
     Next = {cache, Inners, Outer, Outers},
