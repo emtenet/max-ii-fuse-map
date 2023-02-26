@@ -47,16 +47,16 @@ lab(Density, Device, Pin, LAB) ->
     %matrix:print(Matrix),
     lists:foreach(fun always_local_line/1, Experiments),
     Candidates = [
-        element(1, matrix:pattern_is(Matrix, [1,0,1,1,1,1,1,1,1,1,0])),
-        element(1, matrix:pattern_is(Matrix, [1,0,0,1,1,1,1,1,1,1,1])),
-        element(1, matrix:pattern_is(Matrix, [1,1,0,0,1,1,1,1,1,1,1])),
-        element(1, matrix:pattern_is(Matrix, [1,1,1,0,0,1,1,1,1,1,1])),
-        element(1, matrix:pattern_is(Matrix, [1,1,1,1,0,0,1,1,1,1,1])),
-        element(1, matrix:pattern_is(Matrix, [1,1,1,1,1,0,0,1,1,1,1])),
-        element(1, matrix:pattern_is(Matrix, [1,1,1,1,1,1,0,0,1,1,1])),
-        element(1, matrix:pattern_is(Matrix, [1,1,1,1,1,1,1,0,0,1,1])),
-        element(1, matrix:pattern_is(Matrix, [1,1,1,1,1,1,1,1,0,0,1])),
-        element(1, matrix:pattern_is(Matrix, [1,1,1,1,1,1,1,1,1,0,0]))
+        candidates(Matrix, [1,0,1,1,1,1,1,1,1,1,0]),
+        candidates(Matrix, [1,0,0,1,1,1,1,1,1,1,1]),
+        candidates(Matrix, [1,1,0,0,1,1,1,1,1,1,1]),
+        candidates(Matrix, [1,1,1,0,0,1,1,1,1,1,1]),
+        candidates(Matrix, [1,1,1,1,0,0,1,1,1,1,1]),
+        candidates(Matrix, [1,1,1,1,1,0,0,1,1,1,1]),
+        candidates(Matrix, [1,1,1,1,1,1,0,0,1,1,1]),
+        candidates(Matrix, [1,1,1,1,1,1,1,0,0,1,1]),
+        candidates(Matrix, [1,1,1,1,1,1,1,1,0,0,1]),
+        candidates(Matrix, [1,1,1,1,1,1,1,1,1,0,0])
     ],
     Fuses = fuses(Candidates),
     %io:format("~p~n", [Fuses]),
@@ -119,6 +119,15 @@ always_local_line({_, _, #{signals := #{a := A, b := B}}}) ->
     #{dests := [#{route := [{local_line, _, _, 0, _}]}]} = A,
     #{dests := [#{route := [{local_line, _, _, 0, _}]}]} = B,
     ok.
+
+%%--------------------------------------------------------------------
+
+candidates(Matrix, Pattern) ->
+    [
+        Fuse
+        ||
+        {Fuse, _} <- matrix:pattern_is(Matrix, Pattern)
+    ].
 
 %%--------------------------------------------------------------------
 
