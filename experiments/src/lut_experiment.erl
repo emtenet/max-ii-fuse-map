@@ -19,7 +19,7 @@ run() ->
 
 run_density(Density, Rows, VHDLs) ->
     Device = density:largest_device(Density),
-    [{A, _}, {B, _}, {C, _}, {D, _}, {Q, _} | _] = device:pins(Device),
+    [A, B, C, D, Q | _] = device:pins(Device),
     Settings = [
         {location, a, A},
         {location, b, B},

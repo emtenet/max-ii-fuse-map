@@ -1,13 +1,14 @@
 -module(epm240_t100).
 
+-export([iocs/0]).
 -export([pins/0]).
 
 -type ioc() :: ioc:ioc().
 -type pin() :: pin:pin().
 
--spec pins() -> [{pin(), ioc()}].
+-spec iocs() -> [{pin(), ioc()}].
 
-pins() ->
+iocs() ->
     [{pin1,{ioc,2,5,3}},
      {pin2,{ioc,1,4,0}},
      {pin3,{ioc,1,4,1}},
@@ -88,5 +89,90 @@ pins() ->
      {pin98,{ioc,2,5,0}},
      {pin99,{ioc,2,5,1}},
      {pin100,{ioc,2,5,2}}
+    ].
+
+-spec pins() -> [pin()].
+
+pins() ->
+    [pin1,
+     pin2,
+     pin3,
+     pin4,
+     pin5,
+     pin6,
+     pin7,
+     pin8,
+     pin12,
+     pin14,
+     pin15,
+     pin16,
+     pin17,
+     pin18,
+     pin19,
+     pin20,
+     pin21,
+     pin26,
+     pin27,
+     pin28,
+     pin29,
+     pin30,
+     pin33,
+     pin34,
+     pin35,
+     pin36,
+     pin37,
+     pin38,
+     pin39,
+     pin40,
+     pin41,
+     pin42,
+     pin43,
+     pin44,
+     pin47,
+     pin48,
+     pin49,
+     pin50,
+     pin51,
+     pin52,
+     pin53,
+     pin54,
+     pin55,
+     pin56,
+     pin57,
+     pin58,
+     pin61,
+     pin62,
+     pin64,
+     pin66,
+     pin67,
+     pin68,
+     pin69,
+     pin70,
+     pin71,
+     pin72,
+     pin73,
+     pin74,
+     pin75,
+     pin76,
+     pin77,
+     pin78,
+     pin81,
+     pin82,
+     pin83,
+     pin84,
+     pin85,
+     pin86,
+     pin87,
+     pin88,
+     pin89,
+     pin90,
+     pin91,
+     pin92,
+     pin95,
+     pin96,
+     pin97,
+     pin98,
+     pin99,
+     pin100
     ].
 

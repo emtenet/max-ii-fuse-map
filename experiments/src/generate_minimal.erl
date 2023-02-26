@@ -22,7 +22,7 @@ density(Density) ->
     [A, B, C, D | _] = [
         Pin
         ||
-        {Pin, IOC} <- device:pins(Device),
+        {Pin, IOC} <- device:iocs(Device),
         ioc:in_iob(IOC, IOB)
     ],
     {ok, Experiments} = experiment:compile_to_fuses([

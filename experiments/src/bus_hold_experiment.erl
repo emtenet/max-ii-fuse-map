@@ -17,7 +17,7 @@ run(Density) ->
     Device = density:largest_device(Density),
     [LAB | _] = device:labs(Device),
     LC = lab:lc(LAB, 0),
-    [A, B, C, D | Pins = [Q | _]] = device:pins(Device),
+    [A, B, C, D | Pins = [Q | _]] = device:iocs(Device),
     run(Density, Device, A, B, C, D, LC, Q),
     run(Density, Device, LC, D, Pins).
 
@@ -43,14 +43,14 @@ run(Density, Device, LC, Q, [A, B, C, D | Pins]) ->
 
 %%--------------------------------------------------------------------
 
-run(Density, Device, {A, Aioc}, {B, Bioc}, {C, Cioc}, {D, Dioc}, LC, {Q, _}) ->
+run(Density, Device, {A, IOCA}, {B, IOCB}, {C, IOCC}, {D, IOCD}, LC, {Q, _}) ->
     io:format(" => ~s ~s ~s ~s ~s~n", [Device, A, B, C, D]),
     {ok, Experiments} = experiment:compile_to_fuses([
         run(Device, control, A, B, C, D, LC, Q, []),
-        run(Device, {Aioc, ?FEATURE}, A, B, C, D, LC, Q, [{?FEATURE, a, true}]),
-        run(Device, {Bioc, ?FEATURE}, A, B, C, D, LC, Q, [{?FEATURE, b, true}]),
-        run(Device, {Cioc, ?FEATURE}, A, B, C, D, LC, Q, [{?FEATURE, c, true}]),
-        run(Device, {Dioc, ?FEATURE}, A, B, C, D, LC, Q, [{?FEATURE, d, true}])
+        run(Device, {IOCA, ?FEATURE}, A, B, C, D, LC, Q, [{?FEATURE, a, true}]),
+        run(Device, {IOCB, ?FEATURE}, A, B, C, D, LC, Q, [{?FEATURE, b, true}]),
+        run(Device, {IOCC, ?FEATURE}, A, B, C, D, LC, Q, [{?FEATURE, c, true}]),
+        run(Device, {IOCD, ?FEATURE}, A, B, C, D, LC, Q, [{?FEATURE, d, true}])
     ]),
     Matrix = matrix:build(Experiments),
     matrix:print(Matrix),

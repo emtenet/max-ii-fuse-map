@@ -13,7 +13,7 @@ run() ->
 
 density(Density) ->
     Device = density:largest_device(Density),
-    [{Pin, _} | _] = device:pins(Device),
+    [Pin | _] = device:pins(Device),
     [
         lab(Density, Device, Pin, LAB)
         ||

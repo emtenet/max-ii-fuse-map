@@ -125,17 +125,23 @@ pin_func([{_, Enum, Name} | Pins], Lines) ->
 %% device_file
 %%====================================================================
 
-device_file({Device, Pins0}) ->
-    Pins = [ device_pin(Device, Pin) || Pin <- Pins0 ],
+device_file({Device, BSDLPins}) ->
+    Pins = pins(Device, BSDLPins),
     Data = [<<
         "-module(">>, atom_to_binary(Device), <<").\n"
         "\n"
+        "-export([iocs/0]).\n"
         "-export([pins/0]).\n"
         "\n"
         "-type ioc() :: ioc:ioc().\n"
         "-type pin() :: pin:pin().\n"
         "\n"
-        "-spec pins() -> [{pin(), ioc()}].\n"
+        "-spec iocs() -> [{pin(), ioc()}].\n"
+        "\n"
+        "iocs() ->\n">>,
+        device_iocs(Pins, []), <<
+        "\n"
+        "-spec pins() -> [pin()].\n"
         "\n"
         "pins() ->\n">>,
         device_pins(Pins, []), <<
@@ -147,25 +153,64 @@ device_file({Device, Pins0}) ->
 
 %%--------------------------------------------------------------------
 
+device_iocs([], [[Indent, Last, <<",\n">>] | Lines0]) ->
+    Lines1 = lists:reverse(Lines0, [Indent, Last, <<"\n    ].\n">>]),
+    [[<<"     ">>, First, <<",\n">>] | Lines] = Lines1,
+    [<<"    [">>, First, <<",\n">> | Lines];
+device_iocs([{Enum, IOC} | Pins], Lines) ->
+    Line = [
+        <<"     ">>,
+        io_lib:format("{~s,~w}", [Enum, IOC]),
+        <<",\n">>
+    ],
+    device_iocs(Pins, [Line | Lines]).
+
+%%--------------------------------------------------------------------
+
 device_pins([], [[Indent, Last, <<",\n">>] | Lines0]) ->
     Lines1 = lists:reverse(Lines0, [Indent, Last, <<"\n    ].\n">>]),
     [[<<"     ">>, First, <<",\n">>] | Lines] = Lines1,
     [<<"    [">>, First, <<",\n">> | Lines];
-device_pins([{Enum, IOC} | Pins], Lines) ->
+device_pins([{Enum, _} | Pins], Lines) ->
     Line = [
         <<"     ">>,
-        io_lib:format("{~s,~p}", [Enum, IOC]),
+        io_lib:format("~s", [Enum]),
         <<",\n">>
     ],
     device_pins(Pins, [Line | Lines]).
 
 %%====================================================================
-%% device_pin
+%% pins
 %%====================================================================
 
-device_pin(Device, {_, Enum, Name}) ->
-    io:format(" => ~s ~s~n", [Device, Enum]),
-    {ok, Experiment} = experiment:compile(#{
+pins(Device, BSDLPins) ->
+    io:format(" => ~s pins~n", [Device]),
+    Sources = [
+        pin_source(Device, Enum, Name)
+        ||
+        {_, Enum, Name} <- BSDLPins
+    ],
+    {ok, Experiments} = experiment:compile_to_rcf(Sources),
+    lists:map(fun pin/1, Experiments).
+
+%%--------------------------------------------------------------------
+
+pin({Enum, RCF}) ->
+    Pin = binary_to_atom(Enum),
+    IOC = pin_ioc(RCF),
+    {Pin, IOC}.
+
+%%--------------------------------------------------------------------
+
+pin_ioc(RCF) ->
+    #{signals := #{lut := #{dests := [Dest]}}} = RCF,
+    #{ioc := IOC, port := data_in} = Dest,
+    IOC.
+
+%%--------------------------------------------------------------------
+
+pin_source(Device, Enum, Name) ->
+    #{
         title => Enum,
         device => Device,
         settings => [
@@ -193,9 +238,5 @@ device_pin(Device, {_, Enum, Name}) ->
             "  );\n"
             "end behavioral;\n"
         >>
-    }),
-    {ok, RCF} = experiment:rcf(Experiment),
-    #{signals := #{lut := #{dests := [Dest]}}} = RCF,
-    #{ioc := IOC, port := data_in} = Dest,
-    {Enum, IOC}.
+    }.
 

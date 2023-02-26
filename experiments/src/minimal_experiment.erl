@@ -74,7 +74,7 @@ source(Title, Device, Pin, Settings) ->
 
 compile(Density) ->
     Device = density:largest_device(Density),
-    [{Pin, _} | _] = device:pins(Device),
+    [Pin | _] = device:pins(Device),
     experiment:compile(source(minimal, Device, Pin)).
 
 %%====================================================================

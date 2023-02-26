@@ -9,6 +9,7 @@
 -export([labs/1]).
 -export([gclk_pins/1]).
 -export([pins/1]).
+-export([iocs/1]).
 
 -export_type([device/0]).
 
@@ -171,10 +172,31 @@ package(epm2210_f256) -> f256;
 package(epm2210_f324) -> f324.
 
 %%====================================================================
+%% iocs
+%%====================================================================
+
+-spec iocs(device()) -> [{pin(), ioc()}].
+
+iocs(epm240_m100) -> epm240_m100:iocs();
+iocs(epm240_f100) -> epm240_f100:iocs();
+iocs(epm240_t100) -> epm240_t100:iocs();
+iocs(epm570_m100) -> epm570_m100:iocs();
+iocs(epm570_f100) -> epm570_f100:iocs();
+iocs(epm570_t100) -> epm570_t100:iocs();
+iocs(epm570_t144) -> epm570_t144:iocs();
+iocs(epm570_m256) -> epm570_m256:iocs();
+iocs(epm570_f256) -> epm570_f256:iocs();
+iocs(epm1270_t144) -> epm1270_t144:iocs();
+iocs(epm1270_m256) -> epm1270_m256:iocs();
+iocs(epm1270_f256) -> epm1270_f256:iocs();
+iocs(epm2210_f256) -> epm2210_f256:iocs();
+iocs(epm2210_f324) -> epm2210_f324:iocs().
+
+%%====================================================================
 %% pins
 %%====================================================================
 
--spec pins(device()) -> [{pin(), ioc()}].
+-spec pins(device()) -> [pin()].
 
 pins(epm240_m100) -> epm240_m100:pins();
 pins(epm240_f100) -> epm240_f100:pins();

@@ -70,7 +70,7 @@ run(Density) ->
 %%--------------------------------------------------------------------
 
 experiment(Device) ->
-    [{Pin, _} | _] = device:pins(Device),
+    [Pin | _] = device:pins(Device),
     [LAB | _] = device:labs(Device),
     LUT = lab:lc(LAB, 0),
     #{
@@ -107,7 +107,7 @@ experiment(Device) ->
 %%--------------------------------------------------------------------
 
 experiment(Device, Code, Bit) ->
-    [{Pin, _} | _] = device:pins(Device),
+    [Pin | _] = device:pins(Device),
     [LAB | _] = device:labs(Device),
     LUT = lab:lc(LAB, 0),
     #{

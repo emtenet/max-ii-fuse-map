@@ -31,7 +31,7 @@ enable(Density) ->
     {ok, Experiments} = experiment:compile_to_fuses([
         source(Device, Pin, 0)
         ||
-        Pin <- device:pins(Device)
+        Pin <- device:iocs(Device)
     ]),
     Matrix = matrix:build(Experiments),
     [] = matrix:single_ones(Matrix),
@@ -52,7 +52,7 @@ invert(Density) ->
     {ok, Experiments} = experiment:compile_to_fuses([
         source(Device, Pin, 1)
         ||
-        Pin <- device:pins(Device)
+        Pin <- device:iocs(Device)
     ]),
     Matrix = matrix:build(Experiments),
     Ones = matrix:single_ones(Matrix),

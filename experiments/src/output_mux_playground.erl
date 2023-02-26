@@ -81,7 +81,7 @@ pins(Device, IOB) ->
     [
         Pin
         ||
-        Pin = {_, IOC} <- device:pins(Device),
+        Pin = {_, IOC} <- device:iocs(Device),
         ioc:in_iob(IOC, IOB)
     ].
 

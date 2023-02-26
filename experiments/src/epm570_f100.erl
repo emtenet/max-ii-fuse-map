@@ -1,13 +1,14 @@
 -module(epm570_f100).
 
+-export([iocs/0]).
 -export([pins/0]).
 
 -type ioc() :: ioc:ioc().
 -type pin() :: pin:pin().
 
--spec pins() -> [{pin(), ioc()}].
+-spec iocs() -> [{pin(), ioc()}].
 
-pins() ->
+iocs() ->
     [{a1,{ioc,3,8,0}},
      {a2,{ioc,5,8,2}},
      {a3,{ioc,5,8,1}},
@@ -84,5 +85,86 @@ pins() ->
      {k8,{ioc,7,3,0}},
      {k9,{ioc,8,3,2}},
      {k10,{ioc,11,0,2}}
+    ].
+
+-spec pins() -> [pin()].
+
+pins() ->
+    [a1,
+     a2,
+     a3,
+     a4,
+     a5,
+     a6,
+     a7,
+     a8,
+     a9,
+     a10,
+     b1,
+     b2,
+     b3,
+     b4,
+     b5,
+     b6,
+     b7,
+     b8,
+     b9,
+     b10,
+     c1,
+     c2,
+     c3,
+     c4,
+     c7,
+     c8,
+     c9,
+     c10,
+     d1,
+     d2,
+     d3,
+     d8,
+     d9,
+     d10,
+     e1,
+     e2,
+     e3,
+     e8,
+     e9,
+     e10,
+     f1,
+     f2,
+     f3,
+     f8,
+     f9,
+     f10,
+     g1,
+     g2,
+     g3,
+     g8,
+     g9,
+     g10,
+     h1,
+     h4,
+     h7,
+     h8,
+     h9,
+     h10,
+     j3,
+     j4,
+     j5,
+     j6,
+     j7,
+     j8,
+     j9,
+     j10,
+     k1,
+     k2,
+     k3,
+     k4,
+     k5,
+     k6,
+     k7,
+     k8,
+     k9,
+     k10
     ].
 
