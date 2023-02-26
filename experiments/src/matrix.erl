@@ -27,7 +27,7 @@
 -type density() :: density:density().
 -type device() :: device:device().
 
--type experiment_name() :: atom() | binary() | string().
+-type experiment_name() :: term().
 -type experiment() ::
     {experiment_name(), [fuse()]} |
     {experiment_name(), [fuse()], rcf_file:rcf()}.
