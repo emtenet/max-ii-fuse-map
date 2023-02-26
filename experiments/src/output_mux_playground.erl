@@ -311,7 +311,8 @@ ioc_fuses(IOC, Keys, Routes, Matrix = {matrix, _, AllFuses}) ->
         ||
         {Fuse, Bits, Name} <- Fuses
     ],
-    [ Fuse || {Fuse, _, _} <- Fuses ].
+    %[ Fuse || {Fuse, _, _} <- Fuses ].
+    ok.
 
 %%--------------------------------------------------------------------
 
