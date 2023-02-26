@@ -38,7 +38,7 @@ from(X, Y, N)
 %% parse
 %%====================================================================
 
--spec parse(binary()) -> ioc().
+-spec parse(binary()) -> {ok, ioc(), binary()}.
 
 parse(Name) ->
     {ok, [X, Y, N], Rest} = parse:format(Name, [

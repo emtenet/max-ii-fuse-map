@@ -46,7 +46,7 @@ from(X, Y, N)
 %% parse
 %%====================================================================
 
--spec parse(binary()) -> lc().
+-spec parse(binary()) -> {ok, lc(), binary()}.
 
 parse(Name) ->
     {ok, [X, Y, N], Rest} = parse:format(Name, [

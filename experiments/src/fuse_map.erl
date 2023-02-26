@@ -45,13 +45,13 @@
     density :: density(),
     strip_width :: 32 | 64,
     offset_x :: 0 | 1,
-    side_x :: 8 | 13 | 17 | 21,
-    grow_x :: 5 | 8 | 10 | 12,
+    side_x :: 7 | 13 | 17 | 21,
+    grow_x :: 0 | 9 | 11 | 13,
     short_y :: 4 | 7 | 10,
     long_y :: 4 | 7 | 10 | 13,
     top_y :: 5 | 8 | 11 | 14,
     short_sector :: 256 | 384 | 512,
-    long_sector :: undefined | 384 | 512 | 704,
+    long_sector :: 256 | 384 | 512 | 704,
     left_base :: non_neg_integer(),
     short_base :: non_neg_integer(),
     grow_base :: non_neg_integer(),
@@ -2083,8 +2083,8 @@ to_ioc(X, Y, N, Name) ->
 
 %%--------------------------------------------------------------------
 
-to_lab(X, Y, {Name, Value}) ->
-    {ok, {{lab, X, Y}, Name, Value}};
+%to_lab(X, Y, {Name, Value}) ->
+%    {ok, {{lab, X, Y}, Name, Value}};
 to_lab(X, Y, Name) ->
     {ok, {{lab, X, Y}, Name}}.
 
