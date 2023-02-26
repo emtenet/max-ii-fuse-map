@@ -30,10 +30,11 @@ My experiments are being run in the following
  * [LAB clr1 global](experiments/src/lab_clr1_global_experiment.erl)
  * [Local line](experiments/src/local_line_experiment.erl) outputs from LCs
  * [Output](experiments/src/output_experiment.erl) constant
- * data mux [playground](experiments/src/data_mux_playground.erl)
+ * Data MUX [playground](experiments/src/data_mux_playground.erl)
    and [theory](experiments/src/data_mux_theory.erl)
- * output mux [playground](experiments/src/output_mux_playground.erl)
+ * Output MUX [playground](experiments/src/output_mux_playground.erl)
    and [theory](experiments/src/output_mux_theory.erl)
+ * [Direct link](experiments/src/direct_link_experiment.erl) (`lut_out`)
 
 ## Fuse map
 
@@ -142,6 +143,11 @@ This fuse either:
 
  * enables that output, or
  * selects between the LUT and registers to output.
+
+### `{lc(), lut_out, left | right}`
+
+Each LC can drive the LUT output to the left or right
+via direct-links, r4s & c4s.
 
 ### `{lab(), clk#_global#}`
 

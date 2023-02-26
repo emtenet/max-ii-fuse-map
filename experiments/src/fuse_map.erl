@@ -246,7 +246,9 @@
     ?LC_CELL(18, 1, {lut, a0b0c1d1});
     ?LC_CELL(18, 2, {lut, a0b0c1d0});
     ?LC_CELL(18, 3, {lut, a0b1c1d0});
+    ?LC_CELL(19, 1, {lut_out, right});
     ?LC_CELL(19, 2, clk);
+    ?LC_CELL(20, 1, {lut_out, left});
     ?LC_CELL(20, 3, clr);
     ?LC_CELL(21, 3, local_line);
 ).
