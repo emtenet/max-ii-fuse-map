@@ -49,36 +49,15 @@ run() ->
 experiments(false) ->
     ok;
 experiments({Device, Experiment, Iterator}) ->
-    case skip(Experiment) of
-        true ->
+    Density = device:density(Device),
+    case experiment(Density, Experiment) of
+        ok ->
             experiments(experiment_cache:iterate(Iterator));
 
-        false ->
-            Density = device:density(Device),
-            case experiment(Density, Experiment) of
-                ok ->
-                    experiments(experiment_cache:iterate(Iterator));
-
-                {error, Error, Fuses, Signals} ->
-                    {cached, Dir} = Experiment,
-                    contradiction(Density, Dir, Fuses, Signals, Error)
-            end
+        {error, Error, Fuses, Signals} ->
+            {cached, Dir} = Experiment,
+            contradiction(Density, Dir, Fuses, Signals, Error)
     end.
-
-%%--------------------------------------------------------------------
-
-%skip({cached, "cache/W6/E3eRH3uQ3KvgCQhdAb1vcf8obs1gTvlu_5OiYk0A0"}) ->
-%    % mux3 are missing!
-%    % i.e.
-%    % #{data_a6 => mux6_5,
-%        data_b6 => mux6_4,
-%        data_c6 => mux6_1,
-%        data_d6 => mux6_0}
-%    true;
-%skip({cached, "cache/nb/D_5XwElyalw_RYNZlvLPDxwL_QfcLoiyREXtoeWnQ"}) ->
-%    % same as above
-%    true;
-skip(_) -> false.
 
 %%--------------------------------------------------------------------
 

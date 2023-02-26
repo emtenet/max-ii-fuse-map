@@ -93,25 +93,15 @@ run() ->
 experiments(false) ->
     ok;
 experiments({Device, Experiment, Iterator}) ->
-    case skip(Experiment) of
-        true ->
+    Density = device:density(Device),
+    case experiment(Density, Experiment) of
+        ok ->
             experiments(experiment_cache:iterate(Iterator));
 
-        false ->
-            Density = device:density(Device),
-            case experiment(Density, Experiment) of
-                ok ->
-                    experiments(experiment_cache:iterate(Iterator));
-
-                {error, Error, Fuses, Signals} ->
-                    {cached, Dir} = Experiment,
-                    contradiction(Density, Dir, Fuses, Signals, Error)
-            end
+        {error, Error, Fuses, Signals} ->
+            {cached, Dir} = Experiment,
+            contradiction(Density, Dir, Fuses, Signals, Error)
     end.
-
-%%--------------------------------------------------------------------
-
-skip(_) -> false.
 
 %%--------------------------------------------------------------------
 
