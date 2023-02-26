@@ -6,6 +6,7 @@
 -export([fuse_count/1]).
 -export([or_device/1]).
 -export([minimal_fuses/1]).
+-export([fast_outs/1]).
 -export([iobs/1]).
 -export([labs/1]).
 
@@ -20,7 +21,9 @@
 -type device() :: device:device().
 -type fuse() :: fuse:fuse().
 -type iob() :: iob:iob().
+-type ioc() :: ioc:ioc().
 -type lab() :: lab:lab().
+-type lc() :: lc:lc().
 
 %%====================================================================
 %% list
@@ -119,6 +122,19 @@ minimal_fuses(epm1270) -> epm1270_minimal:fuses();
 minimal_fuses(epm2210) -> epm2210_minimal:fuses();
 minimal_fuses(Device) ->
     minimal_fuses(device:density(Device)).
+
+%%====================================================================
+%% fast_outs
+%%====================================================================
+
+-spec fast_outs(density() | device()) -> [{ioc(), lc(), left | right}].
+
+fast_outs(epm240) -> epm240_fast_out:iocs();
+fast_outs(epm570) -> epm570_fast_out:iocs();
+fast_outs(epm1270) -> epm1270_fast_out:iocs();
+fast_outs(epm2210) -> epm2210_fast_out:iocs();
+fast_outs(Device) ->
+    fast_outs(device:density(Device)).
 
 %%====================================================================
 %% iobs
