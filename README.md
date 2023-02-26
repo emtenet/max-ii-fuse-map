@@ -75,6 +75,11 @@ to be an __enable__ rather than __direction__.
 
 The `invert` may alternativly be a mux selecting alternative outputs.
 
+### `{ioc(), fast_out}`
+
+Selects output value from fast-out link of neighbouring LAB
+instead of via the output muxes.
+
 ### `{ioc(), output3, mux#}`, `{ioc(), output4, mux#}`  and `{ioc(), output6, mux#}`
 
 The IOC outputs are selected from local interconnects

@@ -75,7 +75,7 @@
 -define(LONG_SECTORS, (?COLUMN_SECTORS - ?SHORT_SECTORS)).
 
 -define(IOC_SIDES(),
-    ?IOC_SIDE( 1, 1, bypass);
+    ?IOC_SIDE( 1, 1, fast_out);
     ?IOC_SIDE( 2, 0, {output3, mux1});
     ?IOC_SIDE( 2, 1, invert);
     ?IOC_SIDE( 3, 0, {output3, mux0});
@@ -105,10 +105,10 @@
     ?IOC_HEAD( 9, 2, 2, invert);
     ?IOC_HEAD( 9, 3, 3, {output3, mux1});
     ?IOC_HEAD( 9, 4, 3, invert);
-    ?IOC_HEAD(10, 2, 2, bypass);
-    ?IOC_HEAD(10, 4, 3, bypass);
-    ?IOC_HEAD(12, 2, 0, bypass);
-    ?IOC_HEAD(12, 4, 1, bypass);
+    ?IOC_HEAD(10, 2, 2, fast_out);
+    ?IOC_HEAD(10, 4, 3, fast_out);
+    ?IOC_HEAD(12, 2, 0, fast_out);
+    ?IOC_HEAD(12, 4, 1, fast_out);
     ?IOC_HEAD(13, 1, 0, {output3, mux1});
     ?IOC_HEAD(13, 2, 0, invert);
     ?IOC_HEAD(13, 3, 1, {output3, mux1});
@@ -144,10 +144,10 @@
     ?IOC_TAIL( 9, 2, 2, invert);
     ?IOC_TAIL( 9, 3, 3, {output3, mux1});
     ?IOC_TAIL( 9, 4, 3, invert);
-    ?IOC_TAIL(10, 2, 2, bypass);
-    ?IOC_TAIL(10, 4, 3, bypass);
-    ?IOC_TAIL(12, 2, 0, bypass);
-    ?IOC_TAIL(12, 4, 1, bypass);
+    ?IOC_TAIL(10, 2, 2, fast_out);
+    ?IOC_TAIL(10, 4, 3, fast_out);
+    ?IOC_TAIL(12, 2, 0, fast_out);
+    ?IOC_TAIL(12, 4, 1, fast_out);
     ?IOC_TAIL(13, 1, 0, {output3, mux1});
     ?IOC_TAIL(13, 2, 0, invert);
     ?IOC_TAIL(13, 3, 1, {output3, mux1});

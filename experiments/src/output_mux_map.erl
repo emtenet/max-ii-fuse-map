@@ -32,7 +32,7 @@
     ?INTERCONNECT(mux1, mux0, 2);
     ?INTERCONNECT(mux1, mux1, 3);
     ?INTERCONNECT(mux1, mux2, 4);
-    ?BYPASS      (mux2, mux0);
+    ?FAST_OUT    (mux2, mux0);
     ?INTERCONNECT(mux2, mux1, 5);
     ?INTERCONNECT(mux2, mux2, 6);
     ?INTERCONNECT(mux3, mux0, 7);
@@ -54,16 +54,16 @@
     to_col_interconnect(Mux4, Mux3) ->
         {interconnect, N}
 ).
--define(BYPASS(Mux4, Mux3),
+-define(FAST_OUT(Mux4, Mux3),
     to_col_interconnect(Mux4, Mux3) ->
-        bypass
+        fast_out
 ).
 
 ?COL_MAPPINTS().
 
 -undef(UNDEFINED).
 -undef(INTERCONNECT).
--undef(BYPASS).
+-undef(FAST_OUT).
 
 %%====================================================================
 %% from_col_interconnect
@@ -76,8 +76,8 @@
     from_col_interconnect({interconnect, N}) ->
         {ok, Mux4, Mux3}
 ).
--define(BYPASS(Mux4, Mux3),
-    from_col_interconnect(bypass) ->
+-define(FAST_OUT(Mux4, Mux3),
+    from_col_interconnect(fast_out) ->
         {ok, Mux4, Mux3}
 ).
 
@@ -85,7 +85,7 @@
 
 -undef(UNDEFINED).
 -undef(INTERCONNECT).
--undef(BYPASS).
+-undef(FAST_OUT).
 
 %%====================================================================
 %% table7

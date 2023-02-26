@@ -119,7 +119,7 @@ fuses(Density, Fuses) ->
 
 fuse(Density, Fuse, LCs) ->
     case fuse_map:to_location(Fuse, Density) of
-        ?SIDE( 1, 1, bypass, on);
+        ?SIDE( 1, 1, fast_out, on);
         ?SIDE( 2, 0, output3, mux1);
         ?SIDE( 3, 0, output3, mux0);
         ?SIDE( 3, 1, output3, mux2);
@@ -143,10 +143,10 @@ fuse(Density, Fuse, LCs) ->
         ?HEAD( 8, 4, 3, output3, mux2);
         ?HEAD( 9, 1, 2, output3, mux1);
         ?HEAD( 9, 3, 3, output3, mux1);
-        ?HEAD(10, 2, 2, bypass, on);
-        ?HEAD(10, 4, 3, bypass, on);
-        ?HEAD(12, 2, 0, bypass, on);
-        ?HEAD(12, 4, 1, bypass, on);
+        ?HEAD(10, 2, 2, fast_out, on);
+        ?HEAD(10, 4, 3, fast_out, on);
+        ?HEAD(12, 2, 0, fast_out, on);
+        ?HEAD(12, 4, 1, fast_out, on);
         ?HEAD(13, 1, 0, output3, mux1);
         ?HEAD(13, 3, 1, output3, mux1);
         ?HEAD(15, 1, 0, output3, mux0);
@@ -175,10 +175,10 @@ fuse(Density, Fuse, LCs) ->
         ?TAIL( 8, 4, 3, output3, mux2);
         ?TAIL( 9, 1, 2, output3, mux1);
         ?TAIL( 9, 3, 3, output3, mux1);
-        ?TAIL(10, 2, 2, bypass, on);
-        ?TAIL(10, 4, 3, bypass, on);
-        ?TAIL(12, 2, 0, bypass, on);
-        ?TAIL(12, 4, 1, bypass, on);
+        ?TAIL(10, 2, 2, fast_out, on);
+        ?TAIL(10, 4, 3, fast_out, on);
+        ?TAIL(12, 2, 0, fast_out, on);
+        ?TAIL(12, 4, 1, fast_out, on);
         ?TAIL(13, 1, 0, output3, mux1);
         ?TAIL(13, 3, 1, output3, mux1);
         ?TAIL(15, 1, 0, output3, mux0);
@@ -282,7 +282,7 @@ signal_route([{io_data_out, _, _, _, _}, Interconnect | _]) ->
 
 theory(IOC = {ioc, X, Y, N}, Model) ->
     case Model of
-        #{IOC := #{output4 := Mux4, output3 := Mux3, bypass := on}} ->
+        #{IOC := #{output4 := Mux4, output3 := Mux3, fast_out := on}} ->
             theory_col(X, Y, N, Mux4, Mux3);
 
         #{IOC := #{output4 := Mux4, output3 := Mux3}} ->
@@ -291,7 +291,7 @@ theory(IOC = {ioc, X, Y, N}, Model) ->
         #{IOC := #{output6 := Mux6, output3 := Mux3}} ->
             theory_row(X, Y, Mux6, Mux3);
 
-        #{IOC := #{bypass := on}} ->
+        #{IOC := #{fast_out := on}} ->
             {io_bypass_out, X, Y, N, 0};
 
         #{IOC := Muxes} ->
@@ -303,13 +303,13 @@ theory(IOC = {ioc, X, Y, N}, Model) ->
 
 %%--------------------------------------------------------------------
 
-theory_col(X, Y, Bypass, Mux4, Mux3) ->
+theory_col(X, Y, FastOut, Mux4, Mux3) ->
     case output_mux_map:to_col_interconnect(Mux4, Mux3) of
-        {interconnect, N} when Bypass =:= x ->
+        {interconnect, N} when FastOut =:= x ->
             {local_interconnect, X, Y, 0, N};
 
-        bypass when Bypass =/= x ->
-            {io_bypass_out, X, Y, Bypass, 0}
+        fast_out when FastOut =/= x ->
+            {io_bypass_out, X, Y, FastOut, 0}
     end.
 
 %%--------------------------------------------------------------------
