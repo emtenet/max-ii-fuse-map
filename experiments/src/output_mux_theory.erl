@@ -304,13 +304,13 @@ signal_route([{io_data_out, _, _, _, _}, Interconnect | _]) ->
 theory(IOC = {ioc, X, Y, N}, Model) ->
     case Model of
         #{IOC := #{output4 := Mux4, output3 := Mux3, bypass := on}} ->
-            theory_cell(X, Y, N, Mux4, Mux3);
+            theory_col(X, Y, N, Mux4, Mux3);
 
         #{IOC := #{output4 := Mux4, output3 := Mux3}} ->
-            theory_cell(X, Y, x, Mux4, Mux3);
+            theory_col(X, Y, x, Mux4, Mux3);
 
         #{IOC := #{output6 := Mux6, output3 := Mux3}} ->
-            theory_side(X, Y, Mux6, Mux3);
+            theory_row(X, Y, Mux6, Mux3);
 
         #{IOC := #{bypass := on}} ->
             {io_bypass_out, X, Y, N, 0};
@@ -324,8 +324,8 @@ theory(IOC = {ioc, X, Y, N}, Model) ->
 
 %%--------------------------------------------------------------------
 
-theory_cell(X, Y, Bypass, Mux4, Mux3) ->
-    case output_mux_map:to_interconnect4(Mux4, Mux3) of
+theory_col(X, Y, Bypass, Mux4, Mux3) ->
+    case output_mux_map:to_col_interconnect(Mux4, Mux3) of
         {interconnect, N} when Bypass =:= x ->
             {local_interconnect, X, Y, 0, N};
 
@@ -335,7 +335,7 @@ theory_cell(X, Y, Bypass, Mux4, Mux3) ->
 
 %%--------------------------------------------------------------------
 
-theory_side(X, Y, Mux6, Mux3) ->
-    {interconnect, N} = output_mux_map:to_interconnect7(Mux6, Mux3),
+theory_row(X, Y, Mux6, Mux3) ->
+    {interconnect, N} = output_mux_map:to_row_interconnect(Mux6, Mux3),
     {local_interconnect, X, Y, 0, N}.
 

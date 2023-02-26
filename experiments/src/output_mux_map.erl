@@ -1,10 +1,10 @@
 -module(output_mux_map).
 
--export([to_interconnect4/2]).
--export([from_interconnect4/1]).
+-export([to_col_interconnect/2]).
+-export([from_col_interconnect/1]).
 
--export([to_interconnect7/2]).
--export([from_interconnect7/1]).
+-export([to_row_interconnect/2]).
+-export([from_row_interconnect/1]).
 
 -export([mux6s/0]).
 -export([mux4s/0]).
@@ -14,8 +14,8 @@
 -export_type([mux4/0]).
 -export_type([mux3/0]).
 
--type interconnect4() :: iob:interconnect4().
--type interconnect7() :: iob:interconnect7().
+-type col_interconnect() :: iob:col_interconnect().
+-type row_interconnect() :: iob:row_interconnect().
 
 -type mux6() :: mux0 | mux1 | mux2 | mux3 | mux4 | mux5.
 -type mux4() :: mux0 | mux1 | mux2 | mux3.
@@ -25,7 +25,7 @@
 %% table4
 %%====================================================================
 
--define(MAPPINGS4(),
+-define(COL_MAPPINTS(),
     ?UNDEFINED   (mux0, mux0)
     ?INTERCONNECT(mux0, mux1, 0);
     ?INTERCONNECT(mux0, mux2, 1);
@@ -41,47 +41,47 @@
 ).
 
 %%====================================================================
-%% to_interconnect4
+%% to_col_interconnect
 %%====================================================================
 
--spec to_interconnect4(mux4(), mux3()) -> interconnect4() | undefined.
+-spec to_col_interconnect(mux4(), mux3()) -> col_interconnect() | undefined.
 
 -define(UNDEFINED(Mux4, Mux3),
-    to_interconnect4(Mux4, Mux3) ->
+    to_col_interconnect(Mux4, Mux3) ->
         undefined;
 ).
 -define(INTERCONNECT(Mux4, Mux3, N),
-    to_interconnect4(Mux4, Mux3) ->
+    to_col_interconnect(Mux4, Mux3) ->
         {interconnect, N}
 ).
 -define(BYPASS(Mux4, Mux3),
-    to_interconnect4(Mux4, Mux3) ->
+    to_col_interconnect(Mux4, Mux3) ->
         bypass
 ).
 
-?MAPPINGS4().
+?COL_MAPPINTS().
 
 -undef(UNDEFINED).
 -undef(INTERCONNECT).
 -undef(BYPASS).
 
 %%====================================================================
-%% from_interconnect4
+%% from_col_interconnect
 %%====================================================================
 
--spec from_interconnect4(interconnect4()) -> {ok, mux6(), mux3()}.
+-spec from_col_interconnect(col_interconnect()) -> {ok, mux6(), mux3()}.
 
 -define(UNDEFINED(Mux4, Mux3), ).
 -define(INTERCONNECT(Mux4, Mux3, N),
-    from_interconnect4({interconnect, N}) ->
+    from_col_interconnect({interconnect, N}) ->
         {ok, Mux4, Mux3}
 ).
 -define(BYPASS(Mux4, Mux3),
-    from_interconnect4(bypass) ->
+    from_col_interconnect(bypass) ->
         {ok, Mux4, Mux3}
 ).
 
-?MAPPINGS4().
+?COL_MAPPINTS().
 
 -undef(UNDEFINED).
 -undef(INTERCONNECT).
@@ -91,7 +91,7 @@
 %% table7
 %%====================================================================
 
--define(MAPPINGS7(),
+-define(ROW_MAPPINGS(),
     ?INTERCONNECT(mux0, mux0, 0);
     ?INTERCONNECT(mux0, mux1, 1);
     ?INTERCONNECT(mux0, mux2, 2);
@@ -113,32 +113,32 @@
 ).
 
 %%====================================================================
-%% to_interconnect7
+%% to_row_interconnect
 %%====================================================================
 
--spec to_interconnect7(mux6(), mux3()) -> interconnect7().
+-spec to_row_interconnect(mux6(), mux3()) -> row_interconnect().
 
 -define(INTERCONNECT(Mux6, Mux3, N),
-    to_interconnect7(Mux6, Mux3) ->
+    to_row_interconnect(Mux6, Mux3) ->
         {interconnect, N}
 ).
 
-?MAPPINGS7().
+?ROW_MAPPINGS().
 
 -undef(INTERCONNECT).
 
 %%====================================================================
-%% from_interconnect7
+%% from_row_interconnect
 %%====================================================================
 
--spec from_interconnect7(interconnect7()) -> {ok, mux6(), mux3()}.
+-spec from_row_interconnect(row_interconnect()) -> {ok, mux6(), mux3()}.
 
 -define(INTERCONNECT(Mux6, Mux3, N),
-    from_interconnect7({interconnect, N}) ->
+    from_row_interconnect({interconnect, N}) ->
         {ok, Mux6, Mux3}
 ).
 
-?MAPPINGS7().
+?ROW_MAPPINGS().
 
 -undef(INTERCONNECT).
 
@@ -176,9 +176,9 @@ mux3s() ->
 -ifdef(TEST).
 -include_lib("eunit/include/eunit.hrl").
 
-coverage4_test() ->
+col_coverage_test() ->
     Interconnects = lists:usort([
-        to_interconnect4(Mux4, Mux3)
+        to_col_interconnect(Mux4, Mux3)
         ||
         Mux4 <- mux4s(),
         Mux3 <- mux3s()
@@ -187,9 +187,9 @@ coverage4_test() ->
 
 %%--------------------------------------------------------------------
 
-inverse4_test() ->
+col_inverse_test() ->
     [
-        inverse4_test(Mux4, Mux3)
+        col_inverse_test(Mux4, Mux3)
         ||
         Mux4 <- mux4s(),
         Mux3 <- mux3s()
@@ -198,20 +198,20 @@ inverse4_test() ->
 
 %%--------------------------------------------------------------------
 
-inverse4_test(Mux4, Mux3) ->
-    case to_interconnect4(Mux4, Mux3) of
+col_inverse_test(Mux4, Mux3) ->
+    case to_col_interconnect(Mux4, Mux3) of
         undefined ->
             ok;
 
         Interconnect ->
-            ?assertEqual({ok, Mux4, Mux3}, from_interconnect4(Interconnect))
+            ?assertEqual({ok, Mux4, Mux3}, from_col_interconnect(Interconnect))
     end.
 
 %%--------------------------------------------------------------------
 
-coverage7_test() ->
+row_coverage_test() ->
     Interconnects = lists:usort([
-        to_interconnect7(Mux6, Mux3)
+        to_row_interconnect(Mux6, Mux3)
         ||
         Mux6 <- mux6s(),
         Mux3 <- mux3s()
@@ -220,9 +220,9 @@ coverage7_test() ->
 
 %%--------------------------------------------------------------------
 
-inverse7_test() ->
+row_inverse_test() ->
     [
-        inverse7_test(Mux6, Mux3)
+        row_inverse_test(Mux6, Mux3)
         ||
         Mux6 <- mux6s(),
         Mux3 <- mux3s()
@@ -231,9 +231,9 @@ inverse7_test() ->
 
 %%--------------------------------------------------------------------
 
-inverse7_test(Mux6, Mux3) ->
-    Interconnect = to_interconnect7(Mux6, Mux3),
-    ?assertEqual({ok, Mux6, Mux3}, from_interconnect7(Interconnect)).
+row_inverse_test(Mux6, Mux3) ->
+    Interconnect = to_row_interconnect(Mux6, Mux3),
+    ?assertEqual({ok, Mux6, Mux3}, from_row_interconnect(Interconnect)).
 
 -endif.
 
