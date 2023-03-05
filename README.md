@@ -36,6 +36,7 @@ My experiments are being run in the following
    and [theory](experiments/src/output_mux_theory.erl)
  * [Direct link](experiments/src/direct_link_experiment.erl) (`lut_out`)
  * [LAB interconnect limit](experiments/src/lab_interconnect_limit_experiment.erl)
+ * [LAB interconnect mux](experiments/src/lab_interconnect_mux_experiment.erl)
 
 ## Fuse map
 
@@ -49,6 +50,11 @@ The following mux mappings are encoded:
 
  * [data mux](experiments/src/data_mux_map.erl)
  * [output mux](experiments/src/output_mux_map.erl)
+
+## LAB interconnect mux
+
+A database of LAB interconnect mux mappings has been collected and som
+[mapping tables printed](experiments/src/lab_interconnect_mux_database.erl)
 
 ## Fuses
 
