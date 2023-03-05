@@ -180,3 +180,18 @@ the selection is active with a bit of `0`.
 
 Each LAB's clr1 can be inverted. Invert is selected when the bit is `0`.
 
+### `{lab(), {interconnect, #}, direct_link}`
+
+Selects a direct-link from a neighbouring LAB onto a LAB's interconnect.
+
+Not used at the same time as the interconnect muxes below.
+
+### `{lab(), {interconnect, #}, from4, mux#}` and `{lab(), {interconnect, #}, from3, mux#}`
+
+Selects a direct-link, c4 or r4 onto a LAB's interconnect.
+
+Not used at the same time as the dedicated direct-link above.
+
+Each interconnect has a two dimentional mux of size 4 x 3
+selecting from 12 alternative sources.
+

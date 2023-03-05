@@ -173,18 +173,218 @@
 ).
 
 -define(LAB_CELLS(),
+    ?LAB_CELL(2, 0, 0, {{interconnect, 5}, from4, mux0});
+    ?LAB_CELL(2, 0, 1, {{interconnect, 5}, from4, mux1});
+    ?LAB_CELL(2, 0, 2, {{interconnect, 6}, from4, mux0});
+    ?LAB_CELL(2, 0, 3, {{interconnect, 6}, from4, mux1});
+    ?LAB_CELL(2, 1, 0, {{interconnect, 7}, from4, mux0});
+    ?LAB_CELL(2, 1, 1, {{interconnect, 7}, from4, mux1});
+    ?LAB_CELL(2, 1, 2, {{interconnect, 8}, from4, mux0});
+    ?LAB_CELL(2, 1, 3, {{interconnect, 8}, from4, mux1});
+    ?LAB_CELL(2, 2, 0, {{interconnect, 9}, from4, mux0});
+    ?LAB_CELL(2, 2, 1, {{interconnect, 9}, from4, mux1});
+    ?LAB_CELL(2, 2, 2, {{interconnect, 10}, from4, mux0});
+    ?LAB_CELL(2, 2, 3, {{interconnect, 10}, from4, mux1});
+    ?LAB_CELL(2, 3, 0, {{interconnect, 11}, from4, mux0});
+    ?LAB_CELL(2, 3, 1, {{interconnect, 11}, from4, mux1});
+    ?LAB_CELL(2, 3, 2, {{interconnect, 12}, from4, mux0});
+    ?LAB_CELL(2, 3, 3, {{interconnect, 12}, from4, mux1});
+    ?LAB_CELL(2, 5, 0, {{interconnect, 18}, from4, mux0});
+    ?LAB_CELL(2, 5, 1, {{interconnect, 18}, from4, mux1});
+    ?LAB_CELL(2, 5, 2, {{interconnect, 19}, from4, mux0});
+    ?LAB_CELL(2, 5, 3, {{interconnect, 19}, from4, mux1});
+    ?LAB_CELL(2, 6, 0, {{interconnect, 20}, from4, mux0});
+    ?LAB_CELL(2, 6, 1, {{interconnect, 20}, from4, mux1});
+    ?LAB_CELL(2, 6, 2, {{interconnect, 21}, from4, mux0});
+    ?LAB_CELL(2, 6, 3, {{interconnect, 21}, from4, mux1});
+    ?LAB_CELL(2, 7, 0, {{interconnect, 22}, from4, mux0});
+    ?LAB_CELL(2, 7, 1, {{interconnect, 22}, from4, mux1});
+    ?LAB_CELL(2, 7, 2, {{interconnect, 23}, from4, mux0});
+    ?LAB_CELL(2, 7, 3, {{interconnect, 23}, from4, mux1});
+    ?LAB_CELL(2, 8, 0, {{interconnect, 24}, from4, mux0});
+    ?LAB_CELL(2, 8, 1, {{interconnect, 24}, from4, mux1});
+    ?LAB_CELL(2, 8, 2, {{interconnect, 25}, from4, mux0});
+    ?LAB_CELL(2, 8, 3, {{interconnect, 25}, from4, mux1});
+    ?LAB_CELL(3, 0, 0, {{interconnect, 5}, from4, mux2});
+    ?LAB_CELL(3, 0, 1, {{interconnect, 5}, from4, mux3});
+    ?LAB_CELL(3, 0, 2, {{interconnect, 6}, from4, mux2});
+    ?LAB_CELL(3, 0, 3, {{interconnect, 6}, from4, mux3});
+    ?LAB_CELL(3, 1, 0, {{interconnect, 7}, from4, mux2});
+    ?LAB_CELL(3, 1, 1, {{interconnect, 7}, from4, mux3});
+    ?LAB_CELL(3, 1, 2, {{interconnect, 8}, from4, mux2});
+    ?LAB_CELL(3, 1, 3, {{interconnect, 8}, from4, mux3});
+    ?LAB_CELL(3, 2, 0, {{interconnect, 9}, from4, mux2});
+    ?LAB_CELL(3, 2, 1, {{interconnect, 9}, from4, mux3});
+    ?LAB_CELL(3, 2, 2, {{interconnect, 10}, from4, mux2});
+    ?LAB_CELL(3, 2, 3, {{interconnect, 10}, from4, mux3});
+    ?LAB_CELL(3, 3, 0, {{interconnect, 11}, from4, mux2});
+    ?LAB_CELL(3, 3, 1, {{interconnect, 11}, from4, mux3});
+    ?LAB_CELL(3, 3, 2, {{interconnect, 12}, from4, mux2});
+    ?LAB_CELL(3, 3, 3, {{interconnect, 12}, from4, mux3});
     ?LAB_CELL(3, 4, 2, clk1_global0);
     ?LAB_CELL(3, 4, 3, clk1_global1);
-    ?LAB_CELL(3, 9, 3, clk1_global3);
+    ?LAB_CELL(3, 5, 0, {{interconnect, 18}, from4, mux2});
+    ?LAB_CELL(3, 5, 1, {{interconnect, 18}, from4, mux3});
+    ?LAB_CELL(3, 5, 2, {{interconnect, 19}, from4, mux2});
+    ?LAB_CELL(3, 5, 3, {{interconnect, 19}, from4, mux3});
+    ?LAB_CELL(3, 6, 0, {{interconnect, 20}, from4, mux2});
+    ?LAB_CELL(3, 6, 1, {{interconnect, 20}, from4, mux3});
+    ?LAB_CELL(3, 6, 2, {{interconnect, 21}, from4, mux2});
+    ?LAB_CELL(3, 6, 3, {{interconnect, 21}, from4, mux3});
+    ?LAB_CELL(3, 7, 0, {{interconnect, 22}, from4, mux2});
+    ?LAB_CELL(3, 7, 1, {{interconnect, 22}, from4, mux3});
+    ?LAB_CELL(3, 7, 2, {{interconnect, 23}, from4, mux2});
+    ?LAB_CELL(3, 7, 3, {{interconnect, 23}, from4, mux3});
+    ?LAB_CELL(3, 8, 0, {{interconnect, 24}, from4, mux2});
+    ?LAB_CELL(3, 8, 1, {{interconnect, 24}, from4, mux3});
+    ?LAB_CELL(3, 8, 2, {{interconnect, 25}, from4, mux2});
+    ?LAB_CELL(3, 8, 3, {{interconnect, 25}, from4, mux3});
     ?LAB_CELL(3, 9, 2, clk1_global2);
+    ?LAB_CELL(3, 9, 3, clk1_global3);
+    ?LAB_CELL(4, 0, 0, {{interconnect, 5}, from3, mux0});
+    ?LAB_CELL(4, 0, 2, {{interconnect, 6}, from3, mux0});
+    ?LAB_CELL(4, 0, 3, {{interconnect, 6}, direct_link});
+    ?LAB_CELL(4, 1, 0, {{interconnect, 7}, from3, mux0});
+    ?LAB_CELL(4, 1, 2, {{interconnect, 8}, from3, mux0});
+    ?LAB_CELL(4, 1, 3, {{interconnect, 8}, direct_link});
+    ?LAB_CELL(4, 2, 0, {{interconnect, 9}, from3, mux0});
+    ?LAB_CELL(4, 2, 2, {{interconnect, 10}, from3, mux0});
+    ?LAB_CELL(4, 2, 3, {{interconnect, 10}, direct_link});
+    ?LAB_CELL(4, 3, 0, {{interconnect, 11}, from3, mux0});
+    ?LAB_CELL(4, 3, 2, {{interconnect, 12}, from3, mux0});
+    ?LAB_CELL(4, 3, 3, {{interconnect, 12}, direct_link});
     ?LAB_CELL(4, 4, 2, clk2_global0);
     ?LAB_CELL(4, 4, 3, clk2_global1);
-    ?LAB_CELL(4, 9, 3, clk2_global3);
+    ?LAB_CELL(4, 5, 0, {{interconnect, 18}, from3, mux0});
+    ?LAB_CELL(4, 5, 2, {{interconnect, 19}, from3, mux0});
+    ?LAB_CELL(4, 5, 3, {{interconnect, 19}, direct_link});
+    ?LAB_CELL(4, 6, 0, {{interconnect, 20}, from3, mux0});
+    ?LAB_CELL(4, 6, 2, {{interconnect, 21}, from3, mux0});
+    ?LAB_CELL(4, 6, 3, {{interconnect, 21}, direct_link});
+    ?LAB_CELL(4, 7, 0, {{interconnect, 22}, from3, mux0});
+    ?LAB_CELL(4, 7, 2, {{interconnect, 23}, from3, mux0});
+    ?LAB_CELL(4, 7, 3, {{interconnect, 23}, direct_link});
+    ?LAB_CELL(4, 8, 0, {{interconnect, 24}, from3, mux0});
+    ?LAB_CELL(4, 8, 2, {{interconnect, 25}, from3, mux0});
+    ?LAB_CELL(4, 8, 3, {{interconnect, 25}, direct_link});
     ?LAB_CELL(4, 9, 2, clk2_global2);
+    ?LAB_CELL(4, 9, 3, clk2_global3);
+    ?LAB_CELL(5, 0, 0, {{interconnect, 5}, from3, mux1});
+    ?LAB_CELL(5, 0, 1, {{interconnect, 5}, from3, mux2});
+    ?LAB_CELL(5, 0, 2, {{interconnect, 6}, from3, mux1});
+    ?LAB_CELL(5, 0, 3, {{interconnect, 6}, from3, mux2});
+    ?LAB_CELL(5, 1, 0, {{interconnect, 7}, from3, mux1});
+    ?LAB_CELL(5, 1, 1, {{interconnect, 7}, from3, mux2});
+    ?LAB_CELL(5, 1, 2, {{interconnect, 8}, from3, mux1});
+    ?LAB_CELL(5, 1, 3, {{interconnect, 8}, from3, mux2});
+    ?LAB_CELL(5, 2, 0, {{interconnect, 9}, from3, mux1});
+    ?LAB_CELL(5, 2, 1, {{interconnect, 9}, from3, mux2});
+    ?LAB_CELL(5, 2, 2, {{interconnect, 10}, from3, mux1});
+    ?LAB_CELL(5, 2, 3, {{interconnect, 10}, from3, mux2});
+    ?LAB_CELL(5, 3, 0, {{interconnect, 11}, from3, mux1});
+    ?LAB_CELL(5, 3, 1, {{interconnect, 11}, from3, mux2});
+    ?LAB_CELL(5, 3, 2, {{interconnect, 12}, from3, mux1});
+    ?LAB_CELL(5, 3, 3, {{interconnect, 12}, from3, mux2});
     ?LAB_CELL(5, 4, 2, clr1_global0);
     ?LAB_CELL(5, 4, 3, clr1_global1);
-    ?LAB_CELL(5, 9, 3, clr1_global3);
+    ?LAB_CELL(5, 5, 0, {{interconnect, 18}, from3, mux1});
+    ?LAB_CELL(5, 5, 1, {{interconnect, 18}, from3, mux2});
+    ?LAB_CELL(5, 5, 2, {{interconnect, 19}, from3, mux1});
+    ?LAB_CELL(5, 5, 3, {{interconnect, 19}, from3, mux2});
+    ?LAB_CELL(5, 6, 0, {{interconnect, 20}, from3, mux1});
+    ?LAB_CELL(5, 6, 1, {{interconnect, 20}, from3, mux2});
+    ?LAB_CELL(5, 6, 2, {{interconnect, 21}, from3, mux1});
+    ?LAB_CELL(5, 6, 3, {{interconnect, 21}, from3, mux2});
+    ?LAB_CELL(5, 7, 0, {{interconnect, 22}, from3, mux1});
+    ?LAB_CELL(5, 7, 1, {{interconnect, 22}, from3, mux2});
+    ?LAB_CELL(5, 7, 2, {{interconnect, 23}, from3, mux1});
+    ?LAB_CELL(5, 7, 3, {{interconnect, 23}, from3, mux2});
+    ?LAB_CELL(5, 8, 0, {{interconnect, 24}, from3, mux1});
+    ?LAB_CELL(5, 8, 1, {{interconnect, 24}, from3, mux2});
+    ?LAB_CELL(5, 8, 2, {{interconnect, 25}, from3, mux1});
+    ?LAB_CELL(5, 8, 3, {{interconnect, 25}, from3, mux2});
     ?LAB_CELL(5, 9, 2, clr1_global2);
+    ?LAB_CELL(5, 9, 3, clr1_global3);
+    ?LAB_CELL(22, 0, 2, {{interconnect, 0}, from3, mux1});
+    ?LAB_CELL(22, 0, 3, {{interconnect, 0}, from3, mux2});
+    ?LAB_CELL(22, 1, 2, {{interconnect, 1}, from3, mux1});
+    ?LAB_CELL(22, 1, 3, {{interconnect, 1}, from3, mux2});
+    ?LAB_CELL(22, 2, 2, {{interconnect, 2}, from3, mux1});
+    ?LAB_CELL(22, 2, 3, {{interconnect, 2}, from3, mux2});
+    ?LAB_CELL(22, 3, 2, {{interconnect, 3}, from3, mux1});
+    ?LAB_CELL(22, 3, 3, {{interconnect, 3}, from3, mux2});
+    ?LAB_CELL(22, 4, 2, {{interconnect, 4}, from3, mux1});
+    ?LAB_CELL(22, 4, 3, {{interconnect, 4}, from3, mux2});
+    ?LAB_CELL(22, 5, 2, {{interconnect, 13}, from3, mux1});
+    ?LAB_CELL(22, 5, 3, {{interconnect, 13}, from3, mux2});
+    ?LAB_CELL(22, 6, 2, {{interconnect, 14}, from3, mux1});
+    ?LAB_CELL(22, 6, 3, {{interconnect, 14}, from3, mux2});
+    ?LAB_CELL(22, 7, 2, {{interconnect, 15}, from3, mux1});
+    ?LAB_CELL(22, 7, 3, {{interconnect, 15}, from3, mux2});
+    ?LAB_CELL(22, 8, 2, {{interconnect, 16}, from3, mux1});
+    ?LAB_CELL(22, 8, 3, {{interconnect, 16}, from3, mux2});
+    ?LAB_CELL(22, 9, 2, {{interconnect, 17}, from3, mux1});
+    ?LAB_CELL(22, 9, 3, {{interconnect, 17}, from3, mux2});
+    ?LAB_CELL(23, 0, 2, {{interconnect, 0}, from3, mux0});
+    ?LAB_CELL(23, 0, 3, {{interconnect, 0}, direct_link});
+    ?LAB_CELL(23, 1, 2, {{interconnect, 1}, from3, mux0});
+    ?LAB_CELL(23, 1, 3, {{interconnect, 1}, direct_link});
+    ?LAB_CELL(23, 2, 2, {{interconnect, 2}, from3, mux0});
+    ?LAB_CELL(23, 2, 3, {{interconnect, 2}, direct_link});
+    ?LAB_CELL(23, 3, 2, {{interconnect, 3}, from3, mux0});
+    ?LAB_CELL(23, 3, 3, {{interconnect, 3}, direct_link});
+    ?LAB_CELL(23, 4, 2, {{interconnect, 4}, from3, mux0});
+    ?LAB_CELL(23, 4, 3, {{interconnect, 4}, direct_link});
+    ?LAB_CELL(23, 5, 2, {{interconnect, 13}, from3, mux0});
+    ?LAB_CELL(23, 5, 3, {{interconnect, 13}, direct_link});
+    ?LAB_CELL(23, 6, 2, {{interconnect, 14}, from3, mux0});
+    ?LAB_CELL(23, 6, 3, {{interconnect, 14}, direct_link});
+    ?LAB_CELL(23, 7, 2, {{interconnect, 15}, from3, mux0});
+    ?LAB_CELL(23, 7, 3, {{interconnect, 15}, direct_link});
+    ?LAB_CELL(23, 8, 2, {{interconnect, 16}, from3, mux0});
+    ?LAB_CELL(23, 8, 3, {{interconnect, 16}, direct_link});
+    ?LAB_CELL(23, 9, 2, {{interconnect, 17}, from3, mux0});
+    ?LAB_CELL(23, 9, 3, {{interconnect, 17}, direct_link});
+    ?LAB_CELL(24, 0, 2, {{interconnect, 0}, from4, mux2});
+    ?LAB_CELL(24, 0, 3, {{interconnect, 0}, from4, mux3});
+    ?LAB_CELL(24, 1, 2, {{interconnect, 1}, from4, mux2});
+    ?LAB_CELL(24, 1, 3, {{interconnect, 1}, from4, mux3});
+    ?LAB_CELL(24, 2, 2, {{interconnect, 2}, from4, mux2});
+    ?LAB_CELL(24, 2, 3, {{interconnect, 2}, from4, mux3});
+    ?LAB_CELL(24, 3, 2, {{interconnect, 3}, from4, mux2});
+    ?LAB_CELL(24, 3, 3, {{interconnect, 3}, from4, mux3});
+    ?LAB_CELL(24, 4, 2, {{interconnect, 4}, from4, mux2});
+    ?LAB_CELL(24, 4, 3, {{interconnect, 4}, from4, mux3});
+    ?LAB_CELL(24, 5, 2, {{interconnect, 13}, from4, mux2});
+    ?LAB_CELL(24, 5, 3, {{interconnect, 13}, from4, mux3});
+    ?LAB_CELL(24, 6, 2, {{interconnect, 14}, from4, mux2});
+    ?LAB_CELL(24, 6, 3, {{interconnect, 14}, from4, mux3});
+    ?LAB_CELL(24, 7, 2, {{interconnect, 15}, from4, mux2});
+    ?LAB_CELL(24, 7, 3, {{interconnect, 15}, from4, mux3});
+    ?LAB_CELL(24, 8, 2, {{interconnect, 16}, from4, mux2});
+    ?LAB_CELL(24, 8, 3, {{interconnect, 16}, from4, mux3});
+    ?LAB_CELL(24, 9, 2, {{interconnect, 17}, from4, mux2});
+    ?LAB_CELL(24, 9, 3, {{interconnect, 17}, from4, mux3});
+    ?LAB_CELL(25, 0, 2, {{interconnect, 0}, from4, mux0});
+    ?LAB_CELL(25, 0, 3, {{interconnect, 0}, from4, mux1});
+    ?LAB_CELL(25, 1, 2, {{interconnect, 1}, from4, mux0});
+    ?LAB_CELL(25, 1, 3, {{interconnect, 1}, from4, mux1});
+    ?LAB_CELL(25, 2, 2, {{interconnect, 2}, from4, mux0});
+    ?LAB_CELL(25, 2, 3, {{interconnect, 2}, from4, mux1});
+    ?LAB_CELL(25, 3, 2, {{interconnect, 3}, from4, mux0});
+    ?LAB_CELL(25, 3, 3, {{interconnect, 3}, from4, mux1});
+    ?LAB_CELL(25, 4, 2, {{interconnect, 4}, from4, mux0});
+    ?LAB_CELL(25, 4, 3, {{interconnect, 4}, from4, mux1});
+    ?LAB_CELL(25, 5, 2, {{interconnect, 13}, from4, mux0});
+    ?LAB_CELL(25, 5, 3, {{interconnect, 13}, from4, mux1});
+    ?LAB_CELL(25, 6, 2, {{interconnect, 14}, from4, mux0});
+    ?LAB_CELL(25, 6, 3, {{interconnect, 14}, from4, mux1});
+    ?LAB_CELL(25, 7, 2, {{interconnect, 15}, from4, mux0});
+    ?LAB_CELL(25, 7, 3, {{interconnect, 15}, from4, mux1});
+    ?LAB_CELL(25, 8, 2, {{interconnect, 16}, from4, mux0});
+    ?LAB_CELL(25, 8, 3, {{interconnect, 16}, from4, mux1});
+    ?LAB_CELL(25, 9, 2, {{interconnect, 17}, from4, mux0});
+    ?LAB_CELL(25, 9, 3, {{interconnect, 17}, from4, mux1});
 ).
 
 -define(LAB_LINES(),
@@ -1315,6 +1515,12 @@ from_density({{ioc, X0, Y, N}, Name, Value}, With = #with{}) ->
 from_density({{lab, X0, Y}, Name}, With = #with{}) ->
     X = from_density_lab(X0, Y, With),
     from_lab(X, Y, Name, With);
+from_density({{lab, X0, Y}, Name, Value}, With = #with{}) ->
+    X = from_density_lab(X0, Y, With),
+    from_lab(X, Y, {Name, Value}, With);
+from_density({{lab, X0, Y}, Name, Key, Value}, With = #with{}) ->
+    X = from_density_lab(X0, Y, With),
+    from_lab(X, Y, {Name, Key, Value}, With);
 from_density({{lc, X0, Y, N}, Name}, With = #with{}) ->
     X = from_density_lab(X0, Y, With),
     from_lc(X, Y, N, Name, With);
@@ -2085,8 +2291,10 @@ to_ioc(X, Y, N, Name) ->
 
 %%--------------------------------------------------------------------
 
-%to_lab(X, Y, {Name, Value}) ->
-%    {ok, {{lab, X, Y}, Name, Value}};
+to_lab(X, Y, {Name, Key, Value}) ->
+    {ok, {{lab, X, Y}, Name, Key, Value}};
+to_lab(X, Y, {Name, Value}) ->
+    {ok, {{lab, X, Y}, Name, Value}};
 to_lab(X, Y, Name) ->
     {ok, {{lab, X, Y}, Name}}.
 
