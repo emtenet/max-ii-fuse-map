@@ -35,6 +35,7 @@ My experiments are being run in the following
  * Output MUX [playground](experiments/src/output_mux_playground.erl)
    and [theory](experiments/src/output_mux_theory.erl)
  * [Direct link](experiments/src/direct_link_experiment.erl) (`lut_out`)
+ * [LAB interconnect limit](experiments/src/lab_interconnect_limit_experiment.erl)
 
 ## Fuse map
 
