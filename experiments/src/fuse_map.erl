@@ -2112,7 +2112,7 @@ to_name_with(Fuse, With) ->
         {X, tail, Index, cell, Sector} ->
             to_cell_tail(X, Index, Sector, With);
 
-        {X, Y, N, I, side, Sector} ->
+        {X, Y, N, I, side, Sector} when is_integer(N) ->
             to_side(X, Y, N, I, Sector);
 
         {X, Y, line, Index, cell, Sector} ->
