@@ -125,28 +125,9 @@ iob(Density, Device, ThruLAB) ->
         (_) -> false
     end),
     %matrix:print(Matrix),
-    %lists:foreach(fun debug/1, Experiments),
     {Keys, Routes} = routes(Experiments),
     interconnects(Density, Keys, Routes, Matrix),
     ok.
-
-%%--------------------------------------------------------------------
-
-%debug({Name, Fuses, #{signals := Signals}}) ->
-%    case lists:member(9460, Fuses) of
-%        true ->
-%            io:format("~p => ~p~n", [Name, Signals]);
-%
-%        false ->
-%            ok
-%    end,
-%    case lists:member(9715, Fuses) of
-%        true ->
-%            io:format("~p => ~p~n", [Name, Signals]);
-%
-%        false ->
-%            ok
-%    end.
 
 %%--------------------------------------------------------------------
 
@@ -191,11 +172,6 @@ pin_from(Pins, FastOuts, Thru, Best, _, _) ->
 
 lcs(LAB) ->
     lab:lcs(LAB).
-    %[lab:lc(LAB, 0),
-    % lab:lc(LAB, 3),
-    % lab:lc(LAB, 6),
-    % lab:lc(LAB, 9)
-    %].
 
 %%====================================================================
 %% routes
@@ -304,31 +280,8 @@ interconnect(Density, Key, Interconnect, Subs0, Routes, Matrix) ->
         interconnect_fold_fuses(Key, Sub, Routes, Matrix, Acc)
     end, InitialFuses, Subs0),
     %
-    %io:format("~n~w~n", [Interconnect]),
-    %io:format("        ~s~n", [
-    %    lists:join(<<" ">>, [ Sub || {Sub, _} <- Subs0 ])
-    %]),
-    %[
-    %    io:format("~6b |~s| ~w~n", [
-    %        Fuse,
-    %        lists:join(<<"|">>, [
-    %            interconnect_bit(Sub, Bits)
-    %            ||
-    %            {Sub, _} <- Subs0
-    %        ]),
-    %        Name
-    %    ])
-    %    ||
-    %    {Fuse, Bits, _Location, Name} <- Fuses
-    %],
-    %
     Interconnect = interconnect_from_fuses(Fuses),
     Subs = lists:map(fun (Sub) -> interconnect_sub(Sub, Fuses) end, Subs0),
-    %[
-    %    io:format("~s: ~w ~p~n", [Sub, From, [ Bit || {_, Bit} <- Bits ]])
-    %    ||
-    %    {Sub, From, Bits} <- Subs
-    %],
     Mapping = lists:map(fun interconnect_found/1, Subs),
     lab_interconnect_mux_database:update(Density, Mapping),
     ok.
@@ -476,37 +429,6 @@ interconnect_number(_, _, _) ->
 
 %%--------------------------------------------------------------------
 
-%interconnect_number(0, hi, hi) ->  0;
-%interconnect_number(0, hi, lo) ->  6;
-%interconnect_number(0, lo, lo) ->  5;
-%interconnect_number(1, hi, hi) ->  1;
-%interconnect_number(1, hi, lo) ->  8;
-%interconnect_number(1, lo, lo) ->  7;
-%interconnect_number(2, hi, hi) ->  2;
-%interconnect_number(2, hi, lo) -> 10;
-%interconnect_number(2, lo, lo) ->  9;
-%interconnect_number(3, hi, hi) ->  3;
-%interconnect_number(3, hi, lo) -> 12;
-%interconnect_number(3, lo, lo) -> 11;
-%interconnect_number(4, hi, hi) ->  4;
-%interconnect_number(4, hi, lo) -> clk_global(s)
-%interconnect_number(5, hi, hi) -> 13;
-%interconnect_number(5, hi, lo) -> 19;
-%interconnect_number(5, lo, lo) -> 18;
-%interconnect_number(6, hi, hi) -> 14;
-%interconnect_number(6, hi, lo) -> 21;
-%interconnect_number(6, lo, lo) -> 20;
-%interconnect_number(7, hi, hi) -> 15;
-%interconnect_number(7, hi, lo) -> 23;
-%interconnect_number(7, lo, lo) -> 22;
-%interconnect_number(8, hi, hi) -> 16;
-%interconnect_number(8, hi, lo) -> 25.
-%interconnect_number(8, lo, lo) -> 24;
-%interconnect_number(9, hi, hi) -> 17;
-%interconnect_number(9, hi, lo) -> clk_global(s)
-
-%%--------------------------------------------------------------------
-
 interconnect_sub({Sub, From}, Fuses0) ->
     Fuses = lists:filtermap(
         fun (Fuse) -> interconnect_sub_fuse(Sub, Fuse) end,
@@ -576,15 +498,6 @@ is_direct_link_twin(_) ->
 
 %%--------------------------------------------------------------------
 
-%interconnect_bit(Sub, Bits) ->
-%    case Bits of
-%        #{Sub := 0} -> <<"-">>;
-%        #{Sub := 1} -> <<"#">>;
-%        _ -> <<" ">>
-%    end.
-
-%%--------------------------------------------------------------------
-
 interconnect_found({_, From, [{_, {LAB, Interconnect, direct_link}}]}) ->
     interconnect_found(LAB, Interconnect, direct_link, From);
 interconnect_found({_, From, [{_, {LAB, Interconnect, from4, Mux4}}, {_, {_, _, from3, Mux3}}]}) ->
@@ -624,10 +537,10 @@ interconnect_found(LAB, Interconnect, Select = {Mux4, Mux3}, From) ->
 
 %%--------------------------------------------------------------------
 
-interconnect_print_if(LAB, Interconnect = {interconnect, 0}, Select = {mux1, mux2}, From) ->
-    interconnect_print(LAB, Interconnect, Select, From);
-interconnect_print_if(LAB, Interconnect = {interconnect, 0}, Select = {mux3, mux1}, From) ->
-    interconnect_print(LAB, Interconnect, Select, From);
+%interconnect_print_if(LAB, Interconnect = {interconnect, 0}, Select = {mux1, mux2}, From) ->
+%    interconnect_print(LAB, Interconnect, Select, From);
+%interconnect_print_if(LAB, Interconnect = {interconnect, 0}, Select = {mux3, mux1}, From) ->
+%    interconnect_print(LAB, Interconnect, Select, From);
 %interconnect_print(LAB = {_, X, Y}, Interconnect, Select, From = {_, X, Y, 0, _}) ->
 %    io:format("{~w,~w,~w,~w}~n", [LAB, Interconnect, Select, From]);
 %interconnect_print_if(LAB, Interconnect, Select, From) ->
