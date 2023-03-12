@@ -37,6 +37,8 @@ My experiments are being run in the following
  * [Direct link](experiments/src/direct_link_experiment.erl) (`lut_out`)
  * [LAB interconnect limit](experiments/src/lab_interconnect_limit_experiment.erl)
  * [LAB interconnect mux](experiments/src/lab_interconnect_mux_experiment.erl)
+ * [IOB direct-link](experiments/src/iob_direct_link_experiment.erl)
+
 
 ## Fuse map
 
@@ -104,6 +106,14 @@ select local interconnect 7.
 For example the fuses
 `{ioc(), output4, mux3}` and `{ioc(), output3, mux2}`
 select local line 9.
+
+### `{iob(), {interconnect, #}, direct_link}`
+
+Selects a direct-link from a neighbouring LAB onto an IOB's interconnect.
+
+Only applicable for IOBs on the left and right sides.
+
+Not used at the same time as the interconnect muxes below.
 
 ### `{lc(), data_#3, mux#}` and `{lc(), data_#6, mux#}`
 

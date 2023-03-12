@@ -74,6 +74,27 @@
 -define(SHORT_SECTORS, 20).
 -define(LONG_SECTORS, (?COLUMN_SECTORS - ?SHORT_SECTORS)).
 
+-define(IOB_SIDES(),
+    ?IOB_SIDE( 8, 0, 3, {{interconnect, 0}, direct_link});
+    ?IOB_SIDE( 8, 1, 1, {{interconnect, 1}, direct_link});
+    ?IOB_SIDE( 8, 1, 3, {{interconnect, 2}, direct_link});
+    ?IOB_SIDE( 8, 2, 1, {{interconnect, 3}, direct_link});
+    ?IOB_SIDE( 8, 2, 3, {{interconnect, 4}, direct_link});
+    ?IOB_SIDE( 8, 3, 1, {{interconnect, 5}, direct_link});
+    ?IOB_SIDE( 8, 3, 3, {{interconnect, 6}, direct_link});
+    ?IOB_SIDE( 8, 4, 1, {{interconnect, 7}, direct_link});
+    ?IOB_SIDE( 8, 4, 3, {{interconnect, 8}, direct_link});
+    ?IOB_SIDE( 8, 5, 1, {{interconnect,16}, direct_link});
+    ?IOB_SIDE( 8, 5, 3, {{interconnect,17}, direct_link});
+    ?IOB_SIDE( 8, 6, 1, {{interconnect,14}, direct_link});
+    ?IOB_SIDE( 8, 6, 3, {{interconnect,15}, direct_link});
+    ?IOB_SIDE( 8, 7, 1, {{interconnect,12}, direct_link});
+    ?IOB_SIDE( 8, 7, 3, {{interconnect,13}, direct_link});
+    ?IOB_SIDE( 8, 8, 1, {{interconnect,10}, direct_link});
+    ?IOB_SIDE( 8, 8, 3, {{interconnect,11}, direct_link});
+    ?IOB_SIDE( 8, 9, 3, {{interconnect, 9}, direct_link});
+).
+
 -define(IOC_SIDES(),
     ?IOC_SIDE( 1, 1, fast_out);
     ?IOC_SIDE( 2, 0, {output3, mux1});
@@ -1496,6 +1517,22 @@ from_epm2210(Name) ->
 
 %%--------------------------------------------------------------------
 
+from_density({{iob, X0, Y}, Name}, With = #with{}) ->
+    case from_density_iob(X0, Y, With) of
+        {side, X} ->
+            from_iob_side(X, Y, Name, With);
+
+        {cell, X} ->
+            from_iob(X, Y, Name, With)
+    end;
+from_density({{iob, X0, Y}, Name, Value}, With = #with{}) ->
+    case from_density_iob(X0, Y, With) of
+        {side, X} ->
+            from_iob_side(X, Y, {Name, Value}, With);
+
+        {cell, X} ->
+            from_iob(X, Y, {Name, Value}, With)
+    end;
 from_density({{ioc, X0, Y, N}, Name}, With = #with{}) ->
     case from_density_iob(X0, Y, With) of
         {side, X} ->
@@ -1573,6 +1610,24 @@ from_density_lab(X0, Y, With = #with{}) ->
         X ->
             throw({from_density, {lab, X, Y}, With})
     end.
+
+%%--------------------------------------------------------------------
+
+-define(IOB_SIDE(Sector, N, Index, Name),
+    from_iob_side(X, Y, Name, With) ->
+        from_side(X, Sector, Y, N, Index, With)
+).
+
+?IOB_SIDES()
+from_iob_side(X, Y, Name, _With) ->
+    {error, {iob_side, X, Y, Name}}.
+
+-undef(IOB_SIDE).
+
+%%--------------------------------------------------------------------
+
+from_iob(X, Y, Name, _With) ->
+    {error, {iob, X, Y, Name}}.
 
 %%--------------------------------------------------------------------
 
@@ -2231,6 +2286,10 @@ to_cell_tail(X, Index, Sector, _With) ->
 
 %%--------------------------------------------------------------------
 
+-define(IOB_SIDE(Sector, N, Index, Name),
+    to_side(X, Y, N, Index, Sector) ->
+        to_iob(X, Y, Name)
+).
 -define(IOC_SIDE(Sector, Index, Name),
     to_side(X, Y, N, Index, Sector) when N >= 2 andalso N =< 8 ->
         to_ioc(X, Y, N - 2, Name);
@@ -2238,10 +2297,12 @@ to_cell_tail(X, Index, Sector, _With) ->
         {error, {X, Y, N, Index, side, Sector}}
 ).
 
+?IOB_SIDES()
 ?IOC_SIDES()
 to_side(X, Y, N, Index, Sector) ->
     {error, {X, Y, N, Index, side, Sector}}.
 
+-undef(IOB_SIDE).
 -undef(IOC_SIDE).
 
 %%--------------------------------------------------------------------
@@ -2281,6 +2342,13 @@ to_cell(X, Y, N, I, Sector, _With) ->
 
 -undef(LAB_CELL).
 -undef(LC_CELL).
+
+%%--------------------------------------------------------------------
+
+to_iob(X, Y, {Name, Value}) ->
+    {ok, {{iob, X, Y}, Name, Value}};
+to_iob(X, Y, Name) ->
+    {ok, {{iob, X, Y}, Name}}.
 
 %%--------------------------------------------------------------------
 

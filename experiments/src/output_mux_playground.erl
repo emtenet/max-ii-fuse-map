@@ -2,6 +2,8 @@
 
 -export([run/0]).
 
+-export([sources/3]).
+
 % This playground is the supporting detail for `output_mux_theory`.
 %
 % How are IOB local_interconnects muxed into an IOC outputs?
