@@ -367,6 +367,10 @@
     ?IOB_TAIL(21, 10, {{interconnect, 4}, from4, mux1});
 ).
 
+-define(IOC_ZEROS(),
+    ?IOC_ZERO( 0, output);
+    ?IOC_ZERO( 1, schmitt_trigger);
+).
 
 -define(IOC_SIDES(),
     ?IOC_SIDE( 1, 1, fast_out);
@@ -382,7 +386,45 @@
     ?IOC_SIDE( 6, 1, {output6, mux5});
 ).
 
+-define(IOC_LEFTS(),
+    ?IOC_LEFT(1, 9, 3, 6, input_delay);
+    ?IOC_LEFT(2, 1, 0, 0, input_delay);
+    ?IOC_LEFT(2, 1, 1, 1, input_delay);
+    ?IOC_LEFT(2, 1, 2, 2, input_delay);
+).
+
+-define(IOC_LEFT_LINES(),
+    ?IOC_LEFT_LINE( 4, 21, 3, input_delay);
+    ?IOC_LEFT_LINE( 4, 22, 4, input_delay);
+    ?IOC_LEFT_LINE( 4, 23, 5, input_delay);
+).
+
+-define(IOC_RIGHTS(),
+    ?IOC_RIGHT(3, 9, 2, 5, input_delay);
+    ?IOC_RIGHT(4, 1, 1, 0, input_delay);
+    ?IOC_RIGHT(4, 1, 2, 1, input_delay);
+    ?IOC_RIGHT(4, 1, 3, 2, input_delay);
+).
+
+-define(IOC_RIGHT_LINES(),
+    ?IOC_RIGHT_LINE( 2, 20, 3, input_delay);
+    ?IOC_RIGHT_LINE( 2, 21, 4, input_delay);
+).
+
 -define(IOC_HEADS(),
+    ?IOC_HEAD( 6, 0, 3, output);
+    ?IOC_HEAD( 7, 0, 3, schmitt_trigger);
+    ?IOC_HEAD( 8, 0, 2, output);
+    ?IOC_HEAD( 9, 0, 2, schmitt_trigger);
+    ?IOC_HEAD(15, 0, 1, output);
+    ?IOC_HEAD(16, 0, 1, schmitt_trigger);
+    ?IOC_HEAD(19, 2, 0, input_delay);
+    ?IOC_HEAD(19, 4, 1, input_delay);
+    ?IOC_HEAD(19, 6, 2, input_delay);
+    ?IOC_HEAD(19, 8, 3, input_delay);
+    ?IOC_HEAD(24, 0, 0, output);
+    ?IOC_HEAD(25, 0, 0, schmitt_trigger);
+
     ?IOC_HEAD( 6, 1, 2, {output4, mux2});
     ?IOC_HEAD( 6, 2, 2, {output4, mux3});
     ?IOC_HEAD( 6, 3, 3, {output4, mux2});
@@ -422,6 +464,19 @@
 ).
 
 -define(IOC_TAILS(),
+    ?IOC_TAIL( 6, 0, 3, output);
+    ?IOC_TAIL( 7, 0, 3, schmitt_trigger);
+    ?IOC_TAIL( 8, 0, 2, output);
+    ?IOC_TAIL( 9, 0, 2, schmitt_trigger);
+    ?IOC_TAIL(15, 0, 1, output);
+    ?IOC_TAIL(16, 0, 1, schmitt_trigger);
+    ?IOC_TAIL(19, 2, 0, input_delay);
+    ?IOC_TAIL(19, 4, 1, input_delay);
+    ?IOC_TAIL(19, 6, 2, input_delay);
+    ?IOC_TAIL(19, 8, 3, input_delay);
+    ?IOC_TAIL(24, 0, 0, output);
+    ?IOC_TAIL(25, 0, 0, schmitt_trigger);
+
     ?IOC_TAIL( 6, 1, 2, {output4, mux2});
     ?IOC_TAIL( 6, 2, 2, {output4, mux3});
     ?IOC_TAIL( 6, 3, 3, {output4, mux2});
@@ -461,9 +516,12 @@
 ).
 
 -define(IOC_STRIPS(),
+    ?IOC_STRIP(0, 2, open_drain);
     ?IOC_STRIP(1, 2, bus_hold);
     ?IOC_STRIP(2, 2, enable);
     ?IOC_STRIP(3, 2, weak_pull_up);
+    ?IOC_STRIP(4, 2, current_strength_0);
+    ?IOC_STRIP(5, 2, current_strength_1);
 ).
 
 -define(LAB_CELLS(),
@@ -1928,21 +1986,51 @@ from_iob(X, Y, Name, _With) ->
 
 %%--------------------------------------------------------------------
 
+-define(IOC_ZERO(I, Name),
+    from_ioc_side(X, Y, N, Name, With) ->
+        from_zero(X, Y, N, I, With)
+).
 -define(IOC_SIDE(Sector, Index, Name),
     from_ioc_side(X, Y, N, Name, With) ->
         from_side(X, Sector, Y, N + 2, Index, With)
+).
+-define(IOC_LEFT(Sector, U, V, N, Name),
+    from_ioc_side(X, Y, N, Name, With) when X =:= 0 ->
+        from_side(X, Sector, Y, U, V, With)
+).
+-define(IOC_LEFT_LINE(Sector, Index, N, Name),
+    from_ioc_side(X, Y, N, Name, With) when X =:= 0 ->
+        from_side_line(X, Sector, Y, Index, With)
+).
+-define(IOC_RIGHT(Sector, U, V, N, Name),
+    from_ioc_side(X, Y, N, Name, With) when X =/= 0 ->
+        from_side(X, Sector, Y, U, V, With)
+).
+-define(IOC_RIGHT_LINE(Sector, Index, N, Name),
+    from_ioc_side(X, Y, N, Name, With) when X =/= 0 ->
+        from_side_line(X, Sector, Y, Index, With)
 ).
 -define(IOC_STRIP(R, C, Name),
     from_ioc_side(X, Y, N, Name, With) ->
         from_ioc_strip(X, Y, N, R, C, With)
 ).
 
+?IOC_ZEROS()
 ?IOC_SIDES()
+?IOC_LEFTS()
+?IOC_LEFT_LINES()
+?IOC_RIGHTS()
+?IOC_RIGHT_LINES()
 ?IOC_STRIPS()
 from_ioc_side(X, Y, N, Name, _With) ->
     {error, {ioc_side, X, Y, N, Name}}.
 
+-undef(IOC_ZERO).
 -undef(IOC_SIDE).
+-undef(IOC_LEFT).
+-undef(IOC_LEFT_LINE).
+-undef(IOC_RIGHT).
+-undef(IOC_RIGHT_LINE).
 -undef(IOC_STRIP).
 
 %%--------------------------------------------------------------------
@@ -2094,6 +2182,16 @@ from_base_strip7(Base, Index, R, C, #with{strip_width = Width}) ->
 
 %%--------------------------------------------------------------------
 
+from_zero(X, Y, 0, I, With) -> from_side_line(X, 0, Y, 0 + I, With);
+from_zero(X, Y, 1, I, With) -> from_side_line(X, 0, Y, 7 + I, With);
+from_zero(X, Y, 2, I, With) -> from_side_line(X, 0, Y, 13 + I, With);
+from_zero(X, Y, 3, I, With) -> from_side_line(X, 0, Y, 20 + I, With);
+from_zero(X, Y, 4, I, With) -> from_side_line(X, 0, Y, 27 + I, With);
+from_zero(X, Y, 5, I, With) -> from_side_line(X, 0, Y, 33 + I, With);
+from_zero(X, Y, 6, I, With) -> from_side_line(X, 0, Y, 40 + I, With).
+
+%%--------------------------------------------------------------------
+
 from_side(X, Sector, Y, N, I, With) when N < 5 andalso X < 2 ->
     from_line(X, Sector, Y, (N * 4) + I, With);
 from_side(X, Sector, Y, N, I, With) when X < 2 ->
@@ -2102,6 +2200,13 @@ from_side(X, Sector, Y, N, I, With) when N < 5 ->
     from_line(X, ?SIDE_SECTORS - 1 - Sector, Y, (N * 4) + I, With);
 from_side(X, Sector, Y, N, I, With) ->
     from_line(X, ?SIDE_SECTORS - 1 - Sector, Y, 9 + (N * 4) - I, With).
+
+%%--------------------------------------------------------------------
+
+from_side_line(X, Sector, Y, I, With) when X < 2 ->
+    from_line(X, Sector, Y, I, With);
+from_side_line(X, Sector, Y, I, With) ->
+    from_line(X, ?SIDE_SECTORS - 1 - Sector, Y, I, With).
 
 %%--------------------------------------------------------------------
 
@@ -2373,6 +2478,20 @@ to_column(Type, Sector, X, Offset0, With = #with{}, Lines) ->
 
 %%--------------------------------------------------------------------
 
+to_line(side, 0, X, Y, Index) when Index < 7 ->
+    {X, Y, 0, zero, Index};
+to_line(side, 0, X, Y, Index) when Index < 13 ->
+    {X, Y, 1, zero, Index - 7};
+to_line(side, 0, X, Y, Index) when Index < 20 ->
+    {X, Y, 2, zero, Index - 13};
+to_line(side, 0, X, Y, Index) when Index < 27 ->
+    {X, Y, 3, zero, Index - 20};
+to_line(side, 0, X, Y, Index) when Index < 33 ->
+    {X, Y, 4, zero, Index - 27};
+to_line(side, 0, X, Y, Index) when Index < 40 ->
+    {X, Y, 5, zero, Index - 33};
+to_line(side, 0, X, Y, Index) ->
+    {X, Y, 6, zero, Index - 40};
 to_line(side, Sector, X, Y, Index) when Index < 20 ->
     {X, Y, Index div 4, Index rem 4, side, Sector};
 to_line(side, Sector, X, Y, Index) when Index < 26 ->
@@ -2464,7 +2583,13 @@ to_name_with(Fuse, With) ->
         {X, tail, Index, cell, Sector} ->
             to_cell_tail(X, Index, Sector, With);
 
-        {X, Y, N, I, side, Sector} when is_integer(N) ->
+        {X, Y, N, zero, I} ->
+            to_zero(X, Y, N, I);
+
+        {X, Y, line, Index, side, Sector} ->
+            to_side_line(X, Y, Index, Sector);
+
+        {X, Y, N, I, side, Sector} ->
             to_side(X, Y, N, I, Sector);
 
         {X, Y, line, Index, cell, Sector} ->
@@ -2597,9 +2722,49 @@ to_cell_tail(X, Index, Sector, _With) ->
 
 %%--------------------------------------------------------------------
 
+-define(IOC_ZERO(I, Name),
+    to_zero(X, Y, N, I) ->
+        to_ioc(X, Y, N, Name)
+).
+
+?IOC_ZEROS()
+to_zero(X, Y, N, I) ->
+    {error, {X, Y, N, zero, I}}.
+
+-undef(IOC_ZERO).
+
+%%--------------------------------------------------------------------
+
+-define(IOC_LEFT_LINE(Sector, Index, N, Name),
+    to_side_line(X, Y, Index, Sector) when X =< 1 ->
+        to_ioc(X, Y, N, Name)
+).
+-define(IOC_RIGHT_LINE(Sector, Index, N, Name),
+    to_side_line(X, Y, Index, Sector) when X > 1 ->
+        to_ioc(X, Y, N, Name)
+).
+
+?IOC_LEFT_LINES()
+?IOC_RIGHT_LINES()
+to_side_line(X, Y, Index, Sector) ->
+    {error, {X, Y, line, Index, side, Sector}}.
+
+-undef(IOC_LEFT_LINE).
+-undef(IOC_RIGHT_LINE).
+
+%%--------------------------------------------------------------------
+
 -define(IOB_SIDE(Sector, N, Index, Name),
     to_side(X, Y, N, Index, Sector) ->
         to_iob(X, Y, Name)
+).
+-define(IOC_LEFT(Sector, U, V, N, Name),
+    to_side(X, Y, U, V, Sector) when X =< 1 ->
+        to_ioc(X, Y, N, Name)
+).
+-define(IOC_RIGHT(Sector, U, V, N, Name),
+    to_side(X, Y, U, V, Sector) when X > 1 ->
+        to_ioc(X, Y, N, Name)
 ).
 -define(IOC_SIDE(Sector, Index, Name),
     to_side(X, Y, N, Index, Sector) when N >= 2 andalso N =< 8 ->
@@ -2609,11 +2774,15 @@ to_cell_tail(X, Index, Sector, _With) ->
 ).
 
 ?IOB_SIDES()
+?IOC_LEFTS()
+?IOC_RIGHTS()
 ?IOC_SIDES()
 to_side(X, Y, N, Index, Sector) ->
     {error, {X, Y, N, Index, side, Sector}}.
 
 -undef(IOB_SIDE).
+-undef(IOC_LEFT).
+-undef(IOC_RIGHT).
 -undef(IOC_SIDE).
 
 %%--------------------------------------------------------------------

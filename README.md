@@ -39,7 +39,7 @@ My experiments are being run in the following
  * [LAB interconnect mux](experiments/src/lab_interconnect_mux_experiment.erl)
  * [IOB direct-link](experiments/src/iob_direct_link_experiment.erl)
  * [IOB interconnect mux](experiments/src/iob_interconnect_mux_experiment.erl)
-
+ * [IO control](experiments/src/io_control_experiment.erl)
 
 ## Fuse map
 
@@ -79,6 +79,12 @@ The feature is enabled when the POF bit is `0`.
 
 Warning: only enable __one__ at a time.
 
+### `{ioc(), current_stremgth_0}` and `{ioc(), current_stremgth_1}`
+
+These fuses are on or off together.
+
+Both fuses witha POF bit of `0` enable __minimal__ current strength.
+
 ### `{ioc(), enable}` and `{ioc(), invert}`
 
 These are observed fuses, but the naming is a __guess__.
@@ -94,7 +100,26 @@ The `invert` may alternativly be a mux selecting alternative outputs.
 Selects output value from fast-out link of neighbouring LAB
 instead of via the output muxes.
 
-### `{ioc(), output3, mux#}`, `{ioc(), output4, mux#}`  and `{ioc(), output6, mux#}`
+### `{ioc(), input_delay}`
+
+This fuse adds a delay buffer to the input.
+
+### `{ioc(), open_drain}`
+
+This fuse enables open-drain for the output.
+
+### `{ioc(), output}` and `{ioc(), schmitt_trigger}`
+
+Although these fuses are named uniquely they operate as a pair.
+
+| `output` | `schmitt_trigger` | operation |
+|  :---:   |  :---:            | --- |
+|    1     |    1              | input |
+|    1     |    0              | input with schmitt trigger |
+|    0     |    1              |     |
+|    0     |    0              | output |
+
+### `{ioc(), output3, mux#}`, `{ioc(), output4, mux#}` and `{ioc(), output6, mux#}`
 
 The IOC outputs are selected from local interconnects
 via two dimentional muxes.
