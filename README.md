@@ -79,7 +79,7 @@ The feature is enabled when the POF bit is `0`.
 
 Warning: only enable __one__ at a time.
 
-### `{ioc(), current_stremgth_0}` and `{ioc(), current_stremgth_1}`
+### `{ioc(), current_strength_0}` and `{ioc(), current_strength_1}`
 
 These fuses are on or off together.
 
