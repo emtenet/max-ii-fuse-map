@@ -248,6 +248,9 @@ decode_signal(<<"IO_DATAIN:", Line/binary>>) ->
 decode_signal(<<"IO_DATAOUT:", Line/binary>>) ->
     {X, Y, S, I} = decode_coord(Line),
     {push, {io_data_out, X, Y, S, I}};
+decode_signal(<<"IO_OE_PIN:", Line/binary>>) ->
+    {X, Y, S, I} = decode_coord(Line),
+    {push, {io_oe, X, Y, S, I}};
 decode_signal(<<"LAB_CLK:", Line/binary>>) ->
     {X, Y, S, I} = decode_coord(Line),
     {push, {lab_clk, X, Y, S, I}};
@@ -289,6 +292,8 @@ decode_dest(Name, <<"DATAD ), route_port = ", Line/binary>>) ->
     decode_dest_route(Name, data_d, Line);
 decode_dest(Name, <<"DATAIN )", Line/binary>>) ->
     decode_dest_ioc(Name, data_in, Line);
+decode_dest(Name, <<"OE )", Line/binary>>) ->
+    decode_dest_ioc(Name, oe, Line);
 decode_dest(Name, <<"SCLR )", Line/binary>>) ->
     decode_dest_lc(Name, s_clr, Line);
 decode_dest(Name, <<"SLOAD )", Line/binary>>) ->
