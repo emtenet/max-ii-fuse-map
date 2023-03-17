@@ -1,6 +1,8 @@
 -module(setting).
 
 -export([encode/1]).
+-export([io_standards/0]).
+-export([io_standard_output/1]).
 
 -export_type([setting/0]).
 
@@ -20,6 +22,8 @@
     {global_clock, signal(), boolean()} |
     {io_standard, signal(), io_standard()} |
     {weak_pull_up, signal(), boolean()} |
+    {input_delay, signal(), boolean()} |
+    {input_delay, signal(), signal(), boolean()} |
     % location
     {location, signal(), lc_or_pin()} |
     %
@@ -101,6 +105,10 @@ setting({io_standard, Signal, Value}) ->
     instance(<<"IO_STANDARD">>, Signal, io_standard(Value));
 setting({weak_pull_up, Signal, Value}) ->
     instance(<<"WEAK_PULL_UP_RESISTOR">>, Signal, boolean(Value));
+setting({input_delay, From, To, Delay}) ->
+    instance(<<"PAD_TO_CORE_DELAY">>, From, To, delay(Delay));
+setting({input_delay, From, Delay}) ->
+    instance(<<"PAD_TO_CORE_DELAY">>, From, <<"*">>, delay(Delay));
 setting({location, Signal, Value}) ->
     location(Signal, lc_or_pin(Value));
 setting({raw, Line}) ->
@@ -130,6 +138,19 @@ instance(Name, Signal0, Value) ->
 
 %%--------------------------------------------------------------------
 
+instance(Name, From0, To0, Value) ->
+    From = signal(From0),
+    To = signal(To0),
+    <<"set_instance_assignment"
+      " -name ", Name/binary,
+      " -from ", From/binary,
+      " -to ", To/binary,
+      " ", Value/binary,
+      "\n"
+    >>.
+
+%%--------------------------------------------------------------------
+
 location(Signal0, Value) ->
     Signal = signal(Signal0),
     <<"set_location_assignment"
@@ -137,6 +158,26 @@ location(Signal0, Value) ->
       " ", Value/binary,
       "\n"
     >>.
+
+%%====================================================================
+%% io_standards
+%%====================================================================
+
+io_standards() ->
+    [v1_5,
+     v1_8,
+     v2_5,
+     v2_5_schmitt_trigger,
+     v3_3_cmos,
+     v3_3_ttl,
+     v3_3_schmitt_trigger
+    ].
+
+%%--------------------------------------------------------------------
+
+io_standard_output(v2_5_schmitt_trigger) -> v2_5;
+io_standard_output(v3_3_schmitt_trigger) -> v3_3_ttl;
+io_standard_output(Standard) -> Standard.
 
 %%====================================================================
 %% values
@@ -153,6 +194,13 @@ current_strength(minimum) ->
     <<"\"Minimum current\"">>;
 current_strength(maximum) ->
     <<"\"Maximum current\"">>.
+
+%%--------------------------------------------------------------------
+
+delay(true) ->
+    <<"1">>;
+delay(false) ->
+    <<"0">>.
 
 %%--------------------------------------------------------------------
 
