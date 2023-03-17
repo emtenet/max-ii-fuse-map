@@ -38,6 +38,7 @@ My experiments are being run in the following
  * [LAB interconnect limit](experiments/src/lab_interconnect_limit_experiment.erl)
  * [LAB interconnect mux](experiments/src/lab_interconnect_mux_experiment.erl)
  * [IOB direct-link](experiments/src/iob_direct_link_experiment.erl)
+ * [IOB interconnect mux](experiments/src/iob_interconnect_mux_experiment.erl)
 
 
 ## Fuse map
@@ -53,10 +54,13 @@ The following mux mappings are encoded:
  * [data mux](experiments/src/data_mux_map.erl)
  * [output mux](experiments/src/output_mux_map.erl)
 
-## LAB interconnect mux
+## IOB/LAB interconnect mux
 
-A database of LAB interconnect mux mappings has been collected and som
-[mapping tables printed](experiments/src/lab_interconnect_mux_database.erl)
+A database of IOB & LAB interconnect mux mappings has been collected
+and some mapping tables printed:
+
+ * [IOB interconnect](experiments/src/iob_interconnect_mux_database.erl)
+ * [LAB interconnect](experiments/src/lab_interconnect_mux_database.erl)
 
 ## Fuses
 
