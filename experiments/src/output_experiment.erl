@@ -66,7 +66,7 @@ invert(Density) ->
         {Fuse, {output, IOC, as, 1}} <- Zeros
     ]),
     fuse_database:update(Density, [
-        {Fuse, {IOC, invert}}
+        {Fuse, {IOC, output_invert}}
         ||
         {Fuse, {output, IOC, as, 1}} <- Ones
     ]).

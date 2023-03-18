@@ -63,7 +63,7 @@ run() ->
     Matrix0 = matrix:build_with_map(?DENSITY, Experiments),
     Matrix1 = matrix:remove_fuses(Matrix0, fun
         ({_, enable}) -> true;
-        ({_, invert}) -> true;
+        ({_, output_invert}) -> true;
         ({_, local_line}) -> true;
         ({_, lut, _}) -> true;
         (_) -> false

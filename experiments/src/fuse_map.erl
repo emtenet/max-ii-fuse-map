@@ -302,7 +302,8 @@
 -define(IOC_SIDES(),
     ?IOC_SIDE( 1, 1, fast_out);
     ?IOC_SIDE( 2, 0, {output3, mux1});
-    ?IOC_SIDE( 2, 1, invert);
+    ?IOC_SIDE( 2, 1, output_invert);
+    ?IOC_SIDE( 2, 2, enable_invert);
     ?IOC_SIDE( 3, 0, {output3, mux0});
     ?IOC_SIDE( 3, 1, {output3, mux2});
     ?IOC_SIDE( 4, 0, {output6, mux0});
@@ -356,17 +357,21 @@
     ?IOC_HEAD( 8, 4, 3, {output3, mux2});
     ?IOC_HEAD( 9, 0, 2, schmitt_trigger);
     ?IOC_HEAD( 9, 1, 2, {output3, mux1});
-    ?IOC_HEAD( 9, 2, 2, invert);
+    ?IOC_HEAD( 9, 2, 2, output_invert);
     ?IOC_HEAD( 9, 3, 3, {output3, mux1});
-    ?IOC_HEAD( 9, 4, 3, invert);
+    ?IOC_HEAD( 9, 4, 3, output_invert);
+    ?IOC_HEAD( 9, 6, 2, enable_invert);
+    ?IOC_HEAD( 9, 8, 3, enable_invert);
     ?IOC_HEAD(10, 2, 2, fast_out);
     ?IOC_HEAD(10, 4, 3, fast_out);
     ?IOC_HEAD(12, 2, 0, fast_out);
     ?IOC_HEAD(12, 4, 1, fast_out);
     ?IOC_HEAD(13, 1, 0, {output3, mux1});
-    ?IOC_HEAD(13, 2, 0, invert);
+    ?IOC_HEAD(13, 2, 0, output_invert);
     ?IOC_HEAD(13, 3, 1, {output3, mux1});
-    ?IOC_HEAD(13, 4, 1, invert);
+    ?IOC_HEAD(13, 4, 1, output_invert);
+    ?IOC_HEAD(13, 6, 0, enable_invert);
+    ?IOC_HEAD(13, 8, 1, enable_invert);
     ?IOC_HEAD(15, 0, 1, output);
     ?IOC_HEAD(15, 1, 0, {output3, mux0});
     ?IOC_HEAD(15, 2, 0, {output3, mux2});

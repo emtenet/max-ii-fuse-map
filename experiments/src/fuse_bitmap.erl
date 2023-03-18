@@ -57,7 +57,7 @@ fuse(Fuse, Database) ->
         Name when is_integer(Name) -> $.;
         {_IOC, bus_hold} -> $B;
         {_IOC, enable} -> $E;
-        {_IOC, invert} -> $I;
+        {_IOC, output_invert} -> $I;
         {_IOC, weak_pull_up} -> $W;
         {_LAB, clk1_global0} -> $k;
         {_LAB, clk1_global1} -> $k;

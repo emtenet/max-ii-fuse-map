@@ -51,7 +51,7 @@ ioc(Density, Device, Out = {_, IOC}) ->
     Matrix0 = matrix:build_with_map(Density, Experiments),
     Matrix = matrix:remove_fuses(Matrix0, fun
         ({_, enable}) -> true;
-        ({_, invert}) -> true;
+        ({_, output_invert}) -> true;
         ({_, fast_out}) -> true;
         ({_, lut_out, _}) -> true;
         ({_, output3, _}) -> true;

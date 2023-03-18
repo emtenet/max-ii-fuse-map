@@ -89,7 +89,7 @@ iob(Density, Device, Pins, ThruLAB, Left, Right) ->
     Matrix0 = matrix:build_with_map(Density, Experiments),
     Matrix = matrix:remove_fuses(Matrix0, fun
         ({_, enable}) -> true;
-        ({_, invert}) -> true;
+        ({_, output_invert}) -> true;
         ({_, fast_out}) -> true;
         ({_, data_a6, _}) -> true;
         ({_, data_a3, _}) -> true;

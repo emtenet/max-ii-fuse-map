@@ -41,6 +41,7 @@ My experiments are being run in the following
  * [IOB interconnect mux](experiments/src/iob_interconnect_mux_experiment.erl)
  * [IO control](experiments/src/io_control_experiment.erl)
  * [OE mux](experiments/src/output_enable_mux_playground.erl)
+ * [OE invert](experiments/src/output_enable_invert_experiment.erl)
 
 ## Fuse map
 
@@ -86,15 +87,15 @@ These fuses are on or off together.
 
 Both fuses witha POF bit of `0` enable __minimal__ current strength.
 
-### `{ioc(), enable}` and `{ioc(), invert}`
+### `{ioc(), enable}`
 
-These are observed fuses, but the naming is a __guess__.
+This fuse is used when the IOC is an input or output, but not when unused.
 
-The `enable` fuse was observed in the `output_experiment` but
-since all unused pins are outputs by default, the fuse is more likely
-to be an __enable__ rather than __direction__.
+### `{ioc(), enable_invert}`
 
-The `invert` may alternativly be a mux selecting alternative outputs.
+This fuse inverts the output-enable signal.
+
+NOTE: This fuse is also used when the IOC is an input.
 
 ### `{ioc(), fast_out}`
 
@@ -136,6 +137,14 @@ select local interconnect 7.
 For example the fuses
 `{ioc(), output4, mux3}` and `{ioc(), output3, mux2}`
 select local line 9.
+
+### `{ioc(), output_invert}`
+
+This fuse inverts the output.
+
+NOTE: This fuse is also used when the IOC is an input.
+
+NOTE: This fuse is also used when the IOC is unused and driven to ground.
 
 ### `{iob(), {interconnect, #}, direct_link}`
 
