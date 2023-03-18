@@ -294,79 +294,6 @@
     ?IOB_HEAD(21, 10, {{interconnect, 4}, from4, mux1});
 ).
 
--define(IOB_TAILS(),
-    ?IOB_TAIL( 2,  1, {{interconnect, 5}, from4, mux0});
-    ?IOB_TAIL( 2,  2, {{interconnect, 5}, from4, mux1});
-    ?IOB_TAIL( 2,  3, {{interconnect, 6}, from4, mux0});
-    ?IOB_TAIL( 2,  4, {{interconnect, 6}, from4, mux1});
-    ?IOB_TAIL( 2,  5, {{interconnect, 7}, from4, mux0});
-    ?IOB_TAIL( 2,  6, {{interconnect, 7}, from4, mux1});
-    ?IOB_TAIL( 2,  7, {{interconnect, 8}, from4, mux0});
-    ?IOB_TAIL( 2,  8, {{interconnect, 8}, from4, mux1});
-    ?IOB_TAIL( 2,  9, {{interconnect, 9}, from4, mux0});
-    ?IOB_TAIL( 2, 10, {{interconnect, 9}, from4, mux1});
-    ?IOB_TAIL( 3,  1, {{interconnect, 5}, from4, mux2});
-    ?IOB_TAIL( 3,  2, {{interconnect, 5}, from4, mux3});
-    ?IOB_TAIL( 3,  3, {{interconnect, 6}, from4, mux2});
-    ?IOB_TAIL( 3,  4, {{interconnect, 6}, from4, mux3});
-    ?IOB_TAIL( 3,  5, {{interconnect, 7}, from4, mux2});
-    ?IOB_TAIL( 3,  6, {{interconnect, 7}, from4, mux3});
-    ?IOB_TAIL( 3,  7, {{interconnect, 8}, from4, mux2});
-    ?IOB_TAIL( 3,  8, {{interconnect, 8}, from4, mux3});
-    ?IOB_TAIL( 3,  9, {{interconnect, 9}, from4, mux2});
-    ?IOB_TAIL( 3, 10, {{interconnect, 9}, from4, mux3});
-    ?IOB_TAIL( 4,  1, {{interconnect, 5}, from3, mux0});
-    ?IOB_TAIL( 4,  3, {{interconnect, 6}, from3, mux0});
-    ?IOB_TAIL( 4,  5, {{interconnect, 7}, from3, mux0});
-    ?IOB_TAIL( 4,  7, {{interconnect, 8}, from3, mux0});
-    ?IOB_TAIL( 4,  9, {{interconnect, 9}, from3, mux0});
-    ?IOB_TAIL( 5,  1, {{interconnect, 5}, from3, mux1});
-    ?IOB_TAIL( 5,  2, {{interconnect, 5}, from3, mux2});
-    ?IOB_TAIL( 5,  3, {{interconnect, 6}, from3, mux1});
-    ?IOB_TAIL( 5,  4, {{interconnect, 6}, from3, mux2});
-    ?IOB_TAIL( 5,  5, {{interconnect, 7}, from3, mux1});
-    ?IOB_TAIL( 5,  6, {{interconnect, 7}, from3, mux2});
-    ?IOB_TAIL( 5,  7, {{interconnect, 8}, from3, mux1});
-    ?IOB_TAIL( 5,  8, {{interconnect, 8}, from3, mux2});
-    ?IOB_TAIL( 5,  9, {{interconnect, 9}, from3, mux1});
-    ?IOB_TAIL( 5, 10, {{interconnect, 9}, from3, mux2});
-    ?IOB_TAIL(18,  1, {{interconnect, 0}, from3, mux1});
-    ?IOB_TAIL(18,  2, {{interconnect, 0}, from3, mux2});
-    ?IOB_TAIL(18,  3, {{interconnect, 1}, from3, mux1});
-    ?IOB_TAIL(18,  4, {{interconnect, 1}, from3, mux2});
-    ?IOB_TAIL(18,  5, {{interconnect, 2}, from3, mux1});
-    ?IOB_TAIL(18,  6, {{interconnect, 2}, from3, mux2});
-    ?IOB_TAIL(18,  7, {{interconnect, 3}, from3, mux1});
-    ?IOB_TAIL(18,  8, {{interconnect, 3}, from3, mux2});
-    ?IOB_TAIL(18,  9, {{interconnect, 4}, from3, mux1});
-    ?IOB_TAIL(18, 10, {{interconnect, 4}, from3, mux2});
-    ?IOB_TAIL(19,  1, {{interconnect, 0}, from3, mux0});
-    ?IOB_TAIL(19,  3, {{interconnect, 1}, from3, mux0});
-    ?IOB_TAIL(19,  5, {{interconnect, 2}, from3, mux0});
-    ?IOB_TAIL(19,  7, {{interconnect, 3}, from3, mux0});
-    ?IOB_TAIL(19,  9, {{interconnect, 4}, from3, mux0});
-    ?IOB_TAIL(20,  1, {{interconnect, 0}, from4, mux2});
-    ?IOB_TAIL(20,  2, {{interconnect, 0}, from4, mux3});
-    ?IOB_TAIL(20,  3, {{interconnect, 1}, from4, mux2});
-    ?IOB_TAIL(20,  4, {{interconnect, 1}, from4, mux3});
-    ?IOB_TAIL(20,  5, {{interconnect, 2}, from4, mux2});
-    ?IOB_TAIL(20,  6, {{interconnect, 2}, from4, mux3});
-    ?IOB_TAIL(20,  7, {{interconnect, 3}, from4, mux2});
-    ?IOB_TAIL(20,  8, {{interconnect, 3}, from4, mux3});
-    ?IOB_TAIL(20,  9, {{interconnect, 4}, from4, mux2});
-    ?IOB_TAIL(20, 10, {{interconnect, 4}, from4, mux3});
-    ?IOB_TAIL(21,  1, {{interconnect, 0}, from4, mux0});
-    ?IOB_TAIL(21,  2, {{interconnect, 0}, from4, mux1});
-    ?IOB_TAIL(21,  3, {{interconnect, 1}, from4, mux0});
-    ?IOB_TAIL(21,  4, {{interconnect, 1}, from4, mux1});
-    ?IOB_TAIL(21,  5, {{interconnect, 2}, from4, mux0});
-    ?IOB_TAIL(21,  6, {{interconnect, 2}, from4, mux1});
-    ?IOB_TAIL(21,  7, {{interconnect, 3}, from4, mux0});
-    ?IOB_TAIL(21,  8, {{interconnect, 3}, from4, mux1});
-    ?IOB_TAIL(21,  9, {{interconnect, 4}, from4, mux0});
-    ?IOB_TAIL(21, 10, {{interconnect, 4}, from4, mux1});
-).
-
 -define(IOC_ZEROS(),
     ?IOC_ZERO( 0, output);
     ?IOC_ZERO( 1, schmitt_trigger);
@@ -413,30 +340,21 @@
 
 -define(IOC_HEADS(),
     ?IOC_HEAD( 6, 0, 3, output);
-    ?IOC_HEAD( 7, 0, 3, schmitt_trigger);
-    ?IOC_HEAD( 8, 0, 2, output);
-    ?IOC_HEAD( 9, 0, 2, schmitt_trigger);
-    ?IOC_HEAD(15, 0, 1, output);
-    ?IOC_HEAD(16, 0, 1, schmitt_trigger);
-    ?IOC_HEAD(19, 2, 0, input_delay);
-    ?IOC_HEAD(19, 4, 1, input_delay);
-    ?IOC_HEAD(19, 6, 2, input_delay);
-    ?IOC_HEAD(19, 8, 3, input_delay);
-    ?IOC_HEAD(24, 0, 0, output);
-    ?IOC_HEAD(25, 0, 0, schmitt_trigger);
-
     ?IOC_HEAD( 6, 1, 2, {output4, mux2});
     ?IOC_HEAD( 6, 2, 2, {output4, mux3});
     ?IOC_HEAD( 6, 3, 3, {output4, mux2});
     ?IOC_HEAD( 6, 4, 3, {output4, mux3});
+    ?IOC_HEAD( 7, 0, 3, schmitt_trigger);
     ?IOC_HEAD( 7, 1, 2, {output4, mux0});
     ?IOC_HEAD( 7, 2, 2, {output4, mux1});
     ?IOC_HEAD( 7, 3, 3, {output4, mux0});
     ?IOC_HEAD( 7, 4, 3, {output4, mux1});
+    ?IOC_HEAD( 8, 0, 2, output);
     ?IOC_HEAD( 8, 1, 2, {output3, mux0});
     ?IOC_HEAD( 8, 2, 2, {output3, mux2});
     ?IOC_HEAD( 8, 3, 3, {output3, mux0});
     ?IOC_HEAD( 8, 4, 3, {output3, mux2});
+    ?IOC_HEAD( 9, 0, 2, schmitt_trigger);
     ?IOC_HEAD( 9, 1, 2, {output3, mux1});
     ?IOC_HEAD( 9, 2, 2, invert);
     ?IOC_HEAD( 9, 3, 3, {output3, mux1});
@@ -449,10 +367,12 @@
     ?IOC_HEAD(13, 2, 0, invert);
     ?IOC_HEAD(13, 3, 1, {output3, mux1});
     ?IOC_HEAD(13, 4, 1, invert);
+    ?IOC_HEAD(15, 0, 1, output);
     ?IOC_HEAD(15, 1, 0, {output3, mux0});
     ?IOC_HEAD(15, 2, 0, {output3, mux2});
     ?IOC_HEAD(15, 3, 1, {output3, mux0});
     ?IOC_HEAD(15, 4, 1, {output3, mux2});
+    ?IOC_HEAD(16, 0, 1, schmitt_trigger);
     ?IOC_HEAD(16, 1, 0, {output4, mux0});
     ?IOC_HEAD(16, 2, 0, {output4, mux1});
     ?IOC_HEAD(16, 3, 1, {output4, mux0});
@@ -461,58 +381,12 @@
     ?IOC_HEAD(17, 2, 0, {output4, mux3});
     ?IOC_HEAD(17, 3, 1, {output4, mux2});
     ?IOC_HEAD(17, 4, 1, {output4, mux3});
-).
-
--define(IOC_TAILS(),
-    ?IOC_TAIL( 6, 0, 3, output);
-    ?IOC_TAIL( 7, 0, 3, schmitt_trigger);
-    ?IOC_TAIL( 8, 0, 2, output);
-    ?IOC_TAIL( 9, 0, 2, schmitt_trigger);
-    ?IOC_TAIL(15, 0, 1, output);
-    ?IOC_TAIL(16, 0, 1, schmitt_trigger);
-    ?IOC_TAIL(19, 2, 0, input_delay);
-    ?IOC_TAIL(19, 4, 1, input_delay);
-    ?IOC_TAIL(19, 6, 2, input_delay);
-    ?IOC_TAIL(19, 8, 3, input_delay);
-    ?IOC_TAIL(24, 0, 0, output);
-    ?IOC_TAIL(25, 0, 0, schmitt_trigger);
-
-    ?IOC_TAIL( 6, 1, 2, {output4, mux2});
-    ?IOC_TAIL( 6, 2, 2, {output4, mux3});
-    ?IOC_TAIL( 6, 3, 3, {output4, mux2});
-    ?IOC_TAIL( 6, 4, 3, {output4, mux3});
-    ?IOC_TAIL( 7, 1, 2, {output4, mux0});
-    ?IOC_TAIL( 7, 2, 2, {output4, mux1});
-    ?IOC_TAIL( 7, 3, 3, {output4, mux0});
-    ?IOC_TAIL( 7, 4, 3, {output4, mux1});
-    ?IOC_TAIL( 8, 1, 2, {output3, mux0});
-    ?IOC_TAIL( 8, 2, 2, {output3, mux2});
-    ?IOC_TAIL( 8, 3, 3, {output3, mux0});
-    ?IOC_TAIL( 8, 4, 3, {output3, mux2});
-    ?IOC_TAIL( 9, 1, 2, {output3, mux1});
-    ?IOC_TAIL( 9, 2, 2, invert);
-    ?IOC_TAIL( 9, 3, 3, {output3, mux1});
-    ?IOC_TAIL( 9, 4, 3, invert);
-    ?IOC_TAIL(10, 2, 2, fast_out);
-    ?IOC_TAIL(10, 4, 3, fast_out);
-    ?IOC_TAIL(12, 2, 0, fast_out);
-    ?IOC_TAIL(12, 4, 1, fast_out);
-    ?IOC_TAIL(13, 1, 0, {output3, mux1});
-    ?IOC_TAIL(13, 2, 0, invert);
-    ?IOC_TAIL(13, 3, 1, {output3, mux1});
-    ?IOC_TAIL(13, 4, 1, invert);
-    ?IOC_TAIL(15, 1, 0, {output3, mux0});
-    ?IOC_TAIL(15, 2, 0, {output3, mux2});
-    ?IOC_TAIL(15, 3, 1, {output3, mux0});
-    ?IOC_TAIL(15, 4, 1, {output3, mux2});
-    ?IOC_TAIL(16, 1, 0, {output4, mux0});
-    ?IOC_TAIL(16, 2, 0, {output4, mux1});
-    ?IOC_TAIL(16, 3, 1, {output4, mux0});
-    ?IOC_TAIL(16, 4, 1, {output4, mux1});
-    ?IOC_TAIL(17, 1, 0, {output4, mux2});
-    ?IOC_TAIL(17, 2, 0, {output4, mux3});
-    ?IOC_TAIL(17, 3, 1, {output4, mux2});
-    ?IOC_TAIL(17, 4, 1, {output4, mux3});
+    ?IOC_HEAD(19, 2, 0, input_delay);
+    ?IOC_HEAD(19, 4, 1, input_delay);
+    ?IOC_HEAD(19, 6, 2, input_delay);
+    ?IOC_HEAD(19, 8, 3, input_delay);
+    ?IOC_HEAD(24, 0, 0, output);
+    ?IOC_HEAD(25, 0, 0, schmitt_trigger);
 ).
 
 -define(IOC_STRIPS(),
@@ -1967,9 +1841,7 @@ from_iob_side(X, Y, Name, _With) ->
 
 -define(IOB_HEAD(Sector, Index, Name),
     from_iob(X, Y, Name, With = #with{top_y = Y}) ->
-        from_head(X, Sector, Index, With)
-).
--define(IOB_TAIL(Sector, Index, Name),
+        from_head(X, Sector, Index, With);
     from_iob(X, 3, Name, With) when X < With#with.grow_x ->
         from_tail(X, Sector, Index, With, With#with.short_y);
     from_iob(X, 0, Name, With) when X > With#with.grow_x ->
@@ -1977,12 +1849,10 @@ from_iob_side(X, Y, Name, _With) ->
 ).
 
 ?IOB_HEADS()
-?IOB_TAILS()
 from_iob(X, Y, Name, _With) ->
     {error, {iob, X, Y, Name}}.
 
 -undef(IOB_HEAD).
--undef(IOB_TAIL).
 
 %%--------------------------------------------------------------------
 
@@ -2037,9 +1907,7 @@ from_ioc_side(X, Y, N, Name, _With) ->
 
 -define(IOC_HEAD(Sector, Index, N, Name),
     from_ioc(X, Y, N, Name, With = #with{top_y = Y}) ->
-        from_head(X, Sector, Index, With)
-).
--define(IOC_TAIL(Sector, Index, N, Name),
+        from_head(X, Sector, Index, With);
     from_ioc(X, 3, N, Name, With) when X < With#with.grow_x ->
         from_tail(X, Sector, Index, With, With#with.short_y);
     from_ioc(X, 0, N, Name, With) when X > With#with.grow_x ->
@@ -2051,13 +1919,11 @@ from_ioc_side(X, Y, N, Name, _With) ->
 ).
 
 ?IOC_HEADS()
-?IOC_TAILS()
 ?IOC_STRIPS()
 from_ioc(X, Y, N, Name, _With) ->
     {error, {ioc, X, Y, N, Name}}.
 
 -undef(IOC_HEAD).
--undef(IOC_TAIL).
 -undef(IOC_STRIP).
 
 %%--------------------------------------------------------------------
@@ -2699,26 +2565,26 @@ to_cell_head(X, Index, Sector, _With) ->
 
 %%--------------------------------------------------------------------
 
--define(IOB_TAIL(Sector, Index, Name),
+-define(IOB_HEAD(Sector, Index, Name),
     to_cell_tail(X, Index, Sector, With) when X < With#with.grow_x ->
         to_iob(X, 3, Name);
     to_cell_tail(X, Index, Sector, With) when X > With#with.grow_x ->
         to_iob(X, 0, Name)
 ).
--define(IOC_TAIL(Sector, Index, N, Name),
+-define(IOC_HEAD(Sector, Index, N, Name),
     to_cell_tail(X, Index, Sector, With) when X < With#with.grow_x ->
         to_ioc(X, 3, N, Name);
     to_cell_tail(X, Index, Sector, With) when X > With#with.grow_x ->
         to_ioc(X, 0, N, Name)
 ).
 
-?IOB_TAILS()
-?IOC_TAILS()
+?IOB_HEADS()
+?IOC_HEADS()
 to_cell_tail(X, Index, Sector, _With) ->
     {error, {X, tail, Index, cell, Sector}}.
 
--undef(IOB_TAIL).
--undef(IOC_TAIL).
+-undef(IOB_HEAD).
+-undef(IOC_HEAD).
 
 %%--------------------------------------------------------------------
 
