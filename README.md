@@ -40,6 +40,7 @@ My experiments are being run in the following
  * [IOB direct-link](experiments/src/iob_direct_link_experiment.erl)
  * [IOB interconnect mux](experiments/src/iob_interconnect_mux_experiment.erl)
  * [IO control](experiments/src/io_control_experiment.erl)
+ * [OE mux](experiments/src/output_enable_mux_playground.erl)
 
 ## Fuse map
 
