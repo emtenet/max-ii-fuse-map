@@ -40,8 +40,9 @@ My experiments are being run in the following
  * [IOB direct-link](experiments/src/iob_direct_link_experiment.erl)
  * [IOB interconnect mux](experiments/src/iob_interconnect_mux_experiment.erl)
  * [IO control](experiments/src/io_control_experiment.erl)
- * [OE mux](experiments/src/output_enable_mux_playground.erl)
+ * [OE mux](experiments/src/output_enable_mux_playground.erl) playground
  * [OE invert](experiments/src/output_enable_invert_experiment.erl)
+ * [OE mux](experiments/src/output_enable_mux_theory.erl) theory
 
 ## Fuse map
 
@@ -90,6 +91,12 @@ Both fuses witha POF bit of `0` enable __minimal__ current strength.
 ### `{ioc(), enable}`
 
 This fuse is used when the IOC is an input or output, but not when unused.
+
+### `{ioc(), enable3, mux#}`, `{ioc(), enable4, mux#}` and `{ioc(), enable6, mux#}`
+
+The IOC output enables are selected from local interconnects.
+
+See `{ioc(), output#, mux#}` for details.
 
 ### `{ioc(), enable_invert}`
 
