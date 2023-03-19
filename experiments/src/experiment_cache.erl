@@ -93,10 +93,12 @@ iterate({cache, Inners, Outer, Outers}) ->
 iterate([], _, []) ->
     io:format("                           \r", []),
     false;
-iterate([], _, [Outer | Outers]) ->
+iterate([], _, [Outer = [_, _] | Outers]) ->
     {ok, Inners} = file:list_dir(filename:join("cache", Outer)),
     io:format("cache ~s\r", [Outer]),
     iterate(Inners, Outer, Outers);
+iterate([], Outer, [_ | Outers]) ->
+    iterate([], Outer, Outers);
 iterate([Inner | Inners], Outer, Outers) ->
     Next = {cache, Inners, Outer, Outers},
     Dir = filename:join(["cache", Outer, Inner]),
