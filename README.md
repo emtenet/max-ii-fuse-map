@@ -43,6 +43,8 @@ My experiments are being run in the following
  * [OE mux](experiments/src/output_enable_mux_playground.erl) playground
  * [OE invert](experiments/src/output_enable_invert_experiment.erl)
  * [OE mux](experiments/src/output_enable_mux_theory.erl) theory
+ * [C4 fuses](experiments/src/c4_fuses_database.erl) database
+ * [R4 fuses](experiments/src/r4_fuses_database.erl) database
 
 ## Fuse map
 
