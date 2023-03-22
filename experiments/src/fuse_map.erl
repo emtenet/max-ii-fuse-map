@@ -29,7 +29,8 @@
     {x(), head, index(), type(), sector()} |
     {x(), tail, index(), type(), sector()} |
     {x(), y(), line, index(), type(), sector()} |
-    {x(), y(), n(), i(), type(), sector()}.
+    {x(), y(), n(), i(), type(), sector()} |
+    {user_code, 0..31}.
 -type row() :: non_neg_integer().
 -type col() :: non_neg_integer().
 -type side() :: left | top | right | bottom.
@@ -2218,13 +2219,61 @@ from_sector(X, Sector, Offset, _With) ->
 -spec to_location(fuse(), density()) -> location().
 
 to_location(Fuse, epm240) ->
-    to_density(Fuse, epm240());
+    to_epm240(Fuse, epm240());
 to_location(Fuse, epm570) ->
-    to_density(Fuse, epm570());
+    to_epm570(Fuse, epm570());
 to_location(Fuse, epm1270) ->
-    to_density(Fuse, epm1270());
+    to_epm1270(Fuse, epm1270());
 to_location(Fuse, epm2210) ->
-    to_density(Fuse, epm2210()).
+    to_epm2210(Fuse, epm2210()).
+
+%%--------------------------------------------------------------------
+
+-define(USER_CODE(Bit, Fuse),
+    to_epm240(Fuse, _) -> {user_code, Bit}
+).
+
+?EPM240_USER_CODES()
+to_epm240(Fuse, With) ->
+    to_density(Fuse, With).
+
+-undef(USER_CODE).
+
+%%--------------------------------------------------------------------
+
+-define(USER_CODE(Bit, Fuse),
+    to_epm570(Fuse, _) -> {user_code, Bit}
+).
+
+?EPM570_USER_CODES()
+to_epm570(Fuse, With) ->
+    to_density(Fuse, With).
+
+-undef(USER_CODE).
+
+%%--------------------------------------------------------------------
+
+-define(USER_CODE(Bit, Fuse),
+    to_epm1270(Fuse, _) -> {user_code, Bit}
+).
+
+?EPM1270_USER_CODES()
+to_epm1270(Fuse, With) ->
+    to_density(Fuse, With).
+
+-undef(USER_CODE).
+
+%%--------------------------------------------------------------------
+
+-define(USER_CODE(Bit, Fuse),
+    to_epm2210(Fuse, _) -> {user_code, Bit}
+).
+
+?EPM2210_USER_CODES()
+to_epm2210(Fuse, With) ->
+    to_density(Fuse, With).
+
+-undef(USER_CODE).
 
 %%--------------------------------------------------------------------
 
@@ -2419,96 +2468,57 @@ to_line(cell, Sector, X, Y, Index0) ->
 %% to_name
 %%====================================================================
 
--spec to_name(fuse(), density()) -> {ok, name()} | {error, location()}.
+-spec to_name(fuse() | location(), density())
+    -> {ok, name()} |
+       {error, location()}.
 
+to_name(Location, epm240) when is_tuple(Location) ->
+    to_name_at(Location, epm240());
+to_name(Location, epm570) when is_tuple(Location) ->
+    to_name_at(Location, epm570());
+to_name(Location, epm1270) when is_tuple(Location) ->
+    to_name_at(Location, epm1270());
+to_name(Location, epm2210) when is_tuple(Location) ->
+    to_name_at(Location, epm2210());
 to_name(Fuse, epm240) ->
-    to_epm240(Fuse);
+    With = epm240(),
+    Location = to_epm240(Fuse, With),
+    to_name_at(Location, With);
 to_name(Fuse, epm570) ->
-    to_epm570(Fuse);
+    With = epm570(),
+    Location = to_epm570(Fuse, With),
+    to_name_at(Location, With);
 to_name(Fuse, epm1270) ->
-    to_epm1270(Fuse);
+    With = epm1270(),
+    Location = to_epm1270(Fuse, With),
+    to_name_at(Location, With);
 to_name(Fuse, epm2210) ->
-    to_epm2210(Fuse).
+    With = epm2210(),
+    Location = to_epm2210(Fuse, With),
+    to_name_at(Location, With).
 
 %%--------------------------------------------------------------------
 
--define(USER_CODE(Bit, Fuse),
-    to_epm240(Fuse) -> {ok, {user_code, Bit}}
-).
-
-?EPM240_USER_CODES()
-to_epm240(Fuse) ->
-    to_name_with(Fuse, epm240()).
-
--undef(USER_CODE).
-
-%%--------------------------------------------------------------------
-
--define(USER_CODE(Bit, Fuse),
-    to_epm570(Fuse) -> {ok, {user_code, Bit}}
-).
-
-?EPM570_USER_CODES()
-to_epm570(Fuse) ->
-    to_name_with(Fuse, epm570()).
-
--undef(USER_CODE).
-
-%%--------------------------------------------------------------------
-
--define(USER_CODE(Bit, Fuse),
-    to_epm1270(Fuse) -> {ok, {user_code, Bit}}
-).
-
-?EPM1270_USER_CODES()
-to_epm1270(Fuse) ->
-    to_name_with(Fuse, epm1270()).
-
--undef(USER_CODE).
-
-%%--------------------------------------------------------------------
-
--define(USER_CODE(Bit, Fuse),
-    to_epm2210(Fuse) -> {ok, {user_code, Bit}}
-).
-
-?EPM2210_USER_CODES()
-to_epm2210(Fuse) ->
-    to_name_with(Fuse, epm2210()).
-
--undef(USER_CODE).
-
-%%--------------------------------------------------------------------
-
-to_name_with(Fuse, With) ->
-    case to_density(Fuse, With) of
-        {Side, Index, strip, R, C} ->
-            to_strip(Side, Index, R, C, With);
-
-        {X, head, Index, cell, Sector} ->
-            to_cell_head(X, Index, Sector, With);
-
-        {X, tail, Index, cell, Sector} ->
-            to_cell_tail(X, Index, Sector, With);
-
-        {X, Y, N, zero, I} ->
-            to_zero(X, Y, N, I);
-
-        {X, Y, line, Index, side, Sector} ->
-            to_side_line(X, Y, Index, Sector);
-
-        {X, Y, N, I, side, Sector} ->
-            to_side(X, Y, N, I, Sector);
-
-        {X, Y, line, Index, cell, Sector} ->
-            to_cell_line(X, Y, Index, Sector, With);
-
-        {X, Y, N, I, cell, Sector} ->
-            to_cell(X, Y, N, I, Sector, With);
-
-        Location ->
-            {error, Location}
-    end.
+to_name_at({Side, Index, strip, R, C}, With) ->
+    to_strip(Side, Index, R, C, With);
+to_name_at({X, head, Index, cell, Sector}, With) ->
+    to_cell_head(X, Index, Sector, With);
+to_name_at({X, tail, Index, cell, Sector}, With) ->
+    to_cell_tail(X, Index, Sector, With);
+to_name_at({X, Y, N, zero, I}, _) ->
+    to_zero(X, Y, N, I);
+to_name_at({X, Y, line, Index, side, Sector}, _) ->
+    to_side_line(X, Y, Index, Sector);
+to_name_at({X, Y, N, I, side, Sector}, _) ->
+    to_side(X, Y, N, I, Sector);
+to_name_at({X, Y, line, Index, cell, Sector}, With) ->
+    to_cell_line(X, Y, Index, Sector, With);
+to_name_at({X, Y, N, I, cell, Sector}, With) ->
+    to_cell(X, Y, N, I, Sector, With);
+to_name_at(Location = {user_code, _}, _) ->
+    {ok, Location};
+to_name_at(Location, _) ->
+    {error, Location}.
 
 %%--------------------------------------------------------------------
 
