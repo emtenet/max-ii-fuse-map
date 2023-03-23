@@ -51,9 +51,7 @@
 %%====================================================================
 
 run() ->
-    run_density(epm2210),
-    throw(stop),
-    %lists:foreach(fun run_density/1, density:list()),
+    lists:foreach(fun run_density/1, density:list()),
     ok.
 
 %%--------------------------------------------------------------------
@@ -128,23 +126,17 @@ run_common(Density, [DirIndex | DirIndexes], Dirs) ->
 %%--------------------------------------------------------------------
 
 run_common(Density, [], _, [Fuse]) ->
-    case fuse_map:to_name(Fuse, Density) of
-        {error, Location} ->
-            [Location];
-
-        _ ->
-            []
-    end;
+    Location = fuse_map:to_name(Fuse, Density),
+    [Location];
 run_common(Density, [], _, [Fuse0, Fuse1]) ->
-    case {fuse_map:to_name(Fuse0, Density), fuse_map:to_name(Fuse1, Density)} of
-        {{error, Location0}, {error, Location1}} when Location0 < Location1 ->
+    Location0 = fuse_map:to_location(Fuse0, Density),
+    Location1 = fuse_map:to_location(Fuse1, Density),
+    case Location0 < Location1 of
+        true ->
             [Location0, Location1];
 
-        {{error, Location0}, {error, Location1}} ->
-            [Location1, Location0];
-
-        _ ->
-            []
+        false ->
+            [Location1, Location0]
     end;
 run_common(_, [], _, _) ->
     [];
