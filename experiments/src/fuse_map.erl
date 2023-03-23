@@ -45,12 +45,14 @@
 -record(with, {
     density :: density(),
     strip_width :: 32 | 64,
-    offset_x :: 0 | 1,
-    side_x :: 7 | 13 | 17 | 21,
-    grow_x :: 0 | 9 | 11 | 13,
-    short_y :: 4 | 7 | 10,
-    long_y :: 4 | 7 | 10 | 13,
+    left_x :: 0 | 1,
+    right_x :: 8 | 13 | 17 | 21,
+    grow_x :: 1 | 9 | 11 | 13,
+    short_lines :: 4 | 7 | 10,
+    long_lines :: 4 | 7 | 10 | 13,
     top_y :: 5 | 8 | 11 | 14,
+    short_y :: 0 | 3,
+    long_y :: 0,
     short_sector :: 256 | 384 | 512,
     long_sector :: 256 | 384 | 512 | 704,
     left_base :: non_neg_integer(),
@@ -1765,107 +1767,146 @@ from_epm2210(Name) ->
 
 %%--------------------------------------------------------------------
 
-from_density({{iob, X0, Y}, Name}, With = #with{}) ->
-    case from_density_iob(X0, Y, With) of
-        {side, X} ->
+from_density({{iob, X, Y}, Name}, With = #with{}) ->
+    case from_density_iob(X, Y, With) of
+        side ->
             from_iob_side(X, Y, Name, With);
 
-        {cell, X} ->
-            from_iob(X, Y, Name, With)
+        cell ->
+            from_iob(X, Y, Name, With);
+
+        error ->
+            {error, {{invalid_iob, X, Y}, Name}}
     end;
-from_density({{iob, X0, Y}, Name, Value}, With = #with{}) ->
-    case from_density_iob(X0, Y, With) of
-        {side, X} ->
+from_density({{iob, X, Y}, Name, Value}, With = #with{}) ->
+    case from_density_iob(X, Y, With) of
+        side ->
             from_iob_side(X, Y, {Name, Value}, With);
 
-        {cell, X} ->
-            from_iob(X, Y, {Name, Value}, With)
+        cell ->
+            from_iob(X, Y, {Name, Value}, With);
+
+        error ->
+            {error, {{invalid_iob, X, Y}, Name}}
     end;
-from_density({{iob, X0, Y}, Name, Key, Value}, With = #with{}) ->
-    case from_density_iob(X0, Y, With) of
-        {side, X} ->
+from_density({{iob, X, Y}, Name, Key, Value}, With = #with{}) ->
+    case from_density_iob(X, Y, With) of
+        side ->
             from_iob_side(X, Y, {Name, Key, Value}, With);
 
-        {cell, X} ->
-            from_iob(X, Y, {Name, Key, Value}, With)
+        cell ->
+            from_iob(X, Y, {Name, Key, Value}, With);
+
+        error ->
+            {error, {{invalid_iob, X, Y}, Name}}
     end;
-from_density({{ioc, X0, Y, N}, Name}, With = #with{}) ->
-    case from_density_iob(X0, Y, With) of
-        {side, X} ->
+from_density({{ioc, X, Y, N}, Name}, With = #with{}) ->
+    case from_density_iob(X, Y, With) of
+        side ->
             from_ioc_side(X, Y, N, Name, With);
 
-        {cell, X} ->
-            from_ioc(X, Y, N, Name, With)
+        cell ->
+            from_ioc(X, Y, N, Name, With);
+
+        error ->
+            {error, {{invalid_ioc, X, Y, N}, Name}}
     end;
-from_density({{ioc, X0, Y, N}, Name, Value}, With = #with{}) ->
-    case from_density_iob(X0, Y, With) of
-        {side, X} ->
+from_density({{ioc, X, Y, N}, Name, Value}, With = #with{}) ->
+    case from_density_iob(X, Y, With) of
+        side ->
             from_ioc_side(X, Y, N, {Name, Value}, With);
 
-        {cell, X} ->
-            from_ioc(X, Y, N, {Name, Value}, With)
+        cell ->
+            from_ioc(X, Y, N, {Name, Value}, With);
+
+        error ->
+            {error, {{invalid_ioc, X, Y, N}, Name}}
     end;
-from_density({{lab, X0, Y}, Name}, With = #with{}) ->
-    X = from_density_lab(X0, Y, With),
-    from_lab(X, Y, Name, With);
-from_density({{lab, X0, Y}, Name, Value}, With = #with{}) ->
-    X = from_density_lab(X0, Y, With),
-    from_lab(X, Y, {Name, Value}, With);
-from_density({{lab, X0, Y}, Name, Key, Value}, With = #with{}) ->
-    X = from_density_lab(X0, Y, With),
-    from_lab(X, Y, {Name, Key, Value}, With);
-from_density({{lc, X0, Y, N}, Name}, With = #with{}) ->
-    X = from_density_lab(X0, Y, With),
-    from_lc(X, Y, N, Name, With);
-from_density({{lc, X0, Y, N}, Name, Value}, With = #with{}) ->
-    X = from_density_lab(X0, Y, With),
-    from_lc(X, Y, N, {Name, Value}, With);
+from_density({{lab, X, Y}, Name}, With = #with{}) ->
+    case from_density_lab(X, Y, With) of
+        ok ->
+            from_lab(X, Y, Name, With);
+
+        error ->
+            {error, {{invalid_lab, X, Y}, Name}}
+    end;
+from_density({{lab, X, Y}, Name, Value}, With = #with{}) ->
+    case from_density_lab(X, Y, With) of
+        ok ->
+            from_lab(X, Y, {Name, Value}, With);
+
+        error ->
+            {error, {{invalid_lab, X, Y}, Name}}
+    end;
+from_density({{lab, X, Y}, Name, Key, Value}, With = #with{}) ->
+    case from_density_lab(X, Y, With) of
+        ok ->
+            from_lab(X, Y, {Name, Key, Value}, With);
+
+        error ->
+            {error, {{invalid_lab, X, Y}, Name}}
+    end;
+from_density({{lc, X, Y, N}, Name}, With = #with{}) ->
+    case from_density_lab(X, Y, With) of
+        ok ->
+            from_lc(X, Y, N, Name, With);
+
+        error ->
+            {error, {{invalid_lc, X, Y, N}, Name}}
+    end;
+from_density({{lc, X, Y, N}, Name, Value}, With = #with{}) ->
+    case from_density_lab(X, Y, With) of
+        ok ->
+            from_lc(X, Y, N, {Name, Value}, With);
+
+        error ->
+            {error, {{invalid_lc, X, Y, N}, Name}}
+    end;
 from_density(_Name, _With = #with{}) ->
     {error, density}.
 
 %%--------------------------------------------------------------------
 
-from_density_iob(X0, Y, With = #with{}) ->
-    case X0 - With#with.offset_x of
-        X when X =:= 0 andalso X < With#with.grow_x andalso
-               Y > 3 andalso Y =< With#with.top_y ->
-            {side, X};
-
-        X when X =:= 0 andalso X =:= With#with.grow_x andalso
-               Y > 0 andalso Y =< With#with.top_y ->
-            {side, X};
-
-        X when X > 0 andalso X =< With#with.grow_x andalso
-               (Y =:= 3 orelse Y =:= With#with.top_y) ->
-            {cell, X};
-
-        X when X > With#with.grow_x andalso X =< With#with.side_x andalso
-               (Y =:= 0 orelse Y =:= With#with.top_y) ->
-            {cell, X};
-
-        X when X =:= With#with.side_x andalso
-               Y > 0 andalso Y =< With#with.top_y ->
-            {side, X};
-
-        X ->
-            throw({from_density, {iob, X, Y}, With})
-    end.
+from_density_iob(X, Y, With = #with{})
+        when X =:= With#with.left_x andalso
+             Y > With#with.short_y andalso
+             Y < With#with.top_y ->
+    side;
+from_density_iob(X, Y, With = #with{})
+        when X > With#with.left_x andalso
+             X < With#with.right_x andalso
+             Y =:= With#with.top_y ->
+    cell;
+from_density_iob(X, Y, With = #with{})
+        when X > With#with.left_x andalso
+             X =< With#with.grow_x andalso
+             Y =:= With#with.short_y ->
+    cell;
+from_density_iob(X, Y, With = #with{})
+        when X > With#with.grow_x andalso
+             X < With#with.right_x andalso
+             Y =:= With#with.long_y  ->
+    cell;
+from_density_iob(X, Y, With = #with{})
+        when X =:= With#with.right_x andalso
+             Y > With#with.long_y andalso
+             Y < With#with.top_y ->
+    side;
+from_density_iob(_, _, _) ->
+    error.
 
 %%--------------------------------------------------------------------
 
-from_density_lab(X0, Y, With = #with{}) ->
-    case X0 - With#with.offset_x of
-        X when X > 0 andalso X =< With#with.grow_x andalso
-               Y > 3 andalso Y =< With#with.top_y ->
-            X;
-
-        X when X > With#with.grow_x andalso X =< With#with.side_x andalso
-               Y > 0 andalso Y =< With#with.top_y ->
-            X;
-
-        X ->
-            throw({from_density, {lab, X, Y}, With})
-    end.
+from_density_lab(X, Y, With = #with{})
+        when X > With#with.left_x andalso X =< With#with.grow_x andalso
+             Y > With#with.short_y andalso Y < With#with.top_y ->
+    ok;
+from_density_lab(X, Y, With = #with{})
+        when X > With#with.grow_x andalso X < With#with.right_x andalso
+             Y > With#with.long_y andalso Y < With#with.top_y ->
+    ok;
+from_density_lab(_, _, _) ->
+    error.
 
 %%--------------------------------------------------------------------
 
@@ -1885,10 +1926,12 @@ from_iob_side(X, Y, Name, _With) ->
 -define(IOB_HEAD(Sector, Index, Name),
     from_iob(X, Y, Name, With = #with{top_y = Y}) ->
         from_head(X, Sector, Index, With);
-    from_iob(X, 3, Name, With) when X < With#with.grow_x ->
-        from_tail(X, Sector, Index, With, With#with.short_y);
-    from_iob(X, 0, Name, With) when X > With#with.grow_x ->
-        from_tail(X, Sector, Index, With, With#with.long_y)
+    from_iob(X, Y, Name, With = #with{short_y = Y})
+            when X < With#with.grow_x ->
+        from_tail(X, Sector, Index, With, With#with.short_lines);
+    from_iob(X, Y, Name, With = #with{long_y = Y})
+            when X > With#with.grow_x ->
+        from_tail(X, Sector, Index, With, With#with.long_lines)
 ).
 
 ?IOB_HEADS()
@@ -1908,19 +1951,19 @@ from_iob(X, Y, Name, _With) ->
         from_side(X, Sector, Y, N + 2, Index, With)
 ).
 -define(IOC_LEFT(Sector, U, V, N, Name),
-    from_ioc_side(X, Y, N, Name, With) when X =:= 0 ->
+    from_ioc_side(X, Y, N, Name, With) when X =:= With#with.left_x ->
         from_side(X, Sector, Y, U, V, With)
 ).
 -define(IOC_LEFT_LINE(Sector, Index, N, Name),
-    from_ioc_side(X, Y, N, Name, With) when X =:= 0 ->
+    from_ioc_side(X, Y, N, Name, With) when X =:= With#with.left_x ->
         from_side_line(X, Sector, Y, Index, With)
 ).
 -define(IOC_RIGHT(Sector, U, V, N, Name),
-    from_ioc_side(X, Y, N, Name, With) when X =/= 0 ->
+    from_ioc_side(X, Y, N, Name, With) when X =:= With#with.right_x ->
         from_side(X, Sector, Y, U, V, With)
 ).
 -define(IOC_RIGHT_LINE(Sector, Index, N, Name),
-    from_ioc_side(X, Y, N, Name, With) when X =/= 0 ->
+    from_ioc_side(X, Y, N, Name, With) when X =:= With#with.right_x ->
         from_side_line(X, Sector, Y, Index, With)
 ).
 -define(IOC_STRIP(R, C, Name),
@@ -1952,9 +1995,9 @@ from_ioc_side(X, Y, N, Name, _With) ->
     from_ioc(X, Y, N, Name, With = #with{top_y = Y}) ->
         from_head(X, Sector, Index, With);
     from_ioc(X, 3, N, Name, With) when X < With#with.grow_x ->
-        from_tail(X, Sector, Index, With, With#with.short_y);
+        from_tail(X, Sector, Index, With, With#with.short_lines);
     from_ioc(X, 0, N, Name, With) when X > With#with.grow_x ->
-        from_tail(X, Sector, Index, With, With#with.long_y)
+        from_tail(X, Sector, Index, With, With#with.long_lines)
 ).
 -define(IOC_STRIP(R, C, Name),
     from_ioc(X, Y, N, Name, With) ->
@@ -2004,13 +2047,13 @@ from_lc(X, Y, N, Name, _With) ->
 %%--------------------------------------------------------------------
 
 from_ioc_strip(X, Y, N, R, C, With = #with{density = epm240}) ->
-    from_epm240_strip(X + With#with.offset_x, Y, N, R, C, With);
+    from_epm240_strip(X, Y, N, R, C, With);
 from_ioc_strip(X, Y, N, R, C, With = #with{density = epm570}) ->
-    from_epm570_strip(X + With#with.offset_x, Y, N, R, C, With);
+    from_epm570_strip(X, Y, N, R, C, With);
 from_ioc_strip(X, Y, N, R, C, With = #with{density = epm1270}) ->
-    from_epm1270_strip(X + With#with.offset_x, Y, N, R, C, With);
+    from_epm1270_strip(X, Y, N, R, C, With);
 from_ioc_strip(X, Y, N, R, C, With = #with{density = epm2210}) ->
-    from_epm2210_strip(X + With#with.offset_x, Y, N, R, C, With).
+    from_epm2210_strip(X, Y, N, R, C, With).
 
 %%--------------------------------------------------------------------
 
@@ -2112,7 +2155,7 @@ from_side(X, Sector, Y, N, I, With) ->
 
 %%--------------------------------------------------------------------
 
-from_side_line(X, Sector, Y, I, With) when X < 2 ->
+from_side_line(X, Sector, Y, I, With) when X =:= With#with.left_x ->
     from_line(X, Sector, Y, I, With);
 from_side_line(X, Sector, Y, I, With) ->
     from_line(X, ?SIDE_SECTORS - 1 - Sector, Y, I, With).
@@ -2147,11 +2190,12 @@ from_cell(X, Sector, Y, N, I, With) ->
 
 %%--------------------------------------------------------------------
 
-from_line(X, Sector, Y, Offset, With = #with{long_y = TopY}) ->
+from_line(X, Sector, Y, Offset, With = #with{top_y = TopY}) ->
+    Line = TopY - Y - 1,
     from_sector_skip(
         X,
         Sector,
-        ?HEAD_WIDTH + ((TopY - Y) * ?LINE_WIDTH) + Offset,
+        ?HEAD_WIDTH + (Line * ?LINE_WIDTH) + Offset,
         With
     ).
 
@@ -2171,7 +2215,9 @@ from_sector_pad(X, Sector, Offset, With = #with{}) ->
 
 %%--------------------------------------------------------------------
 
-from_sector(0, Sector, Offset, With = #with{}) ->
+from_sector(X, Sector, Offset, With) when X < With#with.left_x ->
+    {error, {sector, X, Sector, Offset}};
+from_sector(X, Sector, Offset, With) when X =:= With#with.left_x ->
     {ok,
         With#with.left_base +
         (Sector * With#with.short_sector) +
@@ -2180,9 +2226,10 @@ from_sector(0, Sector, Offset, With = #with{}) ->
 from_sector(X, Sector, Offset, With = #with{})
         when X < With#with.grow_x orelse
              (X =:= With#with.grow_x andalso Sector < ?SHORT_SECTORS) ->
+    Column = X - 1 - With#with.left_x,
     {ok,
         With#with.short_base +
-        ((X - 1) * ?COLUMN_SECTORS * With#with.short_sector) +
+        (Column * ?COLUMN_SECTORS * With#with.short_sector) +
         (Sector * With#with.short_sector) +
         Offset
     };
@@ -2195,15 +2242,16 @@ from_sector(X, Sector, Offset, With = #with{})
         Offset
     };
 from_sector(X, Sector, Offset, With = #with{})
-        when X < With#with.side_x ->
+        when X < With#with.right_x ->
+    Column = X - 1 - With#with.grow_x,
     {ok,
         With#with.long_base +
-        ((X - 1 - With#with.grow_x) * ?COLUMN_SECTORS * With#with.long_sector) +
+        (Column * ?COLUMN_SECTORS * With#with.long_sector) +
         (Sector * With#with.long_sector) +
         Offset
     };
 from_sector(X, Sector, Offset, With = #with{})
-        when X =:= With#with.side_x ->
+        when X =:= With#with.right_x ->
     {ok,
         With#with.right_base +
         (Sector * With#with.long_sector) +
@@ -2283,7 +2331,6 @@ to_density(Fuse, With = #with{})
     Col = Fuse rem With#with.strip_width,
     to_strip(Row, Col, With);
 to_density(Fuse, With = #with{}) ->
-    OffsetX = With#with.offset_x,
     ShortSector = With#with.short_sector,
     LongSector = With#with.long_sector,
     ShortColumn = ?COLUMN_SECTORS * ShortSector,
@@ -2297,10 +2344,10 @@ to_density(Fuse, With = #with{}) ->
             to_column(
                 side,
                 SectorOffset div ShortSector,
-                OffsetX,
+                With#with.left_x,
                 SectorOffset rem ShortSector,
                 With,
-                With#with.short_y
+                With#with.short_lines
             );
 
         Fuse < With#with.grow_base ->
@@ -2309,10 +2356,10 @@ to_density(Fuse, With = #with{}) ->
             to_column(
                 cell,
                 SectorOffset div ShortSector,
-                OffsetX + 1 + (ColumnOffset div ShortColumn),
+                With#with.left_x + 1 + (ColumnOffset div ShortColumn),
                 SectorOffset rem ShortSector,
                 With,
-                With#with.short_y
+                With#with.short_lines
             );
 
         Fuse < With#with.long_base ->
@@ -2322,10 +2369,10 @@ to_density(Fuse, With = #with{}) ->
                     to_column(
                         cell,
                         SectorOffset div ShortSector,
-                        OffsetX + With#with.grow_x,
+                        With#with.grow_x,
                         SectorOffset rem ShortSector,
                         With,
-                        With#with.short_y
+                        With#with.short_lines
                     );
 
                 SectorOffset0 ->
@@ -2333,10 +2380,10 @@ to_density(Fuse, With = #with{}) ->
                     to_column(
                         cell,
                         (SectorOffset div LongSector) + ?SHORT_SECTORS,
-                        OffsetX + With#with.grow_x,
+                        With#with.grow_x,
                         SectorOffset rem LongSector,
                         With,
-                        With#with.long_y
+                        With#with.long_lines
                     )
             end;
 
@@ -2346,10 +2393,10 @@ to_density(Fuse, With = #with{}) ->
             to_column(
                 cell,
                 SectorOffset div LongSector,
-                OffsetX + With#with.grow_x + 1 + (ColumnOffset div LongColumn),
+                With#with.grow_x + 1 + (ColumnOffset div LongColumn),
                 SectorOffset rem LongSector,
                 With,
-                With#with.long_y
+                With#with.long_lines
             );
 
         Fuse < With#with.end_base ->
@@ -2357,10 +2404,10 @@ to_density(Fuse, With = #with{}) ->
             to_column(
                 side,
                 ?SIDE_SECTORS - 1 - (SectorOffset div LongSector),
-                OffsetX + With#with.side_x,
+                With#with.right_x,
                 SectorOffset rem LongSector,
                 With,
-                With#with.long_y
+                With#with.long_lines
             );
 
         true ->
@@ -2396,7 +2443,7 @@ to_strip(Row, Col, _With) ->
 
 to_column(Type, Sector, X, Offset0, With = #with{}, Lines) ->
     Skip = With#with.sector_skip,
-    Top = With#with.long_y,
+    Top = With#with.top_y - 1,
     End = ?HEAD_WIDTH + 1 + (Lines * ?LINE_WIDTH),
     Padding = 3 * (1 + (Offset0 div With#with.strip_width)),
     case Offset0 - Padding of
@@ -2507,10 +2554,10 @@ to_name_at({X, tail, Index, cell, Sector}, With) ->
     to_cell_tail(X, Index, Sector, With);
 to_name_at({X, Y, N, zero, I}, _) ->
     to_zero(X, Y, N, I);
-to_name_at({X, Y, line, Index, side, Sector}, _) ->
-    to_side_line(X, Y, Index, Sector);
-to_name_at({X, Y, N, I, side, Sector}, _) ->
-    to_side(X, Y, N, I, Sector);
+to_name_at({X, Y, line, Index, side, Sector}, With) ->
+    to_side_line(X, Y, Index, Sector, With);
+to_name_at({X, Y, N, I, side, Sector}, With) ->
+    to_side(X, Y, N, I, Sector, With);
 to_name_at({X, Y, line, Index, cell, Sector}, With) ->
     to_cell_line(X, Y, Index, Sector, With);
 to_name_at({X, Y, N, I, cell, Sector}, With) ->
@@ -2619,15 +2666,15 @@ to_cell_head(X, Index, Sector, _With) ->
 
 -define(IOB_HEAD(Sector, Index, Name),
     to_cell_tail(X, Index, Sector, With) when X < With#with.grow_x ->
-        to_iob(X, 3, Name);
+        to_iob(X, With#with.short_y, Name);
     to_cell_tail(X, Index, Sector, With) when X > With#with.grow_x ->
-        to_iob(X, 0, Name)
+        to_iob(X, With#with.long_y, Name)
 ).
 -define(IOC_HEAD(Sector, Index, N, Name),
     to_cell_tail(X, Index, Sector, With) when X < With#with.grow_x ->
-        to_ioc(X, 3, N, Name);
+        to_ioc(X, With#with.short_y, N, Name);
     to_cell_tail(X, Index, Sector, With) when X > With#with.grow_x ->
-        to_ioc(X, 0, N, Name)
+        to_ioc(X, With#with.long_y, N, Name)
 ).
 
 ?IOB_HEADS()
@@ -2654,17 +2701,17 @@ to_zero(X, Y, N, I) ->
 %%--------------------------------------------------------------------
 
 -define(IOC_LEFT_LINE(Sector, Index, N, Name),
-    to_side_line(X, Y, Index, Sector) when X =< 1 ->
+    to_side_line(X, Y, Index, Sector, With) when X =:= With#with.left_x ->
         to_ioc(X, Y, N, Name)
 ).
 -define(IOC_RIGHT_LINE(Sector, Index, N, Name),
-    to_side_line(X, Y, Index, Sector) when X > 1 ->
+    to_side_line(X, Y, Index, Sector, With) when X =:= With#with.right_x ->
         to_ioc(X, Y, N, Name)
 ).
 
 ?IOC_LEFT_LINES()
 ?IOC_RIGHT_LINES()
-to_side_line(X, Y, Index, Sector) ->
+to_side_line(X, Y, Index, Sector, _) ->
     {error, {X, Y, line, Index, side, Sector}}.
 
 -undef(IOC_LEFT_LINE).
@@ -2673,21 +2720,21 @@ to_side_line(X, Y, Index, Sector) ->
 %%--------------------------------------------------------------------
 
 -define(IOB_SIDE(Sector, N, Index, Name),
-    to_side(X, Y, N, Index, Sector) ->
+    to_side(X, Y, N, Index, Sector, _) ->
         to_iob(X, Y, Name)
 ).
 -define(IOC_LEFT(Sector, U, V, N, Name),
-    to_side(X, Y, U, V, Sector) when X =< 1 ->
+    to_side(X, Y, U, V, Sector, With) when X =:= With#with.left_x ->
         to_ioc(X, Y, N, Name)
 ).
 -define(IOC_RIGHT(Sector, U, V, N, Name),
-    to_side(X, Y, U, V, Sector) when X > 1 ->
+    to_side(X, Y, U, V, Sector, With) when X =:= With#with.right_x ->
         to_ioc(X, Y, N, Name)
 ).
 -define(IOC_SIDE(Sector, Index, Name),
-    to_side(X, Y, N, Index, Sector) when N >= 2 andalso N =< 8 ->
+    to_side(X, Y, N, Index, Sector, _) when N >= 2 andalso N =< 8 ->
         to_ioc(X, Y, N - 2, Name);
-    to_side(X, Y, N, Index, Sector) ->
+    to_side(X, Y, N, Index, Sector, _) ->
         {error, {X, Y, N, Index, side, Sector}}
 ).
 
@@ -2695,7 +2742,7 @@ to_side_line(X, Y, Index, Sector) ->
 ?IOC_LEFTS()
 ?IOC_RIGHTS()
 ?IOC_SIDES()
-to_side(X, Y, N, Index, Sector) ->
+to_side(X, Y, N, Index, Sector, _) ->
     {error, {X, Y, N, Index, side, Sector}}.
 
 -undef(IOB_SIDE).
@@ -2711,10 +2758,11 @@ to_side(X, Y, N, Index, Sector) ->
 ).
 
 to_cell_line(X, Y, Index, Sector, With = #with{})
-        when X =< With#with.grow_x andalso Y =< 3 ->
+        when X =< With#with.grow_x andalso
+             Y =< With#with.short_y ->
     {error, {X, Y, line, Index, cell, Sector}};
 ?LAB_LINES()
-to_cell_line(X, Y, Index, Sector, _With) ->
+to_cell_line(X, Y, Index, Sector, _) ->
     {error, {X, Y, line, Index, cell, Sector}}.
 
 -undef(LAB_LINE).
@@ -2731,11 +2779,12 @@ to_cell_line(X, Y, Index, Sector, _With) ->
 ).
 
 to_cell(X, Y, N, I, Sector, With = #with{})
-        when X =< With#with.grow_x andalso Y =< 3 ->
+        when X =< With#with.grow_x andalso
+             Y =< With#with.short_y ->
     {error, {X, Y, N, I, cell, Sector}};
 ?LAB_CELLS()
 ?LC_CELLS()
-to_cell(X, Y, N, I, Sector, _With) ->
+to_cell(X, Y, N, I, Sector, _) ->
     {error, {X, Y, N, I, cell, Sector}}.
 
 -undef(LAB_CELL).
@@ -2781,14 +2830,14 @@ epm240() ->
     #with{
         density = epm240,
         strip_width = 32,
-        offset_x = 1,
-        side_x = 7, % after offset subtracted
-        % EPM240 does not have short and long columns,
-        % Treat all columns as long
-        grow_x = 0,
-        short_y = 4,
-        long_y = 4,
+        left_x = 1,
+        right_x = 8,
+        grow_x = 1,
+        short_lines = 4,
+        long_lines = 4,
         top_y = 5,
+        short_y = 0,
+        long_y = 0,
         short_sector = 256,
         long_sector = 256,
         left_base = 32,
@@ -2811,12 +2860,14 @@ epm570() ->
     #with{
         density = epm570,
         strip_width = 32,
-        offset_x = 0,
-        side_x = 13,
+        left_x = 0,
+        right_x = 13,
         grow_x = 9,
-        short_y = 4,
-        long_y = 7,
+        short_lines = 4,
+        long_lines = 7,
         top_y = 8,
+        short_y = 3,
+        long_y = 0,
         short_sector = 256,
         long_sector = 384,
         left_base = 32,
@@ -2839,12 +2890,14 @@ epm1270() ->
     #with{
         density = epm1270,
         strip_width = 64,
-        offset_x = 0,
-        side_x = 17,
+        left_x = 0,
+        right_x = 17,
         grow_x = 11,
-        short_y = 7,
-        long_y = 10,
+        short_lines = 7,
+        long_lines = 10,
         top_y = 11,
+        short_y = 3,
+        long_y = 0,
         short_sector = 384,
         long_sector = 512,
         left_base = 64,
@@ -2867,12 +2920,14 @@ epm2210() ->
     #with{
         density = epm2210,
         strip_width = 64,
-        offset_x = 0,
-        side_x = 21,
+        left_x = 0,
+        right_x = 21,
         grow_x = 13,
-        short_y = 10,
-        long_y = 13,
+        short_lines = 10,
+        long_lines = 13,
         top_y = 14,
+        short_y = 3,
+        long_y = 0,
         short_sector = 512,
         long_sector = 704,
         left_base = 64,
