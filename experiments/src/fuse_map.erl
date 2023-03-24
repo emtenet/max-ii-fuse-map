@@ -724,6 +724,482 @@
     ?LC_CELL(21, 3, local_line);
 ).
 
+-define(C4_SIDES(),
+    ?C4_SIDE_C( 7, 0, 0, { 0, port3, mux0});
+    ?C4_SIDE_C( 7, 0, 1, { 0, port3, mux1});
+    ?C4_SIDE_C( 8, 0, 0, { 0, port3, mux2});
+    ?C4_SIDE_C( 8, 0, 1, { 0, direct_link});
+    ?C4_SIDE_C( 9, 0, 0, { 0, port4, mux0});
+    ?C4_SIDE_C( 9, 0, 1, { 0, port4, mux1});
+    ?C4_SIDE_C(10, 0, 0, { 0, port4, mux2});
+    ?C4_SIDE_C(10, 0, 1, { 0, port4, mux3});
+
+    ?C4_SIDE_E(11, 0, 2, { 1, port4, mux0});
+    ?C4_SIDE_E(11, 0, 3, { 1, port4, mux1});
+    ?C4_SIDE_E(12, 0, 2, { 1, port4, mux2});
+    ?C4_SIDE_E(12, 0, 3, { 1, port4, mux3});
+
+    ?C4_SIDE_E(11, 1, 0, { 2, port4, mux0});
+    ?C4_SIDE_E(11, 1, 1, { 2, port4, mux1});
+    ?C4_SIDE_E(12, 1, 0, { 2, port4, mux2});
+    ?C4_SIDE_E(12, 1, 1, { 2, port4, mux3});
+
+    ?C4_SIDE_E(11, 2, 0, { 3, port4, mux0});
+    ?C4_SIDE_E(11, 2, 1, { 3, port4, mux1});
+    ?C4_SIDE_E(12, 2, 0, { 3, port4, mux2});
+    ?C4_SIDE_E(12, 2, 1, { 3, port4, mux3});
+
+    ?C4_SIDE_E(11, 2, 2, { 4, port4, mux0});
+    ?C4_SIDE_E(11, 2, 3, { 4, port4, mux1});
+    ?C4_SIDE_E(12, 2, 2, { 4, port4, mux2});
+    ?C4_SIDE_E(12, 2, 3, { 4, port4, mux3});
+
+    ?C4_SIDE_E(11, 3, 0, { 5, port4, mux0});
+    ?C4_SIDE_E(11, 3, 1, { 5, port4, mux1});
+    ?C4_SIDE_E(12, 3, 0, { 5, port4, mux2});
+    ?C4_SIDE_E(12, 3, 1, { 5, port4, mux3});
+
+    ?C4_SIDE_E(11, 4, 0, { 6, port4, mux0});
+    ?C4_SIDE_E(11, 4, 1, { 6, port4, mux1});
+    ?C4_SIDE_E(12, 4, 0, { 6, port4, mux2});
+    ?C4_SIDE_E(12, 4, 1, { 6, port4, mux3});
+
+    ?C4_SIDE_E(11, 5, 0, {13, port4, mux0});
+    ?C4_SIDE_E(11, 5, 1, {13, port4, mux1});
+    ?C4_SIDE_E(12, 5, 0, {13, port4, mux2});
+    ?C4_SIDE_E(12, 5, 1, {13, port4, mux3});
+
+    ?C4_SIDE_E(11, 6, 0, {12, port4, mux0});
+    ?C4_SIDE_E(11, 6, 1, {12, port4, mux1});
+    ?C4_SIDE_E(12, 6, 0, {12, port4, mux2});
+    ?C4_SIDE_E(12, 6, 1, {12, port4, mux3});
+
+    ?C4_SIDE_E(11, 7, 0, {10, port4, mux0});
+    ?C4_SIDE_E(11, 7, 1, {10, port4, mux1});
+    ?C4_SIDE_E(12, 7, 0, {10, port4, mux2});
+    ?C4_SIDE_E(12, 7, 1, {10, port4, mux3});
+
+    ?C4_SIDE_E(11, 7, 2, {11, port4, mux0});
+    ?C4_SIDE_E(11, 7, 3, {11, port4, mux1});
+    ?C4_SIDE_E(12, 7, 2, {11, port4, mux2});
+    ?C4_SIDE_E(12, 7, 3, {11, port4, mux3});
+
+    ?C4_SIDE_E(11, 8, 0, { 9, port4, mux0});
+    ?C4_SIDE_E(11, 8, 1, { 9, port4, mux1});
+    ?C4_SIDE_E(12, 8, 0, { 9, port4, mux2});
+    ?C4_SIDE_E(12, 8, 1, { 9, port4, mux3});
+
+    ?C4_SIDE_C( 7, 9, 0, { 7, port3, mux0});
+    ?C4_SIDE_C( 7, 9, 1, { 7, port3, mux1});
+    ?C4_SIDE_C( 8, 9, 0, { 7, port3, mux2});
+    ?C4_SIDE_C( 8, 9, 1, { 7, direct_link});
+    ?C4_SIDE_C( 9, 9, 0, { 7, port4, mux0});
+    ?C4_SIDE_C( 9, 9, 1, { 7, port4, mux1});
+    ?C4_SIDE_C(10, 9, 0, { 7, port4, mux2});
+    ?C4_SIDE_C(10, 9, 1, { 7, port4, mux3});
+
+    ?C4_SIDE_E(11, 9, 2, { 8, port4, mux0});
+    ?C4_SIDE_E(11, 9, 3, { 8, port4, mux1});
+    ?C4_SIDE_E(12, 9, 2, { 8, port4, mux2});
+    ?C4_SIDE_E(12, 9, 3, { 8, port4, mux3});
+).
+
+-define(C4_CELLS(),
+    ?C4_CELL_R(22, 0, 0, { 0, port3, mux0});
+    ?C4_CELL_R(22, 0, 1, { 0, port3, mux1});
+    ?C4_CELL_R(23, 0, 0, { 0, port3, mux2});
+    ?C4_CELL_R(23, 0, 1, { 0, direct_link});
+    ?C4_CELL_R(24, 0, 0, { 0, port4, mux0});
+    ?C4_CELL_R(24, 0, 1, { 0, port4, mux1});
+    ?C4_CELL_R(25, 0, 0, { 0, port4, mux2});
+    ?C4_CELL_R(25, 0, 1, { 0, port4, mux3});
+
+    ?C4_CELL_R( 0, 0, 2, { 1, port3, mux2});
+    ?C4_CELL_R( 0, 0, 3, { 1, direct_link});
+    ?C4_CELL_R( 1, 0, 2, { 1, port3, mux0});
+    ?C4_CELL_R( 1, 0, 3, { 1, port3, mux1});
+    ?C4_CELL_E(26, 0, 2, { 1, port3, mux0});
+    ?C4_CELL_E(26, 0, 3, { 1, port3, mux1});
+    ?C4_CELL_E(27, 0, 2, { 1, port3, mux2});
+    ?C4_CELL_E(27, 0, 3, { 1, direct_link});
+    ?C4_CELL_L(26, 0, 2, { 1, port4, mux0});
+    ?C4_CELL_L(26, 0, 3, { 1, port4, mux1});
+    ?C4_CELL_L(27, 0, 2, { 1, port4, mux2});
+    ?C4_CELL_L(27, 0, 3, { 1, port4, mux3});
+
+    ?C4_CELL_R( 0, 1, 0, { 2, port3, mux2});
+    ?C4_CELL_R( 0, 1, 1, { 2, direct_link});
+    ?C4_CELL_R( 1, 1, 0, { 2, port3, mux0});
+    ?C4_CELL_R( 1, 1, 1, { 2, port3, mux1});
+    ?C4_CELL_E(26, 1, 0, { 2, port3, mux0});
+    ?C4_CELL_E(26, 1, 1, { 2, port3, mux1});
+    ?C4_CELL_E(27, 1, 0, { 2, port3, mux2});
+    ?C4_CELL_E(27, 1, 1, { 2, direct_link});
+    ?C4_CELL_L(26, 1, 0, { 2, port4, mux0});
+    ?C4_CELL_L(26, 1, 1, { 2, port4, mux1});
+    ?C4_CELL_L(27, 1, 0, { 2, port4, mux2});
+    ?C4_CELL_L(27, 1, 1, { 2, port4, mux3});
+
+    ?C4_CELL_R( 0, 2, 0, { 3, port3, mux2});
+    ?C4_CELL_R( 0, 2, 1, { 3, direct_link});
+    ?C4_CELL_R( 1, 2, 0, { 3, port3, mux0});
+    ?C4_CELL_R( 1, 2, 1, { 3, port3, mux1});
+    ?C4_CELL_E(26, 2, 0, { 3, port3, mux0});
+    ?C4_CELL_E(26, 2, 1, { 3, port3, mux1});
+    ?C4_CELL_E(27, 2, 0, { 3, port3, mux2});
+    ?C4_CELL_E(27, 2, 1, { 3, direct_link});
+    ?C4_CELL_L(26, 2, 0, { 3, port4, mux0});
+    ?C4_CELL_L(26, 2, 1, { 3, port4, mux1});
+    ?C4_CELL_L(27, 2, 0, { 3, port4, mux2});
+    ?C4_CELL_L(27, 2, 1, { 3, port4, mux3});
+
+    ?C4_CELL_R( 0, 2, 2, { 4, port3, mux2});
+    ?C4_CELL_R( 0, 2, 3, { 4, direct_link});
+    ?C4_CELL_R( 1, 2, 2, { 4, port3, mux0});
+    ?C4_CELL_R( 1, 2, 3, { 4, port3, mux1});
+    ?C4_CELL_E(26, 2, 2, { 4, port3, mux0});
+    ?C4_CELL_E(26, 2, 3, { 4, port3, mux1});
+    ?C4_CELL_E(27, 2, 2, { 4, port3, mux2});
+    ?C4_CELL_E(27, 2, 3, { 4, direct_link});
+    ?C4_CELL_L(26, 2, 2, { 4, port4, mux0});
+    ?C4_CELL_L(26, 2, 3, { 4, port4, mux1});
+    ?C4_CELL_L(27, 2, 2, { 4, port4, mux2});
+    ?C4_CELL_L(27, 2, 3, { 4, port4, mux3});
+
+    ?C4_CELL_R( 0, 3, 0, { 5, port3, mux2});
+    ?C4_CELL_R( 0, 3, 1, { 5, direct_link});
+    ?C4_CELL_R( 1, 3, 0, { 5, port3, mux0});
+    ?C4_CELL_R( 1, 3, 1, { 5, port3, mux1});
+    ?C4_CELL_E(26, 3, 0, { 5, port3, mux0});
+    ?C4_CELL_E(26, 3, 1, { 5, port3, mux1});
+    ?C4_CELL_E(27, 3, 0, { 5, port3, mux2});
+    ?C4_CELL_E(27, 3, 1, { 5, direct_link});
+    ?C4_CELL_L(26, 3, 0, { 5, port4, mux0});
+    ?C4_CELL_L(26, 3, 1, { 5, port4, mux1});
+    ?C4_CELL_L(27, 3, 0, { 5, port4, mux2});
+    ?C4_CELL_L(27, 3, 1, { 5, port4, mux3});
+
+    ?C4_CELL_R( 0, 4, 0, { 6, port3, mux2});
+    ?C4_CELL_R( 0, 4, 1, { 6, direct_link});
+    ?C4_CELL_R( 1, 4, 0, { 6, port3, mux0});
+    ?C4_CELL_R( 1, 4, 1, { 6, port3, mux1});
+    ?C4_CELL_E(26, 4, 0, { 6, port3, mux0});
+    ?C4_CELL_E(26, 4, 1, { 6, port3, mux1});
+    ?C4_CELL_E(27, 4, 0, { 6, port3, mux2});
+    ?C4_CELL_E(27, 4, 1, { 6, direct_link});
+    ?C4_CELL_L(26, 4, 0, { 6, port4, mux0});
+    ?C4_CELL_L(26, 4, 1, { 6, port4, mux1});
+    ?C4_CELL_L(27, 4, 0, { 6, port4, mux2});
+    ?C4_CELL_L(27, 4, 1, { 6, port4, mux3});
+
+    ?C4_CELL_R(22, 5, 0, { 7, port3, mux0});
+    ?C4_CELL_R(22, 5, 1, { 7, port3, mux1});
+    ?C4_CELL_R(23, 5, 0, { 7, port3, mux2});
+    ?C4_CELL_R(23, 5, 1, { 7, direct_link});
+    ?C4_CELL_R(24, 5, 0, { 7, port4, mux0});
+    ?C4_CELL_R(24, 5, 1, { 7, port4, mux1});
+    ?C4_CELL_R(25, 5, 0, { 7, port4, mux2});
+    ?C4_CELL_R(25, 5, 1, { 7, port4, mux3});
+
+    ?C4_CELL_R( 0, 5, 2, { 8, port3, mux2});
+    ?C4_CELL_R( 0, 5, 3, { 8, direct_link});
+    ?C4_CELL_R( 1, 5, 2, { 8, port3, mux0});
+    ?C4_CELL_R( 1, 5, 3, { 8, port3, mux1});
+    ?C4_CELL_E(26, 5, 2, { 8, port3, mux0});
+    ?C4_CELL_E(26, 5, 3, { 8, port3, mux1});
+    ?C4_CELL_E(27, 5, 2, { 8, port3, mux2});
+    ?C4_CELL_E(27, 5, 3, { 8, direct_link});
+    ?C4_CELL_L(26, 5, 2, { 8, port4, mux0});
+    ?C4_CELL_L(26, 5, 3, { 8, port4, mux1});
+    ?C4_CELL_L(27, 5, 2, { 8, port4, mux2});
+    ?C4_CELL_L(27, 5, 3, { 8, port4, mux3});
+
+    ?C4_CELL_R( 0, 6, 0, { 9, port3, mux2});
+    ?C4_CELL_R( 0, 6, 1, { 9, direct_link});
+    ?C4_CELL_R( 1, 6, 0, { 9, port3, mux0});
+    ?C4_CELL_R( 1, 6, 1, { 9, port3, mux1});
+    ?C4_CELL_E(26, 6, 0, { 9, port3, mux0});
+    ?C4_CELL_E(26, 6, 1, { 9, port3, mux1});
+    ?C4_CELL_E(27, 6, 0, { 9, port3, mux2});
+    ?C4_CELL_E(27, 6, 1, { 9, direct_link});
+    ?C4_CELL_L(26, 6, 0, { 9, port4, mux0});
+    ?C4_CELL_L(26, 6, 1, { 9, port4, mux1});
+    ?C4_CELL_L(27, 6, 0, { 9, port4, mux2});
+    ?C4_CELL_L(27, 6, 1, { 9, port4, mux3});
+
+    ?C4_CELL_R( 0, 7, 0, {10, port3, mux2});
+    ?C4_CELL_R( 0, 7, 1, {10, direct_link});
+    ?C4_CELL_R( 1, 7, 0, {10, port3, mux0});
+    ?C4_CELL_R( 1, 7, 1, {10, port3, mux1});
+    ?C4_CELL_E(26, 7, 0, {10, port3, mux0});
+    ?C4_CELL_E(26, 7, 1, {10, port3, mux1});
+    ?C4_CELL_E(27, 7, 0, {10, port3, mux2});
+    ?C4_CELL_E(27, 7, 1, {10, direct_link});
+    ?C4_CELL_L(26, 7, 0, {10, port4, mux0});
+    ?C4_CELL_L(26, 7, 1, {10, port4, mux1});
+    ?C4_CELL_L(27, 7, 0, {10, port4, mux2});
+    ?C4_CELL_L(27, 7, 1, {10, port4, mux3});
+
+    ?C4_CELL_R( 0, 7, 2, {11, port3, mux2});
+    ?C4_CELL_R( 0, 7, 3, {11, direct_link});
+    ?C4_CELL_R( 1, 7, 2, {11, port3, mux0});
+    ?C4_CELL_R( 1, 7, 3, {11, port3, mux1});
+    ?C4_CELL_E(26, 7, 2, {11, port3, mux0});
+    ?C4_CELL_E(26, 7, 3, {11, port3, mux1});
+    ?C4_CELL_E(27, 7, 2, {11, port3, mux2});
+    ?C4_CELL_E(27, 7, 3, {11, direct_link});
+    ?C4_CELL_L(26, 7, 2, {11, port4, mux0});
+    ?C4_CELL_L(26, 7, 3, {11, port4, mux1});
+    ?C4_CELL_L(27, 7, 2, {11, port4, mux2});
+    ?C4_CELL_L(27, 7, 3, {11, port4, mux3});
+
+    ?C4_CELL_R( 0, 8, 0, {12, port3, mux2});
+    ?C4_CELL_R( 0, 8, 1, {12, direct_link});
+    ?C4_CELL_R( 1, 8, 0, {12, port3, mux0});
+    ?C4_CELL_R( 1, 8, 1, {12, port3, mux1});
+    ?C4_CELL_E(26, 8, 0, {12, port3, mux0});
+    ?C4_CELL_E(26, 8, 1, {12, port3, mux1});
+    ?C4_CELL_E(27, 8, 0, {12, port3, mux2});
+    ?C4_CELL_E(27, 8, 1, {12, direct_link});
+    ?C4_CELL_L(26, 8, 0, {12, port4, mux0});
+    ?C4_CELL_L(26, 8, 1, {12, port4, mux1});
+    ?C4_CELL_L(27, 8, 0, {12, port4, mux2});
+    ?C4_CELL_L(27, 8, 1, {12, port4, mux3});
+
+    ?C4_CELL_R( 0, 9, 0, {13, port3, mux2});
+    ?C4_CELL_R( 0, 9, 1, {13, direct_link});
+    ?C4_CELL_R( 1, 9, 0, {13, port3, mux0});
+    ?C4_CELL_R( 1, 9, 1, {13, port3, mux1});
+    ?C4_CELL_E(26, 9, 0, {13, port3, mux0});
+    ?C4_CELL_E(26, 9, 1, {13, port3, mux1});
+    ?C4_CELL_E(27, 9, 0, {13, port3, mux2});
+    ?C4_CELL_E(27, 9, 1, {13, direct_link});
+    ?C4_CELL_L(26, 9, 0, {13, port4, mux0});
+    ?C4_CELL_L(26, 9, 1, {13, port4, mux1});
+    ?C4_CELL_L(27, 9, 0, {13, port4, mux2});
+    ?C4_CELL_L(27, 9, 1, {13, port4, mux3});
+).
+
+-define(R4_SIDES(),
+    ?R4_SIDE_E(11, 0, 0, { 0, port4, mux0});
+    ?R4_SIDE_E(11, 0, 1, { 0, port4, mux1});
+    ?R4_SIDE_E(12, 0, 0, { 0, port4, mux2});
+    ?R4_SIDE_E(12, 0, 1, { 0, port4, mux3});
+
+    ?R4_SIDE_E(11, 1, 2, { 2, port4, mux0});
+    ?R4_SIDE_E(11, 1, 3, { 2, port4, mux1});
+    ?R4_SIDE_E(12, 1, 2, { 2, port4, mux2});
+    ?R4_SIDE_E(12, 1, 3, { 2, port4, mux3});
+
+    ?R4_SIDE_E(11, 3, 2, { 5, port4, mux0});
+    ?R4_SIDE_E(11, 3, 3, { 5, port4, mux1});
+    ?R4_SIDE_E(12, 3, 2, { 5, port4, mux2});
+    ?R4_SIDE_E(12, 3, 3, { 5, port4, mux3});
+
+    ?R4_SIDE_E(11, 4, 2, { 7, port4, mux0});
+    ?R4_SIDE_E(11, 4, 3, { 7, port4, mux1});
+    ?R4_SIDE_E(12, 4, 2, { 7, port4, mux2});
+    ?R4_SIDE_E(12, 4, 3, { 7, port4, mux3});
+
+    ?R4_SIDE_E(11, 5, 2, {15, port4, mux0});
+    ?R4_SIDE_E(11, 5, 3, {15, port4, mux1});
+    ?R4_SIDE_E(12, 5, 2, {15, port4, mux2});
+    ?R4_SIDE_E(12, 5, 3, {15, port4, mux3});
+
+    ?R4_SIDE_E(11, 6, 2, {13, port4, mux0});
+    ?R4_SIDE_E(11, 6, 3, {13, port4, mux1});
+    ?R4_SIDE_E(12, 6, 2, {13, port4, mux2});
+    ?R4_SIDE_E(12, 6, 3, {13, port4, mux3});
+
+    ?R4_SIDE_E(11, 8, 2, {10, port4, mux0});
+    ?R4_SIDE_E(11, 8, 3, {10, port4, mux1});
+    ?R4_SIDE_E(12, 8, 2, {10, port4, mux2});
+    ?R4_SIDE_E(12, 8, 3, {10, port4, mux3});
+
+    ?R4_SIDE_E(11, 9, 0, { 8, port4, mux0});
+    ?R4_SIDE_E(11, 9, 1, { 8, port4, mux1});
+    ?R4_SIDE_E(12, 9, 0, { 8, port4, mux2});
+    ?R4_SIDE_E(12, 9, 1, { 8, port4, mux3});
+).
+
+-define(R4_CELLS(),
+    ?R4_CELL_R( 0, 0, 0, { 0, port3, mux2});
+    ?R4_CELL_R( 0, 0, 1, { 0, direct_link});
+    ?R4_CELL_R( 1, 0, 0, { 0, port3, mux0});
+    ?R4_CELL_R( 1, 0, 1, { 0, port3, mux1});
+    ?R4_CELL_E(26, 0, 0, { 0, port3, mux0});
+    ?R4_CELL_E(26, 0, 1, { 0, port3, mux1});
+    ?R4_CELL_E(27, 0, 0, { 0, port3, mux2});
+    ?R4_CELL_E(27, 0, 1, { 0, direct_link});
+    ?R4_CELL_L(26, 0, 0, { 0, port4, mux0});
+    ?R4_CELL_L(26, 0, 1, { 0, port4, mux1});
+    ?R4_CELL_L(27, 0, 0, { 0, port4, mux2});
+    ?R4_CELL_L(27, 0, 1, { 0, port4, mux3});
+
+    ?R4_CELL_R(22, 1, 0, { 1, port3, mux0});
+    ?R4_CELL_R(22, 1, 1, { 1, port3, mux1});
+    ?R4_CELL_R(23, 1, 0, { 1, port3, mux2});
+    ?R4_CELL_R(23, 1, 1, { 1, direct_link});
+    ?R4_CELL_R(24, 1, 0, { 1, port4, mux0});
+    ?R4_CELL_R(24, 1, 1, { 1, port4, mux1});
+    ?R4_CELL_R(25, 1, 0, { 1, port4, mux2});
+    ?R4_CELL_R(25, 1, 1, { 1, port4, mux3});
+
+    ?R4_CELL_R( 0, 1, 2, { 2, port3, mux2});
+    ?R4_CELL_R( 0, 1, 3, { 2, direct_link});
+    ?R4_CELL_R( 1, 1, 2, { 2, port3, mux0});
+    ?R4_CELL_R( 1, 1, 3, { 2, port3, mux1});
+    ?R4_CELL_E(26, 1, 2, { 2, port3, mux0});
+    ?R4_CELL_E(26, 1, 3, { 2, port3, mux1});
+    ?R4_CELL_E(27, 1, 2, { 2, port3, mux2});
+    ?R4_CELL_E(27, 1, 3, { 2, direct_link});
+    ?R4_CELL_L(26, 1, 2, { 2, port4, mux0});
+    ?R4_CELL_L(26, 1, 3, { 2, port4, mux1});
+    ?R4_CELL_L(27, 1, 2, { 2, port4, mux2});
+    ?R4_CELL_L(27, 1, 3, { 2, port4, mux3});
+
+    ?R4_CELL_R(22, 2, 0, { 3, port3, mux0});
+    ?R4_CELL_R(22, 2, 1, { 3, port3, mux1});
+    ?R4_CELL_R(23, 2, 0, { 3, port3, mux2});
+    ?R4_CELL_R(23, 2, 1, { 3, direct_link});
+    ?R4_CELL_R(24, 2, 0, { 3, port4, mux0});
+    ?R4_CELL_R(24, 2, 1, { 3, port4, mux1});
+    ?R4_CELL_R(25, 2, 0, { 3, port4, mux2});
+    ?R4_CELL_R(25, 2, 1, { 3, port4, mux3});
+
+    ?R4_CELL_R(22, 3, 0, { 4, port3, mux0});
+    ?R4_CELL_R(22, 3, 1, { 4, port3, mux1});
+    ?R4_CELL_R(23, 3, 0, { 4, port3, mux2});
+    ?R4_CELL_R(23, 3, 1, { 4, direct_link});
+    ?R4_CELL_R(24, 3, 0, { 4, port4, mux0});
+    ?R4_CELL_R(24, 3, 1, { 4, port4, mux1});
+    ?R4_CELL_R(25, 3, 0, { 4, port4, mux2});
+    ?R4_CELL_R(25, 3, 1, { 4, port4, mux3});
+
+    ?R4_CELL_R( 0, 3, 2, { 5, port3, mux2});
+    ?R4_CELL_R( 0, 3, 3, { 5, direct_link});
+    ?R4_CELL_R( 1, 3, 2, { 5, port3, mux0});
+    ?R4_CELL_R( 1, 3, 3, { 5, port3, mux1});
+    ?R4_CELL_E(26, 3, 2, { 5, port3, mux0});
+    ?R4_CELL_E(26, 3, 3, { 5, port3, mux1});
+    ?R4_CELL_E(27, 3, 2, { 5, port3, mux2});
+    ?R4_CELL_E(27, 3, 3, { 5, direct_link});
+    ?R4_CELL_L(26, 3, 2, { 5, port4, mux0});
+    ?R4_CELL_L(26, 3, 3, { 5, port4, mux1});
+    ?R4_CELL_L(27, 3, 2, { 5, port4, mux2});
+    ?R4_CELL_L(27, 3, 3, { 5, port4, mux3});
+
+    ?R4_CELL_R(22, 4, 0, { 6, port3, mux0});
+    ?R4_CELL_R(22, 4, 1, { 6, port3, mux1});
+    ?R4_CELL_R(23, 4, 0, { 6, port3, mux2});
+    ?R4_CELL_R(23, 4, 1, { 6, direct_link});
+    ?R4_CELL_R(24, 4, 0, { 6, port4, mux0});
+    ?R4_CELL_R(24, 4, 1, { 6, port4, mux1});
+    ?R4_CELL_R(25, 4, 0, { 6, port4, mux2});
+    ?R4_CELL_R(25, 4, 1, { 6, port4, mux3});
+
+    ?R4_CELL_R( 0, 4, 2, { 7, port3, mux2});
+    ?R4_CELL_R( 0, 4, 3, { 7, direct_link});
+    ?R4_CELL_R( 1, 4, 2, { 7, port3, mux0});
+    ?R4_CELL_R( 1, 4, 3, { 7, port3, mux1});
+    ?R4_CELL_E(26, 4, 2, { 7, port3, mux0});
+    ?R4_CELL_E(26, 4, 3, { 7, port3, mux1});
+    ?R4_CELL_E(27, 4, 2, { 7, port3, mux2});
+    ?R4_CELL_E(27, 4, 3, { 7, direct_link});
+    ?R4_CELL_L(26, 4, 2, { 7, port4, mux0});
+    ?R4_CELL_L(26, 4, 3, { 7, port4, mux1});
+    ?R4_CELL_L(27, 4, 2, { 7, port4, mux2});
+    ?R4_CELL_L(27, 4, 3, { 7, port4, mux3});
+
+    ?R4_CELL_R( 0, 5, 0, { 8, port3, mux2});
+    ?R4_CELL_R( 0, 5, 1, { 8, direct_link});
+    ?R4_CELL_R( 1, 5, 0, { 8, port3, mux0});
+    ?R4_CELL_R( 1, 5, 1, { 8, port3, mux1});
+    ?R4_CELL_E(26, 5, 0, { 8, port3, mux0});
+    ?R4_CELL_E(26, 5, 1, { 8, port3, mux1});
+    ?R4_CELL_E(27, 5, 0, { 8, port3, mux2});
+    ?R4_CELL_E(27, 5, 1, { 8, direct_link});
+    ?R4_CELL_L(26, 5, 0, { 8, port4, mux0});
+    ?R4_CELL_L(26, 5, 1, { 8, port4, mux1});
+    ?R4_CELL_L(27, 5, 0, { 8, port4, mux2});
+    ?R4_CELL_L(27, 5, 1, { 8, port4, mux3});
+
+    ?R4_CELL_R(22, 6, 0, { 9, port3, mux0});
+    ?R4_CELL_R(22, 6, 1, { 9, port3, mux1});
+    ?R4_CELL_R(23, 6, 0, { 9, port3, mux2});
+    ?R4_CELL_R(23, 6, 1, { 9, direct_link});
+    ?R4_CELL_R(24, 6, 0, { 9, port4, mux0});
+    ?R4_CELL_R(24, 6, 1, { 9, port4, mux1});
+    ?R4_CELL_R(25, 6, 0, { 9, port4, mux2});
+    ?R4_CELL_R(25, 6, 1, { 9, port4, mux3});
+
+    ?R4_CELL_R( 0, 6, 2, {10, port3, mux2});
+    ?R4_CELL_R( 0, 6, 3, {10, direct_link});
+    ?R4_CELL_R( 1, 6, 2, {10, port3, mux0});
+    ?R4_CELL_R( 1, 6, 3, {10, port3, mux1});
+    ?R4_CELL_E(26, 6, 2, {10, port3, mux0});
+    ?R4_CELL_E(26, 6, 3, {10, port3, mux1});
+    ?R4_CELL_E(27, 6, 2, {10, port3, mux2});
+    ?R4_CELL_E(27, 6, 3, {10, direct_link});
+    ?R4_CELL_L(26, 6, 2, {10, port4, mux0});
+    ?R4_CELL_L(26, 6, 3, {10, port4, mux1});
+    ?R4_CELL_L(27, 6, 2, {10, port4, mux2});
+    ?R4_CELL_L(27, 6, 3, {10, port4, mux3});
+
+    ?R4_CELL_R(22, 7, 0, {11, port3, mux0});
+    ?R4_CELL_R(22, 7, 1, {11, port3, mux1});
+    ?R4_CELL_R(23, 7, 0, {11, port3, mux2});
+    ?R4_CELL_R(23, 7, 1, {11, direct_link});
+    ?R4_CELL_R(24, 7, 0, {11, port4, mux0});
+    ?R4_CELL_R(24, 7, 1, {11, port4, mux1});
+    ?R4_CELL_R(25, 7, 0, {11, port4, mux2});
+    ?R4_CELL_R(25, 7, 1, {11, port4, mux3});
+
+    ?R4_CELL_R(22, 8, 0, {12, port3, mux0});
+    ?R4_CELL_R(22, 8, 1, {12, port3, mux1});
+    ?R4_CELL_R(23, 8, 0, {12, port3, mux2});
+    ?R4_CELL_R(23, 8, 1, {12, direct_link});
+    ?R4_CELL_R(24, 8, 0, {12, port4, mux0});
+    ?R4_CELL_R(24, 8, 1, {12, port4, mux1});
+    ?R4_CELL_R(25, 8, 0, {12, port4, mux2});
+    ?R4_CELL_R(25, 8, 1, {12, port4, mux3});
+
+    ?R4_CELL_R( 0, 8, 2, {13, port3, mux2});
+    ?R4_CELL_R( 0, 8, 3, {13, direct_link});
+    ?R4_CELL_R( 1, 8, 2, {13, port3, mux0});
+    ?R4_CELL_R( 1, 8, 3, {13, port3, mux1});
+    ?R4_CELL_E(26, 8, 2, {13, port3, mux0});
+    ?R4_CELL_E(26, 8, 3, {13, port3, mux1});
+    ?R4_CELL_E(27, 8, 2, {13, port3, mux2});
+    ?R4_CELL_E(27, 8, 3, {13, direct_link});
+    ?R4_CELL_L(26, 8, 2, {13, port4, mux0});
+    ?R4_CELL_L(26, 8, 3, {13, port4, mux1});
+    ?R4_CELL_L(27, 8, 2, {13, port4, mux2});
+    ?R4_CELL_L(27, 8, 3, {13, port4, mux3});
+
+    ?R4_CELL_R(22, 9, 0, {14, port3, mux0});
+    ?R4_CELL_R(22, 9, 1, {14, port3, mux1});
+    ?R4_CELL_R(23, 9, 0, {14, port3, mux2});
+    ?R4_CELL_R(23, 9, 1, {14, direct_link});
+    ?R4_CELL_R(24, 9, 0, {14, port4, mux0});
+    ?R4_CELL_R(24, 9, 1, {14, port4, mux1});
+    ?R4_CELL_R(25, 9, 0, {14, port4, mux2});
+    ?R4_CELL_R(25, 9, 1, {14, port4, mux3});
+
+    ?R4_CELL_R( 0, 9, 2, {15, port3, mux2});
+    ?R4_CELL_R( 0, 9, 3, {15, direct_link});
+    ?R4_CELL_R( 1, 9, 2, {15, port3, mux0});
+    ?R4_CELL_R( 1, 9, 3, {15, port3, mux1});
+    ?R4_CELL_E(26, 9, 2, {15, port3, mux0});
+    ?R4_CELL_E(26, 9, 3, {15, port3, mux1});
+    ?R4_CELL_E(27, 9, 2, {15, port3, mux2});
+    ?R4_CELL_E(27, 9, 3, {15, direct_link});
+    ?R4_CELL_L(26, 9, 2, {15, port4, mux0});
+    ?R4_CELL_L(26, 9, 3, {15, port4, mux1});
+    ?R4_CELL_L(27, 9, 2, {15, port4, mux2});
+    ?R4_CELL_L(27, 9, 3, {15, port4, mux3});
+).
+
 -define(EPM240_USER_CODES(),
     ?USER_CODE(0, 511);
     ?USER_CODE(1, 767);
@@ -1862,6 +2338,38 @@ from_density({{lc, X, Y, N}, Name, Value}, With = #with{}) ->
         error ->
             {error, {{invalid_lc, X, Y, N}, Name}}
     end;
+from_density({{c4, X, Y, port, Port}, Value}, With = #with{}) ->
+    case from_density_c4(X, Y, With) of
+        ok ->
+            from_c4(X, Y, {Port, Value}, With);
+
+        error ->
+            {error, {{invalid_c4, X, Y, port, Port}, Value}}
+    end;
+from_density({{c4, X, Y, port, Port}, Cross, Value}, With = #with{}) ->
+    case from_density_c4(X, Y, With) of
+        ok ->
+            from_c4(X, Y, {Port, Cross, Value}, With);
+
+        error ->
+            {error, {{invalid_c4, X, Y, port, Port}, Cross, Value}}
+    end;
+from_density({{r4, X, Y, port, Port}, Value}, With = #with{}) ->
+    case from_density_r4(X, Y, With) of
+        ok ->
+            from_r4(X, Y, {Port, Value}, With);
+
+        error ->
+            {error, {{invalid_r4, X, Y, port, Port}, Value}}
+    end;
+from_density({{r4, X, Y, port, Port}, Cross, Value}, With = #with{}) ->
+    case from_density_r4(X, Y, With) of
+        ok ->
+            from_r4(X, Y, {Port, Cross, Value}, With);
+
+        error ->
+            {error, {{invalid_r4, X, Y, port, Port}, Cross, Value}}
+    end;
 from_density(_Name, _With = #with{}) ->
     {error, density}.
 
@@ -1906,6 +2414,32 @@ from_density_lab(X, Y, With = #with{})
              Y > With#with.long_y andalso Y < With#with.top_y ->
     ok;
 from_density_lab(_, _, _) ->
+    error.
+
+%%--------------------------------------------------------------------
+
+from_density_c4(X, Y, With = #with{})
+        when X >= With#with.left_x andalso X < With#with.grow_x andalso
+             Y >= With#with.short_y andalso Y =< With#with.top_y ->
+    ok;
+from_density_c4(X, Y, With = #with{})
+        when X >= With#with.grow_x andalso X =< With#with.right_x andalso
+             Y >= With#with.long_y andalso Y =< With#with.top_y ->
+    ok;
+from_density_c4(_, _, _) ->
+    error.
+
+%%--------------------------------------------------------------------
+
+from_density_r4(X, Y, With = #with{})
+        when X >= With#with.left_x andalso X < With#with.grow_x andalso
+             Y > With#with.short_y andalso Y < With#with.top_y ->
+    ok;
+from_density_r4(X, Y, With = #with{})
+        when X >= With#with.grow_x andalso X =< With#with.right_x andalso
+             Y > With#with.long_y andalso Y < With#with.top_y ->
+    ok;
+from_density_r4(_, _, _) ->
     error.
 
 %%--------------------------------------------------------------------
@@ -2011,6 +2545,73 @@ from_ioc(X, Y, N, Name, _With) ->
 
 -undef(IOC_HEAD).
 -undef(IOC_STRIP).
+
+%%--------------------------------------------------------------------
+
+-define(C4_SIDE_C(Sector, N, I, Name),
+    from_c4(X, Y, Name, With) when X =:= With#with.left_x ->
+        from_side(X, Sector, Y, N, I, With)
+).
+-define(C4_SIDE_E(Sector, N, I, Name),
+    from_c4(X, Y, Name, With) when X =:= With#with.left_x + 1 ->
+        from_side(X - 1, Sector, Y, N, I, With);
+    from_c4(X, Y, Name, With) when X =:= With#with.right_x ->
+        from_side(X, Sector, Y, N, I, With)
+).
+-define(C4_CELL_E(Sector, N, I, Name),
+    from_c4(X, Y, Name, With) when X =:= With#with.right_x ->
+        from_cell(X - 1, Sector, Y, N, I, With)
+).
+-define(C4_CELL_L(Sector, N, I, Name),
+    from_c4(X, Y, Name, With) ->
+        from_cell(X - 1, Sector, Y, N, I, With)
+).
+-define(C4_CELL_R(Sector, N, I, Name),
+    from_c4(X, Y, Name, With) when X < With#with.right_x ->
+        from_cell(X, Sector, Y, N, I, With)
+).
+
+?C4_SIDES()
+?C4_CELLS()
+from_c4(X, Y, Name, _With) ->
+    {error, {r4, X, Y, Name}}.
+
+-undef(C4_SIDE_C).
+-undef(C4_SIDE_E).
+-undef(C4_CELL_E).
+-undef(C4_CELL_L).
+-undef(C4_CELL_R).
+
+%%--------------------------------------------------------------------
+
+-define(R4_SIDE_E(Sector, N, I, Name),
+    from_r4(X, Y, Name, With) when X =:= With#with.left_x + 1 ->
+        from_side(X - 1, Sector, Y, N, I, With);
+    from_r4(X, Y, Name, With) when X =:= With#with.right_x ->
+        from_side(X, Sector, Y, N, I, With)
+).
+-define(R4_CELL_E(Sector, N, I, Name),
+    from_r4(X, Y, Name, With) when X =:= With#with.right_x ->
+        from_cell(X - 1, Sector, Y, N, I, With)
+).
+-define(R4_CELL_L(Sector, N, I, Name),
+    from_r4(X, Y, Name, With) ->
+        from_cell(X - 1, Sector, Y, N, I, With)
+).
+-define(R4_CELL_R(Sector, N, I, Name),
+    from_r4(X, Y, Name, With) when X < With#with.right_x ->
+        from_cell(X, Sector, Y, N, I, With)
+).
+
+?R4_SIDES()
+?R4_CELLS()
+from_r4(X, Y, Name, _With) ->
+    {error, {r4, X, Y, Name}}.
+
+-undef(R4_SIDE_E).
+-undef(R4_CELL_E).
+-undef(R4_CELL_L).
+-undef(R4_CELL_R).
 
 %%--------------------------------------------------------------------
 
@@ -2719,6 +3320,22 @@ to_side_line(X, Y, Index, Sector, _) ->
 
 %%--------------------------------------------------------------------
 
+-define(C4_SIDE_C(Sector, N, Index, Name),
+    to_side(X, Y, N, Index, Sector, With) when X =:= With#with.left_x ->
+        to_c4(X, Y, Name)
+).
+-define(C4_SIDE_E(Sector, N, Index, Name),
+    to_side(X, Y, N, Index, Sector, With) when X =:= With#with.left_x ->
+        to_c4(X + 1, Y, Name);
+    to_side(X, Y, N, Index, Sector, With) when X =:= With#with.right_x ->
+        to_c4(X, Y, Name)
+).
+-define(R4_SIDE_E(Sector, N, Index, Name),
+    to_side(X, Y, N, Index, Sector, With) when X =:= With#with.left_x ->
+        to_r4(X + 1, Y, Name);
+    to_side(X, Y, N, Index, Sector, With) when X =:= With#with.right_x ->
+        to_r4(X, Y, Name)
+).
 -define(IOB_SIDE(Sector, N, Index, Name),
     to_side(X, Y, N, Index, Sector, _) ->
         to_iob(X, Y, Name)
@@ -2738,6 +3355,8 @@ to_side_line(X, Y, Index, Sector, _) ->
         {error, {X, Y, N, Index, side, Sector}}
 ).
 
+?C4_SIDES()
+?R4_SIDES()
 ?IOB_SIDES()
 ?IOC_LEFTS()
 ?IOC_RIGHTS()
@@ -2745,6 +3364,9 @@ to_side_line(X, Y, Index, Sector, _) ->
 to_side(X, Y, N, Index, Sector, _) ->
     {error, {X, Y, N, Index, side, Sector}}.
 
+-undef(C4_SIDE_C).
+-undef(C4_SIDE_E).
+-undef(R4_SIDE_E).
 -undef(IOB_SIDE).
 -undef(IOC_LEFT).
 -undef(IOC_RIGHT).
@@ -2769,6 +3391,30 @@ to_cell_line(X, Y, Index, Sector, _) ->
 
 %%--------------------------------------------------------------------
 
+-define(C4_CELL_E(Sector, N, I, Name),
+    to_cell(X, Y, N, I, Sector, With) when X =:= With#with.right_x - 1 ->
+        to_c4(X + 1, Y, Name)
+).
+-define(C4_CELL_L(Sector, N, I, Name),
+    to_cell(X, Y, N, I, Sector, _) ->
+        to_c4(X + 1, Y, Name)
+).
+-define(C4_CELL_R(Sector, N, I, Name),
+    to_cell(X, Y, N, I, Sector, _) ->
+        to_c4(X, Y, Name)
+ ).
+-define(R4_CELL_E(Sector, N, I, Name),
+    to_cell(X, Y, N, I, Sector, With) when X =:= With#with.right_x - 1 ->
+        to_r4(X + 1, Y, Name)
+).
+-define(R4_CELL_L(Sector, N, I, Name),
+    to_cell(X, Y, N, I, Sector, _) ->
+        to_r4(X + 1, Y, Name)
+).
+-define(R4_CELL_R(Sector, N, I, Name),
+    to_cell(X, Y, N, I, Sector, _) ->
+        to_r4(X, Y, Name)
+ ).
 -define(LAB_CELL(Sector, N, I, Name),
     to_cell(X, Y, N, I, Sector, _) ->
         to_lab(X, Y, Name)
@@ -2778,6 +3424,8 @@ to_cell_line(X, Y, Index, Sector, _) ->
         to_lc(X, Y, N, Name)
 ).
 
+?C4_CELLS()
+?R4_CELLS()
 to_cell(X, Y, N, I, Sector, With = #with{})
         when X =< With#with.grow_x andalso
              Y =< With#with.short_y ->
@@ -2787,6 +3435,12 @@ to_cell(X, Y, N, I, Sector, With = #with{})
 to_cell(X, Y, N, I, Sector, _) ->
     {error, {X, Y, N, I, cell, Sector}}.
 
+-undef(C4_CELL_E).
+-undef(C4_CELL_L).
+-undef(C4_CELL_R).
+-undef(R4_CELL_E).
+-undef(R4_CELL_L).
+-undef(R4_CELL_R).
 -undef(LAB_CELL).
 -undef(LC_CELL).
 
@@ -2821,6 +3475,20 @@ to_lc(X, Y, N, {Name, Value}) ->
     {ok, {{lc, X, Y, N}, Name, Value}};
 to_lc(X, Y, N, Name) ->
     {ok, {{lc, X, Y, N}, Name}}.
+
+%%--------------------------------------------------------------------
+
+to_c4(X, Y, {Port, Cross}) ->
+    {ok, {{c4, X, Y, port, Port}, Cross}};
+to_c4(X, Y, {Port, Cross, Mux}) ->
+    {ok, {{c4, X, Y, port, Port}, Cross, Mux}}.
+
+%%--------------------------------------------------------------------
+
+to_r4(X, Y, {Port, Cross}) ->
+    {ok, {{r4, X, Y, port, Port}, Cross}};
+to_r4(X, Y, {Port, Cross, Mux}) ->
+    {ok, {{r4, X, Y, port, Port}, Cross, Mux}}.
 
 %%====================================================================
 %% density

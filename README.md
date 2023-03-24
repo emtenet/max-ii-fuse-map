@@ -45,6 +45,8 @@ My experiments are being run in the following
  * [OE mux](experiments/src/output_enable_mux_theory.erl) theory
  * [C4 fuses](experiments/src/c4_fuses_database.erl) database
  * [R4 fuses](experiments/src/r4_fuses_database.erl) database
+ * [C4 fuse name](experiments/src/c4_fuse_name_experiment.erl)
+ * [R4 fuse name](experiments/src/r4_fuse_name_experiment.erl)
 
 ## Fuse map
 
@@ -252,4 +254,34 @@ Not used at the same time as the dedicated direct-link above.
 
 Each interconnect has a two dimentional mux of size 4 x 3
 selecting from 12 alternative sources.
+
+### `{c4_port(), port4, mux#}` and `{c4_port(), port4, mux#}` and `{c4_port(), direct_link}`
+
+Where `c4_port()` is `{c4, x(), y(), port, 0..13}`.
+
+Select a direct-link, C4 or R4 into a C4's interconnect.
+
+The fuse names the port into the C4 interconnect,
+not the C4 interconnect itself.
+
+Either select:
+
+ * via the direct-link fuse, or
+ * via the two dimentional mux of size 4 x 3
+   selecting from 12 alternative sources.
+
+### `{r4_port(), port4, mux#}` and `{r4_port(), port4, mux#}` and `{r4_port(), direct_link}`
+
+Where `r4_port()` is `{r4, x(), y(), port, 0..13}`.
+
+Select a direct-link, C4 or R4 into a R4's interconnect.
+
+The fuse names the port into the C4 interconnect,
+not the R4 interconnect itself.
+
+Either select:
+
+ * via the direct-link fuse, or
+ * via the two dimentional mux of size 4 x 3
+   selecting from 12 alternative sources.
 
