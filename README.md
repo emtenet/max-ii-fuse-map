@@ -47,6 +47,8 @@ My experiments are being run in the following
  * [R4 fuses](experiments/src/r4_fuses_database.erl) database
  * [C4 fuse name](experiments/src/c4_fuse_name_experiment.erl)
  * [R4 fuse name](experiments/src/r4_fuse_name_experiment.erl)
+ * [C4 ports](experiments/src/c4_ports_database.erl) database
+ * [R4 ports](experiments/src/r4_ports_database.erl) database
 
 ## Fuse map
 
@@ -68,6 +70,20 @@ and some mapping tables printed:
 
  * [IOB interconnect](experiments/src/iob_interconnect_mux_database.erl)
  * [LAB interconnect](experiments/src/lab_interconnect_mux_database.erl)
+
+## C4/R4 interconnect mux
+
+Databases are being collected with C4 & R4 interconnect mux details.
+
+List of fuse locations involved:
+
+ * [C4 fuses](experiments/src/c4_fuses_database.erl)
+ * [R4 fuses](experiments/src/r4_fuses_database.erl)
+
+List of port mappings after fuses have been named:
+
+ * [C4 ports](experiments/src/c4_ports_database.erl)
+ * [R4 ports](experiments/src/r4_ports_database.erl)
 
 ## Fuses
 
