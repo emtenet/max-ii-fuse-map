@@ -126,7 +126,7 @@ run_common(Density, [DirIndex | DirIndexes], Dirs) ->
 %%--------------------------------------------------------------------
 
 run_common(Density, [], _, [Fuse]) ->
-    Location = fuse_map:to_name(Fuse, Density),
+    Location = fuse_map:to_location(Fuse, Density),
     [Location];
 run_common(Density, [], _, [Fuse0, Fuse1]) ->
     Location0 = fuse_map:to_location(Fuse0, Density),
