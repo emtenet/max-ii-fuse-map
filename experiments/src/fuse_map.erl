@@ -805,14 +805,14 @@
 ).
 
 -define(C4_CELLS(),
-    ?C4_CELL_R(22, 0, 0, { 0, port3, mux0});
-    ?C4_CELL_R(22, 0, 1, { 0, port3, mux1});
-    ?C4_CELL_R(23, 0, 0, { 0, port3, mux2});
-    ?C4_CELL_R(23, 0, 1, { 0, direct_link});
-    ?C4_CELL_R(24, 0, 0, { 0, port4, mux0});
-    ?C4_CELL_R(24, 0, 1, { 0, port4, mux1});
-    ?C4_CELL_R(25, 0, 0, { 0, port4, mux2});
-    ?C4_CELL_R(25, 0, 1, { 0, port4, mux3});
+    ?C4_CELL_C(22, 0, 0, { 0, port3, mux0});
+    ?C4_CELL_C(22, 0, 1, { 0, port3, mux1});
+    ?C4_CELL_C(23, 0, 0, { 0, port3, mux2});
+    ?C4_CELL_C(23, 0, 1, { 0, direct_link});
+    ?C4_CELL_C(24, 0, 0, { 0, port4, mux0});
+    ?C4_CELL_C(24, 0, 1, { 0, port4, mux1});
+    ?C4_CELL_C(25, 0, 0, { 0, port4, mux2});
+    ?C4_CELL_C(25, 0, 1, { 0, port4, mux3});
 
     ?C4_CELL_R( 0, 0, 2, { 1, port3, mux2});
     ?C4_CELL_R( 0, 0, 3, { 1, direct_link});
@@ -892,14 +892,14 @@
     ?C4_CELL_L(27, 4, 0, { 6, port4, mux2});
     ?C4_CELL_L(27, 4, 1, { 6, port4, mux3});
 
-    ?C4_CELL_R(22, 5, 0, { 7, port3, mux0});
-    ?C4_CELL_R(22, 5, 1, { 7, port3, mux1});
-    ?C4_CELL_R(23, 5, 0, { 7, port3, mux2});
-    ?C4_CELL_R(23, 5, 1, { 7, direct_link});
-    ?C4_CELL_R(24, 5, 0, { 7, port4, mux0});
-    ?C4_CELL_R(24, 5, 1, { 7, port4, mux1});
-    ?C4_CELL_R(25, 5, 0, { 7, port4, mux2});
-    ?C4_CELL_R(25, 5, 1, { 7, port4, mux3});
+    ?C4_CELL_C(22, 5, 0, { 7, port3, mux0});
+    ?C4_CELL_C(22, 5, 1, { 7, port3, mux1});
+    ?C4_CELL_C(23, 5, 0, { 7, port3, mux2});
+    ?C4_CELL_C(23, 5, 1, { 7, direct_link});
+    ?C4_CELL_C(24, 5, 0, { 7, port4, mux0});
+    ?C4_CELL_C(24, 5, 1, { 7, port4, mux1});
+    ?C4_CELL_C(25, 5, 0, { 7, port4, mux2});
+    ?C4_CELL_C(25, 5, 1, { 7, port4, mux3});
 
     ?C4_CELL_R( 0, 5, 2, { 8, port3, mux2});
     ?C4_CELL_R( 0, 5, 3, { 8, direct_link});
@@ -2423,7 +2423,7 @@ from_density_c4(X, Y, With = #with{})
              Y >= With#with.short_y andalso Y =< With#with.top_y ->
     ok;
 from_density_c4(X, Y, With = #with{})
-        when X >= With#with.grow_x andalso X =< With#with.right_x andalso
+        when X >= With#with.grow_x andalso X < With#with.right_x andalso
              Y >= With#with.long_y andalso Y =< With#with.top_y ->
     ok;
 from_density_c4(_, _, _) ->
@@ -2553,22 +2553,26 @@ from_ioc(X, Y, N, Name, _With) ->
         from_side(X, Sector, Y, N, I, With)
 ).
 -define(C4_SIDE_E(Sector, N, I, Name),
-    from_c4(X, Y, Name, With) when X =:= With#with.left_x + 1 ->
-        from_side(X - 1, Sector, Y, N, I, With);
-    from_c4(X, Y, Name, With) when X =:= With#with.right_x ->
-        from_side(X, Sector, Y, N, I, With)
+    from_c4(X, Y, Name, With) when X =:= With#with.left_x ->
+        from_side(X, Sector, Y, N, I, With);
+    from_c4(X, Y, Name, With) when X =:= With#with.right_x - 1 ->
+        from_side(X + 1, Sector, Y, N, I, With)
+).
+-define(C4_CELL_C(Sector, N, I, Name),
+    from_c4(X, Y, Name, With) ->
+        from_cell(X, Sector, Y, N, I, With)
 ).
 -define(C4_CELL_E(Sector, N, I, Name),
-    from_c4(X, Y, Name, With) when X =:= With#with.right_x ->
-        from_cell(X - 1, Sector, Y, N, I, With)
+    from_c4(X, Y, Name, With) when X =:= With#with.right_x - 1 ->
+        from_cell(X, Sector, Y, N, I, With)
 ).
 -define(C4_CELL_L(Sector, N, I, Name),
     from_c4(X, Y, Name, With) ->
-        from_cell(X - 1, Sector, Y, N, I, With)
+        from_cell(X, Sector, Y, N, I, With)
 ).
 -define(C4_CELL_R(Sector, N, I, Name),
-    from_c4(X, Y, Name, With) when X < With#with.right_x ->
-        from_cell(X, Sector, Y, N, I, With)
+    from_c4(X, Y, Name, With) when X < With#with.right_x - 1 ->
+        from_cell(X + 1, Sector, Y, N, I, With)
 ).
 
 ?C4_SIDES()
@@ -2578,6 +2582,7 @@ from_c4(X, Y, Name, _With) ->
 
 -undef(C4_SIDE_C).
 -undef(C4_SIDE_E).
+-undef(C4_CELL_C).
 -undef(C4_CELL_E).
 -undef(C4_CELL_L).
 -undef(C4_CELL_R).
@@ -3326,9 +3331,9 @@ to_side_line(X, Y, Index, Sector, _) ->
 ).
 -define(C4_SIDE_E(Sector, N, Index, Name),
     to_side(X, Y, N, Index, Sector, With) when X =:= With#with.left_x ->
-        to_c4(X + 1, Y, Name);
+        to_c4(X, Y, Name);
     to_side(X, Y, N, Index, Sector, With) when X =:= With#with.right_x ->
-        to_c4(X, Y, Name)
+        to_c4(X - 1, Y, Name)
 ).
 -define(R4_SIDE_E(Sector, N, Index, Name),
     to_side(X, Y, N, Index, Sector, With) when X =:= With#with.left_x ->
@@ -3391,17 +3396,21 @@ to_cell_line(X, Y, Index, Sector, _) ->
 
 %%--------------------------------------------------------------------
 
+-define(C4_CELL_C(Sector, N, I, Name),
+    to_cell(X, Y, N, I, Sector, _) ->
+        to_c4(X, Y, Name)
+ ).
 -define(C4_CELL_E(Sector, N, I, Name),
     to_cell(X, Y, N, I, Sector, With) when X =:= With#with.right_x - 1 ->
-        to_c4(X + 1, Y, Name)
+        to_c4(X, Y, Name)
 ).
 -define(C4_CELL_L(Sector, N, I, Name),
     to_cell(X, Y, N, I, Sector, _) ->
-        to_c4(X + 1, Y, Name)
+        to_c4(X, Y, Name)
 ).
 -define(C4_CELL_R(Sector, N, I, Name),
     to_cell(X, Y, N, I, Sector, _) ->
-        to_c4(X, Y, Name)
+        to_c4(X - 1, Y, Name)
  ).
 -define(R4_CELL_E(Sector, N, I, Name),
     to_cell(X, Y, N, I, Sector, With) when X =:= With#with.right_x - 1 ->
@@ -3435,6 +3444,7 @@ to_cell(X, Y, N, I, Sector, With = #with{})
 to_cell(X, Y, N, I, Sector, _) ->
     {error, {X, Y, N, I, cell, Sector}}.
 
+-undef(C4_CELL_C).
 -undef(C4_CELL_E).
 -undef(C4_CELL_L).
 -undef(C4_CELL_R).

@@ -43,8 +43,8 @@ run() ->
     %build(epm240),
     %build(epm570),
     %build(epm1270),
-    build(epm2210),
-    %lists:foreach(fun build/1, density:list()),
+    %build(epm2210),
+    lists:foreach(fun build/1, density:list()),
     ok.
 
 %%--------------------------------------------------------------------
@@ -171,7 +171,7 @@ build_port(Density, [Fuse | Fuses], Muxes0, Ports) ->
 %% open
 %%====================================================================
 
--spec open(density()) -> blocks().
+-spec open(density()) -> {ok, blocks()}.
 
 open(Density) ->
     File = database_file(Density),

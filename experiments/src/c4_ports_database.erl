@@ -43,8 +43,8 @@ run() ->
     %build(epm240),
     %build(epm570),
     %build(epm1270),
-    build(epm2210),
-    %lists:foreach(fun build/1, density:list()),
+    %build(epm2210),
+    lists:foreach(fun build/1, density:list()),
     ok.
 
 %%--------------------------------------------------------------------
@@ -171,18 +171,24 @@ build_port(Density, [Fuse | Fuses], Muxes0, Ports) ->
 %% open
 %%====================================================================
 
--spec open(density()) -> blocks().
+-spec open(density()) -> {ok, blocks()}.
 
 open(Density) ->
     File = database_file(Density),
     case file:consult(File) of
-        {ok, [{c4, X, Y, port, Port} | Lines]} ->
-            Blocks = open(Lines, #{}, Port, {c4, X, Y}, #{}),
+        {ok, [Line = {c4, _, _, port, _} | Lines]} ->
+            {Block, Port} = open_block_and_port(Line),
+            Blocks = open(Lines, #{}, Port, Block, #{}),
             {ok, Blocks};
 
         {error, enoent} ->
             {ok, #{}}
     end.
+
+%%--------------------------------------------------------------------
+
+open_block_and_port({c4, X, Y, port, Port}) ->
+    {{c4, X, Y}, Port}.
 
 %%--------------------------------------------------------------------
 
@@ -194,14 +200,15 @@ open([], Mux, Port, Block, Blocks) ->
         _ ->
             Blocks#{Block => #{Port => Mux}}
     end;
-open([{c4, X, Y, port, I} | Lines], Mux, Port, Block, Blocks) ->
+open([Line = {c4, _, _, port, _} | Lines], Mux, Port, Block, Blocks) ->
+    {NextBlock, NextPort} = open_block_and_port(Line),
     case Blocks of
         #{Block := Ports} ->
-            open(Lines, #{}, I, {c4, X, Y},
+            open(Lines, #{}, NextPort, NextBlock,
                  Blocks#{Block => Ports#{Port => Mux}});
 
         _ ->
-            open(Lines, #{}, I, {c4, X, Y},
+            open(Lines, #{}, NextPort, NextBlock,
                  Blocks#{Block => #{Port => Mux}})
     end;
 open([{Entry, From} | Lines], Mux, Port, Block, Blocks) ->
