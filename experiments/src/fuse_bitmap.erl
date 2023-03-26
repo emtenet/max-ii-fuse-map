@@ -86,8 +86,15 @@ fuse(Fuse, Database) ->
 %%--------------------------------------------------------------------
 
 fuse({_IOC, bus_hold}) -> $B;
+fuse({_IOC, schmitt_trigger}) -> $S;
 fuse({_IOC, enable}) -> $E;
-fuse({_IOC, output_invert}) -> $I;
+fuse({_IOC, enable_invert}) -> $E;
+fuse({_IOC, enable3, _}) -> $E;
+fuse({_IOC, enable4, _}) -> $E;
+fuse({_IOC, output}) -> $O;
+fuse({_IOC, output_invert}) -> $O;
+fuse({_IOC, output3, _}) -> $O;
+fuse({_IOC, output4, _}) -> $O;
 fuse({_IOC, weak_pull_up}) -> $W;
 fuse({_LAB, clk1_global0}) -> $k;
 fuse({_LAB, clk1_global1}) -> $k;
@@ -104,10 +111,18 @@ fuse({_LAB, clr1_global1}) -> $r;
 fuse({_LAB, clr1_global2}) -> $r;
 fuse({_LAB, clr1_global3}) -> $r;
 fuse({_LAB, clr1_invert}) -> $r;
-fuse({_LC, clk}) -> $K;
-fuse({_LC, clr}) -> $R;
-fuse({_LC, local_line}) -> $L;
+fuse({_LAB, {interconnect, _}, _}) -> $L;
+fuse({_LAB, {interconnect, _}, _, _}) -> $L;
+fuse({_LC, clk}) -> $k;
+fuse({_LC, clr}) -> $r;
+fuse({_LC, local_line}) -> $l;
 fuse({_LC, lut, _}) -> $#;
+fuse({_LC, lut_out, left}) -> $<;
+fuse({_LC, lut_out, right}) -> $>;
+fuse({{c4, _, _}, {mux, _}, _}) -> $C;
+fuse({{c4, _, _}, {mux, _}, _, _}) -> $C;
+fuse({{r4, _, _}, {mux, _}, _}) -> $R;
+fuse({{r4, _, _}, {mux, _}, _, _}) -> $R;
 fuse({user_code, _}) -> $U;
 fuse(_) -> $~.
 
