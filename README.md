@@ -49,6 +49,8 @@ My experiments are being run in the following
  * [R4 fuse name](experiments/src/r4_fuse_name_experiment.erl)
  * [C4 interconnect](experiments/src/c4_interconnect_database.erl) database
  * [R4 interconnect](experiments/src/r4_interconnect_database.erl) database
+ * [C4 interconnect](experiments/src/c4_interconnect_map.erl) map
+ * [R4 interconnect](experiments/src/r4_interconnect_map.erl) map
 
 ## Fuse map
 
@@ -70,6 +72,13 @@ and some mapping tables printed:
 
  * [IOB interconnect](experiments/src/iob_interconnect_mux_database.erl)
  * [LAB interconnect](experiments/src/lab_interconnect_mux_database.erl)
+
+## C4/R4 interconnect map
+
+A mapping from fuse locations to internconnect indexes is encoded in:
+
+ * [C4 interconnect map](experiments/src/c4_interconnect_map.erl)
+ * [R4 interconnect map](experiments/src/r4_interconnect_map.erl)
 
 ## C4/R4 interconnect mux
 
