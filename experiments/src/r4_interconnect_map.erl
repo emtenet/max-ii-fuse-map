@@ -55,6 +55,7 @@ test(Density) ->
         Y <- lists:seq(0, 14),
         I <- lists:seq(0, 63)
     ],
+    test_database(Density),
     ok.
 
 %%--------------------------------------------------------------------
@@ -118,6 +119,27 @@ test_to_mux(X, Y, I, Density) ->
                     })
             end
     end.
+
+%%--------------------------------------------------------------------
+
+test_database(Density) ->
+    {ok, Blocks} = r4_interconnect_database:open(Density),
+    maps:foreach(fun (Block, Indexes) ->
+        test_database_block(Density, Block, Indexes)
+    end, Blocks).
+
+%%--------------------------------------------------------------------
+
+test_database_block(Density, Block, Indexes) ->
+    maps:foreach(fun (Index, {Interconnect, _}) ->
+        test_database_index(Density, Block, Index, Interconnect)
+    end, Indexes).
+
+%%--------------------------------------------------------------------
+
+test_database_index(Density, Block, Index, Interconnect) ->
+    {ok, Interconnect} = r4_interconnect_map:from_mux(Block, Index, Density),
+    ok.
 
 %%====================================================================
 %% from_mux
