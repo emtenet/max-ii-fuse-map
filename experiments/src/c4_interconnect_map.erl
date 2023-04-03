@@ -11,8 +11,8 @@
 -type density() :: density:density().
 -type c4() :: max_ii:c4().
 
--type block() :: {c4, max_ii:x(), max_ii:y()}.
--type mux() :: {mux, 0..13}.
+-type block() :: max_ii:c4_block().
+-type mux() :: max_ii:c4_index().
 
 -record(with, {
     left :: non_neg_integer(),
@@ -235,7 +235,7 @@ to_mux_indent(X, Y, I, _) when Y =:= ?INDENT_BOTTOM + 1 ->
     {ok, {c4, X, ?INDENT_MIDDLE}, {mux, I - 21}};
 to_mux_indent(X, Y, I, _) when I < 7 ->
     {ok, {c4, X, Y - 1}, {mux, I}};
-to_mux_indent(_, Y, _, With) when Y + 4 >= With#with.top ->
+to_mux_indent(_, Y, _, With) when Y + 4 > With#with.top ->
     false;
 to_mux_indent(X, Y, I, _) when I < 14 ->
     {ok, {c4, X, Y + 4}, {mux, I}};
@@ -260,7 +260,7 @@ to_mux(X, Y, I, _) when Y =:= ?BOTTOM + 1 ->
     {ok, {c4, X, ?MIDDLE}, {mux, I - 21}};
 to_mux(X, Y, I, _) when I < 7 ->
     {ok, {c4, X, Y - 1}, {mux, I}};
-to_mux(_, Y, _, With) when Y + 4 >= With#with.top ->
+to_mux(_, Y, _, With) when Y + 4 > With#with.top ->
     false;
 to_mux(X, Y, I, _) when I < 14 ->
     {ok, {c4, X, Y + 4}, {mux, I}};
