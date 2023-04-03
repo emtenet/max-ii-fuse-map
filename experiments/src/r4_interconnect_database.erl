@@ -35,11 +35,11 @@
 %%====================================================================
 
 run() ->
-    build(epm240),
+    %build(epm240),
     %build(epm570),
     %build(epm1270),
     %build(epm2210),
-    %lists:foreach(fun build/1, density:list()),
+    lists:foreach(fun build/1, density:list()),
     ok.
 
 %%--------------------------------------------------------------------
@@ -89,17 +89,41 @@ build_index({route_cache, Density, Dirs, Blocks}, Block, Index, Db0) ->
 
 %%--------------------------------------------------------------------
 
-build_from(_, _, _, {io_data_in, _, _, _, _}, _, Db) ->
-    Db;
 build_from(Density, Dirs, Interconnect, From, DirIndexes, Db) ->
     case build_dirs(Density, DirIndexes, Dirs) of
-        false ->
+        [] ->
             Db;
 
-        {Block, Index, Key} ->
-            io:format("~10w ~8w ~15w: ~w -> ~w~n", [Block, Index, Interconnect, Key, From]),
-            add(Block, Index, Interconnect, Key, From, Db)
+        Ports ->
+            case r4_interconnect_map:to_mux(Interconnect, Density) of
+                false ->
+                    Db;
+
+                {ok, Block, Index} ->
+                    build_from_pick(Ports, Block, Index, Interconnect, From, Db)
+            end
     end.
+
+%%--------------------------------------------------------------------
+
+build_from_pick([], _, _, _, _, Db) ->
+    Db;
+build_from_pick(Ports, Block, Index, Interconnect, From, Db) ->
+    case Ports of
+        [{Block, Index, Key} | _] ->
+            build_add(Block, Index, Interconnect, Key, From, Db);
+
+        [_ | Rest] ->
+            build_from_pick(Rest, Block, Index, Interconnect, From, Db)
+    end.
+
+%%--------------------------------------------------------------------
+
+build_add(Block, Index, Interconnect, Key, From, Db) ->
+    io:format("~10w ~8w ~15w: ~w <- ~w~n", [
+        Block, Index, Interconnect, Key, From
+    ]),
+    add(Block, Index, Interconnect, Key, From, Db).
 
 %%--------------------------------------------------------------------
 
@@ -122,13 +146,8 @@ build_dirs(Density, [DirIndex | DirIndexes], Dirs, Fuses0) ->
 
 %%--------------------------------------------------------------------
 
-build_port(_, [], _, []) ->
-    false;
-build_port(_, [], _, [Port]) ->
-    Port;
-build_port(_, [], _, _Ports) ->
-    %throw(_Ports),
-    false;
+build_port(_, [], _, Ports) ->
+    Ports;
 build_port(Density, [Fuse | Fuses], Muxes0, Ports) ->
     case fuse_map:to_name(Fuse, Density) of
         {ok, {Block = {r4, _, _}, Index = {mux, _}, direct_link}} ->
