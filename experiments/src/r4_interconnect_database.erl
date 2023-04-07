@@ -96,7 +96,7 @@ build_from(Density, Dirs, Interconnect, From, DirIndexes, Db) ->
 
         Ports ->
             case r4_interconnect_map:to_mux(Interconnect, Density) of
-                false ->
+                {error, _} ->
                     Db;
 
                 {ok, Block, Index} ->

@@ -62,10 +62,7 @@ test(Density) ->
 
 test_from_mux(X, Y, Index, Density) ->
     case from_mux({c4, X, Y}, {mux, Index}, Density) of
-        false ->
-            ok;
-
-        undefined ->
+        {error, _} ->
             ok;
 
         {ok, Interconnect} ->
@@ -80,11 +77,11 @@ test_from_mux(X, Y, Index, Density) ->
                         to_mux, Block, Mux
                     });
 
-                Other ->
+                Error = {error, _} ->
                     throw({
                         {c4, X, Y}, {mux, Index},
                         from_mux, Interconnect,
-                        to_mux, Other
+                        to_mux, Error
                     })
             end
     end.
@@ -93,10 +90,7 @@ test_from_mux(X, Y, Index, Density) ->
 
 test_to_mux(X, Y, I, Density) ->
     case to_mux({c4, X, Y, 0, I}, Density) of
-        false ->
-            ok;
-
-        undefined ->
+        {error, _} ->
             ok;
 
         {ok, Block, Mux} ->
@@ -111,11 +105,11 @@ test_to_mux(X, Y, I, Density) ->
                         from_mux, Interconnect
                     });
 
-                Other ->
+                Error = {error, _} ->
                     throw({
                         {c4, X, Y, 0, I},
                         to_mux, Block, Mux,
-                        from_mux, Other
+                        from_mux, Error
                     })
             end
     end.
@@ -145,21 +139,27 @@ test_database_index(Density, Block, Index, Interconnect) ->
 %% from_mux
 %%====================================================================
 
--spec from_mux(block(), mux(), density()) -> {ok, c4()} | false | undefined.
+-spec from_mux(block(), mux(), density()) -> {ok, c4()} | {error, term()}.
 
 from_mux(_, {mux, Index}, _) when Index < 0 orelse Index > 13 ->
-    false;
+    {error, mux_out_of_bounds};
 from_mux({c4, X, Y}, {mux, Index}, Density) ->
     case with(Density) of
+        With when Y =< With#with.bottom ->
+            {error, top};
+
+        With when Y >= With#with.top ->
+            {error, bottom};
+
+        With when X < With#with.left ->
+            {error, left};
+
+        With when X > With#with.right ->
+            {error, right};
+
         With when X < With#with.indent_right andalso
                   Y =< With#with.indent_top ->
-            false;
-
-        With when X < With#with.left orelse X > With#with.right ->
-            false;
-
-        With when Y =< With#with.bottom orelse Y >= With#with.top ->
-            false;
+            {error, indent};
 
         With ->
             from_mux(X, Y, Index, With)
@@ -192,23 +192,29 @@ from_mux(X, Y, Index, _) ->
 %% to_mux
 %%====================================================================
 
--spec to_mux(c4(), density()) -> {ok, block(), mux()} | false.
+-spec to_mux(c4(), density()) -> {ok, block(), mux()} | {error, term()}.
 
 to_mux({c4, _, _, Z, _}, _) when Z =/= 0 ->
-    false;
+    {error, s_non_zero};
 to_mux({c4, _, _, _, I}, _) when I < 0 orelse I > 34 ->
-    false;
+    {error, i_out_of_bounds};
 to_mux({c4, X, Y, 0, I}, Density) ->
     case with(Density) of
-        With when Y < With#with.bottom orelse Y > With#with.top ->
-            false;
+        With when Y > With#with.top ->
+            {error, top};
+
+        With when Y < With#with.bottom ->
+            {error, bottom};
+
+        With when X < With#with.left ->
+            {error, left};
+
+        With when X > With#with.right ->
+            {error, right};
 
         With when Y < With#with.indent_top andalso
-                  (X < With#with.indent_right orelse X > With#with.right) ->
-            false;
-
-        With when X < With#with.left orelse X > With#with.right ->
-            false;
+                  X < With#with.indent_right ->
+            {error, indent};
 
         With when X < With#with.indent_right ->
             to_mux_indent(X, Y, I, With);
@@ -220,7 +226,7 @@ to_mux({c4, X, Y, 0, I}, Density) ->
 %%--------------------------------------------------------------------
 
 to_mux_indent(_, Y, I, _) when Y =:= ?INDENT_BOTTOM andalso I >= 28 ->
-    false;
+    {error, indent_bottom};
 to_mux_indent(X, Y, I, With) when Y =:= ?INDENT_BOTTOM ->
     YY = from_pattern(X, I, 4, 4, With),
     Index = 7 + (I div 4),
@@ -228,24 +234,18 @@ to_mux_indent(X, Y, I, With) when Y =:= ?INDENT_BOTTOM ->
 to_mux_indent(_, Y, _, With)
         when Y =:= ?INDENT_BOTTOM + 1 andalso
              With#with.top =< ?INDENT_MIDDLE ->
-    false;
+    {error, indent_bottom_overflow};
 to_mux_indent(_, Y, I, _) when Y =:= ?INDENT_BOTTOM + 1 andalso I < 28 ->
-    false;
+    {error, indent_bottom_plus_1};
 to_mux_indent(X, Y, I, _) when Y =:= ?INDENT_BOTTOM + 1 ->
     {ok, {c4, X, ?INDENT_MIDDLE}, {mux, I - 21}};
-to_mux_indent(X, Y, I, _) when I < 7 ->
-    {ok, {c4, X, Y - 1}, {mux, I}};
-to_mux_indent(_, Y, _, With) when Y + 4 > With#with.top ->
-    false;
-to_mux_indent(X, Y, I, _) when I < 14 ->
-    {ok, {c4, X, Y + 4}, {mux, I}};
-to_mux_indent(_, _, _, _) ->
-    false.
+to_mux_indent(X, Y, I, With) ->
+    to_mux_common(X, Y, I, With).
 
 %%--------------------------------------------------------------------
 
 to_mux(_, Y, I, _) when Y =:= ?BOTTOM andalso I >= 28 ->
-    false;
+    {error, indent_bottom};
 to_mux(X, Y, I, With) when Y =:= ?BOTTOM andalso I < 28 ->
     YY = from_pattern(X, I, 1, 3, With),
     Index = 7 + (I div 4),
@@ -253,19 +253,24 @@ to_mux(X, Y, I, With) when Y =:= ?BOTTOM andalso I < 28 ->
 to_mux(_, Y, _, With)
         when Y =:= ?BOTTOM + 1 andalso
              With#with.top =< ?MIDDLE ->
-    false;
+    {error, indent_bottom_overflow};
 to_mux(_, Y, I, _) when Y =:= ?BOTTOM + 1 andalso I < 28 ->
-    false;
+    {error, indent_bottom_plus_1};
 to_mux(X, Y, I, _) when Y =:= ?BOTTOM + 1 ->
     {ok, {c4, X, ?MIDDLE}, {mux, I - 21}};
-to_mux(X, Y, I, _) when I < 7 ->
+to_mux(X, Y, I, With) ->
+    to_mux_common(X, Y, I, With).
+
+%%--------------------------------------------------------------------
+
+to_mux_common(X, Y, I, _) when I < 7 ->
     {ok, {c4, X, Y - 1}, {mux, I}};
-to_mux(_, Y, _, With) when Y + 4 > With#with.top ->
-    false;
-to_mux(X, Y, I, _) when I < 14 ->
+to_mux_common(_, Y, _, With) when Y + 4 >= With#with.top ->
+    {error, y_plus_4_above};
+to_mux_common(X, Y, I, _) when I < 14 ->
     {ok, {c4, X, Y + 4}, {mux, I}};
-to_mux(_, _, _, _) ->
-    false.
+to_mux_common(_, _, _, _) ->
+    {error, undefined}.
 
 %%====================================================================
 %% helpers

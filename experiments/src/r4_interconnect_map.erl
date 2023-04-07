@@ -62,10 +62,7 @@ test(Density) ->
 
 test_from_mux(X, Y, Index, Density) ->
     case from_mux({r4, X, Y}, {mux, Index}, Density) of
-        false ->
-            ok;
-
-        undefined ->
+        {error, _} ->
             ok;
 
         {ok, Interconnect} ->
@@ -80,11 +77,11 @@ test_from_mux(X, Y, Index, Density) ->
                         to_mux, Block, Mux
                     });
 
-                Other ->
+                Error = {error, _} ->
                     throw({
                         {r4, X, Y}, {mux, Index},
                         from_mux, Interconnect,
-                        to_mux, Other
+                        to_mux, Error
                     })
             end
     end.
@@ -93,10 +90,7 @@ test_from_mux(X, Y, Index, Density) ->
 
 test_to_mux(X, Y, I, Density) ->
     case to_mux({r4, X, Y, 0, I}, Density) of
-        false ->
-            ok;
-
-        undefined ->
+        {error, _} ->
             ok;
 
         {ok, Block, Mux} ->
@@ -111,11 +105,11 @@ test_to_mux(X, Y, I, Density) ->
                         from_mux, Interconnect
                     });
 
-                Other ->
+                Error = {error, _} ->
                     throw({
                         {r4, X, Y, 0, I},
                         to_mux, Block, Mux,
-                        from_mux, Other
+                        from_mux, Error
                     })
             end
     end.
@@ -145,21 +139,27 @@ test_database_index(Density, Block, Index, Interconnect) ->
 %% from_mux
 %%====================================================================
 
--spec from_mux(block(), mux(), density()) -> {ok, r4()} | false | undefined.
+-spec from_mux(block(), mux(), density()) -> {ok, r4()} | {error, term()}.
 
 from_mux(_, {mux, Index}, _) when Index < 0 orelse Index > 15 ->
-    false;
+    {error, mux_out_of_bounds};
 from_mux({r4, X, Y}, {mux, Index}, Density) ->
     case with(Density) of
+        With when Y > With#with.top ->
+            {error, top};
+
+        With when Y < With#with.bottom ->
+            {error, bottom};
+
+        With when X < With#with.left ->
+            {error, left};
+
+        With when X > With#with.right ->
+            {error, right};
+
         With when X < With#with.indent_right andalso
                   Y < With#with.indent_top ->
-            false;
-
-        With when X < With#with.left orelse X > With#with.right ->
-            false;
-
-        With when Y < With#with.bottom orelse Y > With#with.top ->
-            false;
+            {error, indent};
 
         With ->
             from_mux(X, Y, Index, With)
@@ -176,7 +176,7 @@ from_mux(X, Y, Index, With)
         when Y < With#with.indent_top andalso
              X =:= With#with.indent_right andalso
              Index < 8 ->
-    undefined;
+    {error, unknown};
 from_mux(X, Y, Index, With)
         when Index < 8 ->
     I = to_pattern(X, Y, Index, With),
@@ -207,23 +207,29 @@ from_mux(X, Y, Index, With) ->
 %% to_mux
 %%====================================================================
 
--spec to_mux(r4(), density()) -> {ok, block(), mux()} | false.
+-spec to_mux(r4(), density()) -> {ok, block(), mux()} | {error, term()}.
 
 to_mux({r4, _, _, Z, _}, _) when Z =/= 0 ->
-    false;
+    {error, s_non_zero};
 to_mux({r4, _, _, _, I}, _) when I < 0 orelse I > 63 ->
-    false;
+    {error, i_out_of_bounds};
 to_mux({r4, X, Y, 0, I}, Density) ->
     case with(Density) of
-        With when Y < With#with.bottom orelse Y > With#with.top ->
-            false;
+        With when Y > With#with.top ->
+            {error, top};
+
+        With when Y < With#with.bottom ->
+            {error, bottom};
+
+        With when X < With#with.zero ->
+            {error, left};
+
+        With when X >= With#with.right ->
+            {error, right};
 
         With when Y < With#with.indent_top andalso
                   (X < With#with.indent_right orelse X > With#with.right + 3) ->
-            false;
-
-        With when X < With#with.zero orelse X >= With#with.right ->
-            false;
+            {error, indent};
 
         With ->
             to_mux(X, Y, I, With)
@@ -241,16 +247,16 @@ to_mux(X, Y, I, With)
 to_mux(X, _, I, With)
         when I < 16 andalso
              X < With#with.left ->
-    false;
+    {error, left_16};
 to_mux(X, Y, I, With)
         when I < 16 andalso
              X =< With#with.indent_right andalso
              Y < With#with.indent_top ->
-    false;
+    {error, indent_16};
 to_mux(X, _, I, With)
         when I < 8 andalso
              X >= With#with.right ->
-    false;
+    {error, right_8};
 to_mux(X, Y, I, With)
         when I < 8 ->
     Index = from_pattern(X, Y, I, With),
@@ -262,16 +268,16 @@ to_mux(X, Y, I, With)
 to_mux(X, _, I, With)
         when I < 16 andalso
              X > With#with.right - 3 ->
-    false;
+    {error, right_16};
 to_mux(X, Y, I, With) when I < 16 ->
     Index = from_pattern(X + 3, Y, I, With),
     {ok, {r4, X + 3, Y}, {mux, Index}};
 to_mux(_, _, I, _) when I < 32 ->
-    false;
+    {error, i_32};
 to_mux(X, Y, I, With = #with{zero = X})  ->
     case element(1 + (I rem 4), With#with.zero_columns) of
         undefined ->
-            false;
+            {error, zero_column};
 
         XX ->
             Pattern = I div 4,
@@ -282,7 +288,7 @@ to_mux(X, Y, I, With = #with{indent_right = X})
         when Y < With#with.indent_top ->
     case element(1 + (I rem 4), With#with.indent_columns) of
         undefined ->
-            false;
+            {error, indent_column};
 
         XX ->
             Pattern = I div 4,
@@ -290,7 +296,7 @@ to_mux(X, Y, I, With = #with{indent_right = X})
             {ok, {r4, XX, Y}, {mux, Index}}
     end;
 to_mux(_, _, _, _) ->
-    false.
+    {error, unknown}.
 
 %%====================================================================
 %% helpers
