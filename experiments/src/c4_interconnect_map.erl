@@ -15,10 +15,14 @@
 -type mux() :: max_ii:c4_index().
 
 -record(with, {
-    left :: non_neg_integer(),
-    right :: non_neg_integer(),
-    top :: non_neg_integer(),
-    bottom :: non_neg_integer(),
+    io_top :: non_neg_integer(),
+    io_left :: non_neg_integer(),
+    io_right :: non_neg_integer(),
+    io_bottom :: non_neg_integer(),
+    lab_top :: non_neg_integer(),
+    lab_left :: non_neg_integer(),
+    lab_right :: non_neg_integer(),
+    lab_bottom :: non_neg_integer(),
     indent_top :: non_neg_integer(),
     indent_right :: non_neg_integer(),
     offset_x :: non_neg_integer(),
@@ -145,16 +149,19 @@ from_mux(_, {mux, Index}, _) when Index < 0 orelse Index > 13 ->
     {error, mux_out_of_bounds};
 from_mux({c4, X, Y}, {mux, Index}, Density) ->
     case with(Density) of
-        With when Y =< With#with.bottom ->
+        With when Y > With#with.io_top ->
             {error, top};
 
-        With when Y >= With#with.top ->
+        With when Y =:= With#with.io_top ->
+            from_io_top(X, Index, With);
+
+        With when Y =< With#with.io_bottom ->
             {error, bottom};
 
-        With when X < With#with.left ->
+        With when X < With#with.io_left ->
             {error, left};
 
-        With when X > With#with.right ->
+        With when X >= With#with.io_right ->
             {error, right};
 
         With when X < With#with.indent_right andalso
@@ -164,6 +171,17 @@ from_mux({c4, X, Y}, {mux, Index}, Density) ->
         With ->
             from_mux(X, Y, Index, With)
     end.
+
+%%--------------------------------------------------------------------
+
+from_io_top(X, _, With) when X < With#with.lab_left ->
+    {error, io_top_left};
+from_io_top(X, _, With) when X > With#with.lab_right ->
+    {error, io_top_right};
+from_io_top(_, Index, _) when Index < 7 orelse Index > 9 ->
+    {error, io_top_index};
+from_io_top(X, Index, With) ->
+    {ok, {c4, X, With#with.lab_top, 0, Index}}.
 
 %%--------------------------------------------------------------------
 
@@ -185,6 +203,10 @@ from_mux(X, Y, Index, With)
 from_mux(X, Y, Index, _)
         when Y =:= ?MIDDLE ->
     {ok, {c4, X, ?BOTTOM + 1, 0, Index + 21}};
+from_mux(X, Y, Index, With)
+        when (Index >= 7 andalso Index =< 9) andalso
+             Y =:= With#with.io_top ->
+    {ok, {c4, X, With#with.lab_top, 0, Index}};
 from_mux(X, Y, Index, _) ->
     {ok, {c4, X, Y - 4, 0, Index}}.
 
@@ -200,16 +222,16 @@ to_mux({c4, _, _, _, I}, _) when I < 0 orelse I > 34 ->
     {error, i_out_of_bounds};
 to_mux({c4, X, Y, 0, I}, Density) ->
     case with(Density) of
-        With when Y > With#with.top ->
+        With when Y > With#with.io_top ->
             {error, top};
 
-        With when Y < With#with.bottom ->
+        With when Y < With#with.io_bottom ->
             {error, bottom};
 
-        With when X < With#with.left ->
+        With when X < With#with.io_left ->
             {error, left};
 
-        With when X > With#with.right ->
+        With when X >= With#with.io_right ->
             {error, right};
 
         With when Y < With#with.indent_top andalso
@@ -233,7 +255,7 @@ to_mux_indent(X, Y, I, With) when Y =:= ?INDENT_BOTTOM ->
     {ok, {c4, X, YY}, {mux, Index}};
 to_mux_indent(_, Y, _, With)
         when Y =:= ?INDENT_BOTTOM + 1 andalso
-             With#with.top =< ?INDENT_MIDDLE ->
+             With#with.io_top =< ?INDENT_MIDDLE ->
     {error, indent_bottom_overflow};
 to_mux_indent(_, Y, I, _) when Y =:= ?INDENT_BOTTOM + 1 andalso I < 28 ->
     {error, indent_bottom_plus_1};
@@ -252,7 +274,7 @@ to_mux(X, Y, I, With) when Y =:= ?BOTTOM andalso I < 28 ->
     {ok, {c4, X, YY}, {mux, Index}};
 to_mux(_, Y, _, With)
         when Y =:= ?BOTTOM + 1 andalso
-             With#with.top =< ?MIDDLE ->
+             With#with.io_top =< ?MIDDLE ->
     {error, indent_bottom_overflow};
 to_mux(_, Y, I, _) when Y =:= ?BOTTOM + 1 andalso I < 28 ->
     {error, indent_bottom_plus_1};
@@ -265,7 +287,12 @@ to_mux(X, Y, I, With) ->
 
 to_mux_common(X, Y, I, _) when I < 7 ->
     {ok, {c4, X, Y - 1}, {mux, I}};
-to_mux_common(_, Y, _, With) when Y + 4 >= With#with.top ->
+to_mux_common(X, Y, I, With)
+        when Y =:= With#with.lab_top andalso
+             X >= With#with.lab_left andalso
+             I >= 7 andalso I =< 9 ->
+    {ok, {c4, X, With#with.io_top}, {mux, I}};
+to_mux_common(_, Y, _, With) when Y + 4 > With#with.lab_top ->
     {error, y_plus_4_above};
 to_mux_common(X, Y, I, _) when I < 14 ->
     {ok, {c4, X, Y + 4}, {mux, I}};
@@ -278,47 +305,63 @@ to_mux_common(_, _, _, _) ->
 
 with(epm240) ->
     #with{
-       left = 1,
-       right = 7,
-       top = 5,
-       bottom = 0,
-       indent_top = 0,
-       indent_right = 1,
-       offset_x = 1,
-       offset_y = 3
+        io_top = 5,
+        io_left = 1,
+        io_right = 8,
+        io_bottom = 0,
+        lab_top = 4,
+        lab_left = 2,
+        lab_right = 7,
+        lab_bottom = 1,
+        indent_top = 0,
+        indent_right = 1,
+        offset_x = 1,
+        offset_y = 3
     };
 with(epm570) ->
     #with{
-       left = 0,
-       right = 12,
-       top = 8,
-       bottom = 0,
-       indent_top = 3,
-       indent_right = 9,
-       offset_x = 0,
-       offset_y = 0
+        io_top = 8,
+        io_left = 0,
+        io_right = 13,
+        io_bottom = 0,
+        lab_top = 7,
+        lab_left = 1,
+        lab_right = 12,
+        lab_bottom = 1,
+        indent_top = 3,
+        indent_right = 9,
+        offset_x = 0,
+        offset_y = 0
     };
 with(epm1270) ->
     #with{
-       left = 0,
-       right = 16,
-       top = 11,
-       bottom = 0,
-       indent_top = 3,
-       indent_right = 11,
-       offset_x = 0,
-       offset_y = 0
+        io_top = 11,
+        io_left = 0,
+        io_right = 17,
+        io_bottom = 0,
+        lab_top = 10,
+        lab_left = 1,
+        lab_right = 16,
+        lab_bottom = 1,
+        indent_top = 3,
+        indent_right = 11,
+        offset_x = 0,
+        offset_y = 0
     };
 with(epm2210) ->
     #with{
-       left = 0,
-       right = 20,
-       top = 14,
-       bottom = 0,
-       indent_top = 3,
-       indent_right = 13,
-       offset_x = 0,
-       offset_y = 0
+        io_top = 14,
+        io_left = 0,
+        io_right = 21,
+        io_bottom = 0,
+        lab_top = 13,
+        lab_left = 1,
+        lab_right = 20,
+        lab_bottom = 1,
+        indent_top = 3,
+        indent_right = 13,
+        offset_x = 0,
+        offset_y = 0
     }.
 
 %%--------------------------------------------------------------------

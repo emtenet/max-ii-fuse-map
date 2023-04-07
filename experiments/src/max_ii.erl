@@ -35,7 +35,10 @@
 -type c4() :: {c4, x(), y(), 0, 0..63}.
 -type c4_block() :: {c4, max_ii:x(), max_ii:y()}.
 -type c4_index() :: {mux, 0..13}.
--type c4_select() :: direct_link | {mux4(), mux3()}.
+-type c4_select() ::
+    direct_link |
+    direct_in_0 | direct_in_1 | direct_in_2 | direct_in_3 |
+    {mux4(), mux3()}.
 
 -type r4() :: {r4, x(), y(), 0, 0..63}.
 -type r4_block() :: {r4, max_ii:x(), max_ii:y()}.

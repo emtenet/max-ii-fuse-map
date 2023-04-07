@@ -804,6 +804,15 @@
     ?C4_SIDE_E(12, 9, 3, { 4, from4, mux3});
 ).
 
+-define(C4_HEADS(),
+    ?C4_HEAD(23,  3, { 7, direct_in_2});
+    ?C4_HEAD(23,  7, { 8, direct_in_1});
+    ?C4_HEAD(23,  9, { 9, direct_in_0});
+    ?C4_HEAD(25,  4, { 7, direct_in_3});
+    ?C4_HEAD(25,  8, { 8, direct_in_3});
+    ?C4_HEAD(25, 10, { 9, direct_in_3});
+).
+
 -define(C4_CELLS(),
     ?C4_CELL_C(22, 0, 0, { 0, from3, mux0});
     ?C4_CELL_C(22, 0, 1, { 0, from3, mux1});
@@ -2558,6 +2567,10 @@ from_ioc(X, Y, N, Name, _With) ->
     from_c4(X, Y, Name, With) when X =:= With#with.right_x - 1 ->
         from_side(X + 1, Sector, Y, N, I, With)
 ).
+-define(C4_HEAD(Sector, Index, Name),
+    from_c4(X, Y, Name, With) when Y =:= With#with.top_y ->
+        from_head(X, Sector, Index, With)
+).
 -define(C4_CELL_C(Sector, N, I, Name),
     from_c4(X, Y, Name, With) ->
         from_cell(X, Sector, Y, N, I, With)
@@ -2576,12 +2589,14 @@ from_ioc(X, Y, N, Name, _With) ->
 ).
 
 ?C4_SIDES()
+?C4_HEADS()
 ?C4_CELLS()
 from_c4(X, Y, Name, _With) ->
     {error, {r4, X, Y, Name}}.
 
 -undef(C4_SIDE_C).
 -undef(C4_SIDE_E).
+-undef(C4_HEAD).
 -undef(C4_CELL_C).
 -undef(C4_CELL_E).
 -undef(C4_CELL_L).
@@ -3251,6 +3266,10 @@ to_ioc_strip(X, Y, N, R, C) ->
 
 %%--------------------------------------------------------------------
 
+-define(C4_HEAD(Sector, Index, Name),
+    to_cell_head(X, Index, Sector, With) ->
+        to_c4(X, With#with.top_y, Name)
+ ).
 -define(IOB_HEAD(Sector, Index, Name),
     to_cell_head(X, Index, Sector, With) ->
         to_iob(X, With#with.top_y, Name)
@@ -3260,11 +3279,13 @@ to_ioc_strip(X, Y, N, R, C) ->
         to_ioc(X, With#with.top_y, N, Name)
 ).
 
+?C4_HEADS()
 ?IOB_HEADS()
 ?IOC_HEADS()
 to_cell_head(X, Index, Sector, _With) ->
     {error, {X, head, Index, cell, Sector}}.
 
+-undef(C4_HEAD).
 -undef(IOB_HEAD).
 -undef(IOC_HEAD).
 
