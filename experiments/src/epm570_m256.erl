@@ -2,9 +2,19 @@
 
 -export([iocs/0]).
 -export([pins/0]).
+-export([top_iocs/1]).
+-export([top_pins/1]).
+-export([left_iocs/1]).
+-export([left_pins/1]).
+-export([right_iocs/1]).
+-export([right_pins/1]).
+-export([bottom_iocs/1]).
+-export([bottom_pins/1]).
 
 -type ioc() :: ioc:ioc().
 -type pin() :: pin:pin().
+-type x() :: max_ii:x().
+-type y() :: max_ii:y().
 
 -spec iocs() -> [{pin(), ioc()}].
 
@@ -335,4 +345,306 @@ pins() ->
      y19,
      y20
     ].
+
+-spec top_iocs(x()) -> [{pin(), ioc()}].
+
+top_iocs(1) ->
+    [{e3,{ioc,1,8,0}},
+     {c1,{ioc,1,8,1}},
+     {d2,{ioc,1,8,2}},
+     {d1,{ioc,1,8,3}}];
+top_iocs(2) ->
+    [{a2,{ioc,2,8,0}},
+     {a1,{ioc,2,8,1}},
+     {d3,{ioc,2,8,2}},
+     {c2,{ioc,2,8,3}}];
+top_iocs(3) ->
+    [{a3,{ioc,3,8,0}},
+     {a4,{ioc,3,8,1}},
+     {b4,{ioc,3,8,2}},
+     {b5,{ioc,3,8,3}}];
+top_iocs(4) ->
+    [{c5,{ioc,4,8,0}},
+     {b7,{ioc,4,8,1}},
+     {b6,{ioc,4,8,2}},
+     {a6,{ioc,4,8,3}}];
+top_iocs(5) ->
+    [{a8,{ioc,5,8,0}},
+     {b3,{ioc,5,8,1}},
+     {a7,{ioc,5,8,2}}];
+top_iocs(6) ->
+    [{a10,{ioc,6,8,0}},
+     {b2,{ioc,6,8,1}},
+     {a9,{ioc,6,8,2}},
+     {a5,{ioc,6,8,3}}];
+top_iocs(7) ->
+    [{a13,{ioc,7,8,0}},
+     {a12,{ioc,7,8,1}},
+     {a11,{ioc,7,8,2}},
+     {b8,{ioc,7,8,3}}];
+top_iocs(8) ->
+    [{a15,{ioc,8,8,0}},
+     {b12,{ioc,8,8,1}},
+     {a14,{ioc,8,8,2}},
+     {b9,{ioc,8,8,3}}];
+top_iocs(9) ->
+    [{b19,{ioc,9,8,0}},
+     {b13,{ioc,9,8,1}},
+     {c17,{ioc,9,8,2}}];
+top_iocs(10) ->
+    [{c15,{ioc,10,8,0}},
+     {b14,{ioc,10,8,1}},
+     {b18,{ioc,10,8,2}},
+     {a16,{ioc,10,8,3}}];
+top_iocs(11) ->
+    [{a18,{ioc,11,8,0}},
+     {a17,{ioc,11,8,1}},
+     {b16,{ioc,11,8,2}},
+     {b15,{ioc,11,8,3}}];
+top_iocs(12) ->
+    [{a19,{ioc,12,8,0}},
+     {a20,{ioc,12,8,1}},
+     {c16,{ioc,12,8,2}},
+     {b17,{ioc,12,8,3}}].
+
+-spec top_pins(x()) -> [pin()].
+
+top_pins(1) ->
+    [c1, d1, d2, e3];
+top_pins(2) ->
+    [a1, a2, c2, d3];
+top_pins(3) ->
+    [a3, a4, b4, b5];
+top_pins(4) ->
+    [a6, b6, b7, c5];
+top_pins(5) ->
+    [a7, a8, b3];
+top_pins(6) ->
+    [a5, a9, a10, b2];
+top_pins(7) ->
+    [a11, a12, a13, b8];
+top_pins(8) ->
+    [a14, a15, b9, b12];
+top_pins(9) ->
+    [b13, b19, c17];
+top_pins(10) ->
+    [a16, b14, b18, c15];
+top_pins(11) ->
+    [a17, a18, b15, b16];
+top_pins(12) ->
+    [a19, a20, b17, c16].
+
+-spec left_iocs(y()) -> [{pin(), ioc()}].
+
+left_iocs(1) ->
+    [];
+left_iocs(2) ->
+    [];
+left_iocs(3) ->
+    [];
+left_iocs(4) ->
+    [{p1,{ioc,0,4,0}},
+     {u1,{ioc,0,4,1}},
+     {r1,{ioc,0,4,2}},
+     {r2,{ioc,0,4,3}},
+     {p2,{ioc,0,4,4}},
+     {v3,{ioc,0,4,5}},
+     {t1,{ioc,0,4,6}}];
+left_iocs(5) ->
+    [{k1,{ioc,0,5,0}},
+     {l1,{ioc,0,5,1}},
+     {n2,{ioc,0,5,2}},
+     {m1,{ioc,0,5,3}},
+     {t4,{ioc,0,5,4}},
+     {n1,{ioc,0,5,5}},
+     {r3,{ioc,0,5,6}}];
+left_iocs(6) ->
+    [{e2,{ioc,0,6,0}},
+     {j2,{ioc,0,6,1}},
+     {g1,{ioc,0,6,2}},
+     {f1,{ioc,0,6,3}},
+     {h1,{ioc,0,6,4}},
+     {m2,{ioc,0,6,5}},
+     {j1,{ioc,0,6,6}}];
+left_iocs(7) ->
+    [{c3,{ioc,0,7,0}},
+     {f2,{ioc,0,7,1}},
+     {h2,{ioc,0,7,2}},
+     {e1,{ioc,0,7,3}},
+     {b1,{ioc,0,7,4}},
+     {g2,{ioc,0,7,5}},
+     {f3,{ioc,0,7,6}}].
+
+-spec left_pins(y()) -> [pin()].
+
+left_pins(1) ->
+    [];
+left_pins(2) ->
+    [];
+left_pins(3) ->
+    [];
+left_pins(4) ->
+    [p1, p2, r1, r2, t1, u1, v3];
+left_pins(5) ->
+    [k1, l1, m1, n1, n2, r3, t4];
+left_pins(6) ->
+    [e2, f1, g1, h1, j1, j2, m2];
+left_pins(7) ->
+    [b1, c3, e1, f2, f3, g2, h2].
+
+-spec right_iocs(y()) -> [{pin(), ioc()}].
+
+right_iocs(1) ->
+    [{v20,{ioc,13,1,0}},
+     {u18,{ioc,13,1,1}},
+     {t19,{ioc,13,1,2}},
+     {v19,{ioc,13,1,3}},
+     {y20,{ioc,13,1,4}},
+     {w19,{ioc,13,1,5}}];
+right_iocs(2) ->
+    [{t20,{ioc,13,2,0}},
+     {t18,{ioc,13,2,1}},
+     {u20,{ioc,13,2,2}},
+     {r18,{ioc,13,2,3}},
+     {r19,{ioc,13,2,4}},
+     {u19,{ioc,13,2,5}}];
+right_iocs(3) ->
+    [{p20,{ioc,13,3,0}},
+     {n19,{ioc,13,3,1}},
+     {r20,{ioc,13,3,2}},
+     {w20,{ioc,13,3,3}},
+     {p19,{ioc,13,3,4}},
+     {u17,{ioc,13,3,5}}];
+right_iocs(4) ->
+    [{k20,{ioc,13,4,0}},
+     {j19,{ioc,13,4,1}},
+     {n20,{ioc,13,4,2}},
+     {l20,{ioc,13,4,3}},
+     {m20,{ioc,13,4,4}},
+     {m19,{ioc,13,4,5}}];
+right_iocs(5) ->
+    [{g20,{ioc,13,5,0}},
+     {c18,{ioc,13,5,1}},
+     {h20,{ioc,13,5,2}},
+     {h19,{ioc,13,5,3}},
+     {j20,{ioc,13,5,4}},
+     {e17,{ioc,13,5,5}}];
+right_iocs(6) ->
+    [{e20,{ioc,13,6,0}},
+     {b20,{ioc,13,6,1}},
+     {f20,{ioc,13,6,2}},
+     {e18,{ioc,13,6,3}},
+     {g19,{ioc,13,6,4}},
+     {d18,{ioc,13,6,5}}];
+right_iocs(7) ->
+    [{c20,{ioc,13,7,0}},
+     {d19,{ioc,13,7,1}},
+     {d20,{ioc,13,7,2}},
+     {e19,{ioc,13,7,3}},
+     {f19,{ioc,13,7,4}},
+     {c19,{ioc,13,7,5}}].
+
+-spec right_pins(y()) -> [pin()].
+
+right_pins(1) ->
+    [t19, u18, v19, v20, w19, y20];
+right_pins(2) ->
+    [r18, r19, t18, t20, u19, u20];
+right_pins(3) ->
+    [n19, p19, p20, r20, u17, w20];
+right_pins(4) ->
+    [j19, k20, l20, m19, m20, n20];
+right_pins(5) ->
+    [c18, e17, g20, h19, h20, j20];
+right_pins(6) ->
+    [b20, d18, e18, e20, f20, g19];
+right_pins(7) ->
+    [c19, c20, d19, d20, e19, f19].
+
+-spec bottom_iocs(x()) -> [{pin(), ioc()}].
+
+bottom_iocs(1) ->
+    [{u3,{ioc,1,3,0}},
+     {t2,{ioc,1,3,1}},
+     {v1,{ioc,1,3,2}},
+     {w1,{ioc,1,3,3}}];
+bottom_iocs(2) ->
+    [{y1,{ioc,2,3,0}},
+     {v4,{ioc,2,3,1}},
+     {w3,{ioc,2,3,2}},
+     {w4,{ioc,2,3,3}}];
+bottom_iocs(3) ->
+    [{y4,{ioc,3,3,0}},
+     {w5,{ioc,3,3,1}},
+     {w6,{ioc,3,3,2}},
+     {y2,{ioc,3,3,3}}];
+bottom_iocs(4) ->
+    [{y5,{ioc,4,3,0}},
+     {y3,{ioc,4,3,1}},
+     {w7,{ioc,4,3,2}},
+     {v5,{ioc,4,3,3}}];
+bottom_iocs(5) ->
+    [{y7,{ioc,5,3,0}},
+     {v6,{ioc,5,3,1}},
+     {y6,{ioc,5,3,2}},
+     {u4,{ioc,5,3,3}}];
+bottom_iocs(6) ->
+    [{y9,{ioc,6,3,0}},
+     {w11,{ioc,6,3,1}},
+     {y8,{ioc,6,3,2}},
+     {w8,{ioc,6,3,3}}];
+bottom_iocs(7) ->
+    [{y12,{ioc,7,3,0}},
+     {w14,{ioc,7,3,1}},
+     {y11,{ioc,7,3,2}},
+     {y10,{ioc,7,3,3}}];
+bottom_iocs(8) ->
+    [{y14,{ioc,8,3,0}},
+     {w13,{ioc,8,3,1}},
+     {y13,{ioc,8,3,2}},
+     {w12,{ioc,8,3,3}}];
+bottom_iocs(9) ->
+    [];
+bottom_iocs(10) ->
+    [{y16,{ioc,10,0,0}},
+     {v17,{ioc,10,0,1}},
+     {y15,{ioc,10,0,2}},
+     {w16,{ioc,10,0,3}}];
+bottom_iocs(11) ->
+    [{y17,{ioc,11,0,0}},
+     {y18,{ioc,11,0,1}},
+     {w15,{ioc,11,0,2}},
+     {v16,{ioc,11,0,3}}];
+bottom_iocs(12) ->
+    [{w18,{ioc,12,0,0}},
+     {y19,{ioc,12,0,1}},
+     {w17,{ioc,12,0,2}},
+     {v18,{ioc,12,0,3}}].
+
+-spec bottom_pins(x()) -> [pin()].
+
+bottom_pins(1) ->
+    [t2, u3, v1, w1];
+bottom_pins(2) ->
+    [v4, w3, w4, y1];
+bottom_pins(3) ->
+    [w5, w6, y2, y4];
+bottom_pins(4) ->
+    [v5, w7, y3, y5];
+bottom_pins(5) ->
+    [u4, v6, y6, y7];
+bottom_pins(6) ->
+    [w8, w11, y8, y9];
+bottom_pins(7) ->
+    [w14, y10, y11, y12];
+bottom_pins(8) ->
+    [w12, w13, y13, y14];
+bottom_pins(9) ->
+    [];
+bottom_pins(10) ->
+    [v17, w16, y15, y16];
+bottom_pins(11) ->
+    [v16, w15, y17, y18];
+bottom_pins(12) ->
+    [v18, w17, w18, y19].
 

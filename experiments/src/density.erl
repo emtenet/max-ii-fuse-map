@@ -9,8 +9,13 @@
 -export([fast_outs/1]).
 -export([iobs/1]).
 -export([labs/1]).
+-export([metric/1]).
+-export([columns/1]).
+-export([rows/1]).
 
 -export_type([density/0]).
+
+-include("max_ii.hrl").
 
 -type density() ::
     epm240 |
@@ -441,4 +446,53 @@ labs(epm2210) ->
      ?COLUMN13(19, 13),
      ?COLUMN13(20, 13)
     ].
+
+%%====================================================================
+%% metric
+%%====================================================================
+
+-spec metric(density()) -> #metric{}.
+
+-define(METRIC(L, LL, R, B, BB, T), #metric{
+    density = Density,
+    top_io = T,
+    top_lab = T - 1,
+    left_io = L,
+    left_lab = L + 1,
+    right_io = R,
+    right_lab = R - 1,
+    bottom_io = B,
+    bottom_lab = B + 1,
+    indent_left_io = LL,
+    indent_left_lab = LL + 1,
+    indent_bottom_io = BB,
+    indent_bottom_lab = BB + 1
+}).
+
+metric(Density = epm240) -> ?METRIC(1, 1, 8, 0, 0, 5);
+metric(Density = epm570) -> ?METRIC(0, 9, 13, 0, 3, 8);
+metric(Density = epm1270) -> ?METRIC(0, 11, 17, 0, 3, 11);
+metric(Density = epm2210) -> ?METRIC(0, 13, 21, 0, 3, 14).
+
+%%====================================================================
+%% columns
+%%====================================================================
+
+-spec columns(density()) -> [max_ii:x()].
+
+columns(epm240) -> [2,3,4,5,6,7];
+columns(epm570) -> [1,2,3,4,5,6,7,8,9,10,11,12];
+columns(epm1270) -> [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16];
+columns(epm2210) -> [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20].
+
+%%====================================================================
+%% rows
+%%====================================================================
+
+-spec rows(density()) -> [max_ii:y()].
+
+rows(epm240) -> [1,2,3,4];
+rows(epm570) -> [1,2,3,4,5,6,7];
+rows(epm1270) -> [1,2,3,4,5,6,7,8,9,10];
+rows(epm2210) -> [1,2,3,4,5,6,7,8,9,10,11,12,13].
 

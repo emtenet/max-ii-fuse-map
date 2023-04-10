@@ -5,13 +5,24 @@
 -export([from_name/1]).
 -export([density/1]).
 -export([package/1]).
+-export([gclk_pins/1]).
 -export([iobs/1]).
 -export([labs/1]).
--export([gclk_pins/1]).
+-export([metric/1]).
 -export([pins/1]).
 -export([iocs/1]).
+-export([top_pins/2]).
+-export([top_iocs/2]).
+-export([left_pins/2]).
+-export([left_iocs/2]).
+-export([right_pins/2]).
+-export([right_iocs/2]).
+-export([bottom_pins/2]).
+-export([bottom_iocs/2]).
 
 -export_type([device/0]).
+
+-include("max_ii.hrl").
 
 -type density() :: density:density().
 
@@ -36,6 +47,8 @@
 -type lab() :: lab:lab().
 -type package() :: package:package().
 -type pin() :: pin:pin().
+-type x() :: max_ii:x().
+-type y() :: max_ii:y().
 
 %%====================================================================
 %% list
@@ -172,6 +185,15 @@ package(epm2210_f256) -> f256;
 package(epm2210_f324) -> f324.
 
 %%====================================================================
+%% metric
+%%====================================================================
+
+-spec metric(device()) -> #metric{}.
+
+metric(Device) ->
+    density:metric(density(Device)).
+
+%%====================================================================
 %% iocs
 %%====================================================================
 
@@ -212,4 +234,172 @@ pins(epm1270_m256) -> epm1270_m256:pins();
 pins(epm1270_f256) -> epm1270_f256:pins();
 pins(epm2210_f256) -> epm2210_f256:pins();
 pins(epm2210_f324) -> epm2210_f324:pins().
+
+%%====================================================================
+%% top_iocs
+%%====================================================================
+
+-spec top_iocs(x(), device()) -> [{pin(), ioc()}].
+
+top_iocs(X, epm240_m100) -> epm240_m100:top_iocs(X);
+top_iocs(X, epm240_f100) -> epm240_f100:top_iocs(X);
+top_iocs(X, epm240_t100) -> epm240_t100:top_iocs(X);
+top_iocs(X, epm570_m100) -> epm570_m100:top_iocs(X);
+top_iocs(X, epm570_f100) -> epm570_f100:top_iocs(X);
+top_iocs(X, epm570_t100) -> epm570_t100:top_iocs(X);
+top_iocs(X, epm570_t144) -> epm570_t144:top_iocs(X);
+top_iocs(X, epm570_m256) -> epm570_m256:top_iocs(X);
+top_iocs(X, epm570_f256) -> epm570_f256:top_iocs(X);
+top_iocs(X, epm1270_t144) -> epm1270_t144:top_iocs(X);
+top_iocs(X, epm1270_m256) -> epm1270_m256:top_iocs(X);
+top_iocs(X, epm1270_f256) -> epm1270_f256:top_iocs(X);
+top_iocs(X, epm2210_f256) -> epm2210_f256:top_iocs(X);
+top_iocs(X, epm2210_f324) -> epm2210_f324:top_iocs(X).
+
+%%====================================================================
+%% top_pins
+%%====================================================================
+
+-spec top_pins(x(), device()) -> [pin()].
+
+top_pins(X, epm240_m100) -> epm240_m100:top_pins(X);
+top_pins(X, epm240_f100) -> epm240_f100:top_pins(X);
+top_pins(X, epm240_t100) -> epm240_t100:top_pins(X);
+top_pins(X, epm570_m100) -> epm570_m100:top_pins(X);
+top_pins(X, epm570_f100) -> epm570_f100:top_pins(X);
+top_pins(X, epm570_t100) -> epm570_t100:top_pins(X);
+top_pins(X, epm570_t144) -> epm570_t144:top_pins(X);
+top_pins(X, epm570_m256) -> epm570_m256:top_pins(X);
+top_pins(X, epm570_f256) -> epm570_f256:top_pins(X);
+top_pins(X, epm1270_t144) -> epm1270_t144:top_pins(X);
+top_pins(X, epm1270_m256) -> epm1270_m256:top_pins(X);
+top_pins(X, epm1270_f256) -> epm1270_f256:top_pins(X);
+top_pins(X, epm2210_f256) -> epm2210_f256:top_pins(X);
+top_pins(X, epm2210_f324) -> epm2210_f324:top_pins(X).
+
+%%====================================================================
+%% left_iocs
+%%====================================================================
+
+-spec left_iocs(y(), device()) -> [{pin(), ioc()}].
+
+left_iocs(Y, epm240_m100) -> epm240_m100:left_iocs(Y);
+left_iocs(Y, epm240_f100) -> epm240_f100:left_iocs(Y);
+left_iocs(Y, epm240_t100) -> epm240_t100:left_iocs(Y);
+left_iocs(Y, epm570_m100) -> epm570_m100:left_iocs(Y);
+left_iocs(Y, epm570_f100) -> epm570_f100:left_iocs(Y);
+left_iocs(Y, epm570_t100) -> epm570_t100:left_iocs(Y);
+left_iocs(Y, epm570_t144) -> epm570_t144:left_iocs(Y);
+left_iocs(Y, epm570_m256) -> epm570_m256:left_iocs(Y);
+left_iocs(Y, epm570_f256) -> epm570_f256:left_iocs(Y);
+left_iocs(Y, epm1270_t144) -> epm1270_t144:left_iocs(Y);
+left_iocs(Y, epm1270_m256) -> epm1270_m256:left_iocs(Y);
+left_iocs(Y, epm1270_f256) -> epm1270_f256:left_iocs(Y);
+left_iocs(Y, epm2210_f256) -> epm2210_f256:left_iocs(Y);
+left_iocs(Y, epm2210_f324) -> epm2210_f324:left_iocs(Y).
+
+%%====================================================================
+%% left_pins
+%%====================================================================
+
+-spec left_pins(y(), device()) -> [pin()].
+
+left_pins(Y, epm240_m100) -> epm240_m100:left_pins(Y);
+left_pins(Y, epm240_f100) -> epm240_f100:left_pins(Y);
+left_pins(Y, epm240_t100) -> epm240_t100:left_pins(Y);
+left_pins(Y, epm570_m100) -> epm570_m100:left_pins(Y);
+left_pins(Y, epm570_f100) -> epm570_f100:left_pins(Y);
+left_pins(Y, epm570_t100) -> epm570_t100:left_pins(Y);
+left_pins(Y, epm570_t144) -> epm570_t144:left_pins(Y);
+left_pins(Y, epm570_m256) -> epm570_m256:left_pins(Y);
+left_pins(Y, epm570_f256) -> epm570_f256:left_pins(Y);
+left_pins(Y, epm1270_t144) -> epm1270_t144:left_pins(Y);
+left_pins(Y, epm1270_m256) -> epm1270_m256:left_pins(Y);
+left_pins(Y, epm1270_f256) -> epm1270_f256:left_pins(Y);
+left_pins(Y, epm2210_f256) -> epm2210_f256:left_pins(Y);
+left_pins(Y, epm2210_f324) -> epm2210_f324:left_pins(Y).
+
+%%====================================================================
+%% right_iocs
+%%====================================================================
+
+-spec right_iocs(y(), device()) -> [{pin(), ioc()}].
+
+right_iocs(Y, epm240_m100) -> epm240_m100:right_iocs(Y);
+right_iocs(Y, epm240_f100) -> epm240_f100:right_iocs(Y);
+right_iocs(Y, epm240_t100) -> epm240_t100:right_iocs(Y);
+right_iocs(Y, epm570_m100) -> epm570_m100:right_iocs(Y);
+right_iocs(Y, epm570_f100) -> epm570_f100:right_iocs(Y);
+right_iocs(Y, epm570_t100) -> epm570_t100:right_iocs(Y);
+right_iocs(Y, epm570_t144) -> epm570_t144:right_iocs(Y);
+right_iocs(Y, epm570_m256) -> epm570_m256:right_iocs(Y);
+right_iocs(Y, epm570_f256) -> epm570_f256:right_iocs(Y);
+right_iocs(Y, epm1270_t144) -> epm1270_t144:right_iocs(Y);
+right_iocs(Y, epm1270_m256) -> epm1270_m256:right_iocs(Y);
+right_iocs(Y, epm1270_f256) -> epm1270_f256:right_iocs(Y);
+right_iocs(Y, epm2210_f256) -> epm2210_f256:right_iocs(Y);
+right_iocs(Y, epm2210_f324) -> epm2210_f324:right_iocs(Y).
+
+%%====================================================================
+%% right_pins
+%%====================================================================
+
+-spec right_pins(y(), device()) -> [pin()].
+
+right_pins(Y, epm240_m100) -> epm240_m100:right_pins(Y);
+right_pins(Y, epm240_f100) -> epm240_f100:right_pins(Y);
+right_pins(Y, epm240_t100) -> epm240_t100:right_pins(Y);
+right_pins(Y, epm570_m100) -> epm570_m100:right_pins(Y);
+right_pins(Y, epm570_f100) -> epm570_f100:right_pins(Y);
+right_pins(Y, epm570_t100) -> epm570_t100:right_pins(Y);
+right_pins(Y, epm570_t144) -> epm570_t144:right_pins(Y);
+right_pins(Y, epm570_m256) -> epm570_m256:right_pins(Y);
+right_pins(Y, epm570_f256) -> epm570_f256:right_pins(Y);
+right_pins(Y, epm1270_t144) -> epm1270_t144:right_pins(Y);
+right_pins(Y, epm1270_m256) -> epm1270_m256:right_pins(Y);
+right_pins(Y, epm1270_f256) -> epm1270_f256:right_pins(Y);
+right_pins(Y, epm2210_f256) -> epm2210_f256:right_pins(Y);
+right_pins(Y, epm2210_f324) -> epm2210_f324:right_pins(Y).
+
+%%====================================================================
+%% bottom_iocs
+%%====================================================================
+
+-spec bottom_iocs(x(), device()) -> [{pin(), ioc()}].
+
+bottom_iocs(X, epm240_m100) -> epm240_m100:bottom_iocs(X);
+bottom_iocs(X, epm240_f100) -> epm240_f100:bottom_iocs(X);
+bottom_iocs(X, epm240_t100) -> epm240_t100:bottom_iocs(X);
+bottom_iocs(X, epm570_m100) -> epm570_m100:bottom_iocs(X);
+bottom_iocs(X, epm570_f100) -> epm570_f100:bottom_iocs(X);
+bottom_iocs(X, epm570_t100) -> epm570_t100:bottom_iocs(X);
+bottom_iocs(X, epm570_t144) -> epm570_t144:bottom_iocs(X);
+bottom_iocs(X, epm570_m256) -> epm570_m256:bottom_iocs(X);
+bottom_iocs(X, epm570_f256) -> epm570_f256:bottom_iocs(X);
+bottom_iocs(X, epm1270_t144) -> epm1270_t144:bottom_iocs(X);
+bottom_iocs(X, epm1270_m256) -> epm1270_m256:bottom_iocs(X);
+bottom_iocs(X, epm1270_f256) -> epm1270_f256:bottom_iocs(X);
+bottom_iocs(X, epm2210_f256) -> epm2210_f256:bottom_iocs(X);
+bottom_iocs(X, epm2210_f324) -> epm2210_f324:bottom_iocs(X).
+
+%%====================================================================
+%% bottom_pins
+%%====================================================================
+
+-spec bottom_pins(x(), device()) -> [pin()].
+
+bottom_pins(X, epm240_m100) -> epm240_m100:bottom_pins(X);
+bottom_pins(X, epm240_f100) -> epm240_f100:bottom_pins(X);
+bottom_pins(X, epm240_t100) -> epm240_t100:bottom_pins(X);
+bottom_pins(X, epm570_m100) -> epm570_m100:bottom_pins(X);
+bottom_pins(X, epm570_f100) -> epm570_f100:bottom_pins(X);
+bottom_pins(X, epm570_t100) -> epm570_t100:bottom_pins(X);
+bottom_pins(X, epm570_t144) -> epm570_t144:bottom_pins(X);
+bottom_pins(X, epm570_m256) -> epm570_m256:bottom_pins(X);
+bottom_pins(X, epm570_f256) -> epm570_f256:bottom_pins(X);
+bottom_pins(X, epm1270_t144) -> epm1270_t144:bottom_pins(X);
+bottom_pins(X, epm1270_m256) -> epm1270_m256:bottom_pins(X);
+bottom_pins(X, epm1270_f256) -> epm1270_f256:bottom_pins(X);
+bottom_pins(X, epm2210_f256) -> epm2210_f256:bottom_pins(X);
+bottom_pins(X, epm2210_f324) -> epm2210_f324:bottom_pins(X).
 
