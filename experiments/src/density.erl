@@ -519,7 +519,7 @@ left_io(Y, Density) ->
 
 left_lab(Y, Density) ->
     case metric(Density) of
-        Metric when Y =< Metric#metric.indent_bottom_lab ->
+        Metric when Y =< Metric#metric.indent_bottom_io ->
             Metric#metric.indent_left_lab;
 
         Metric ->
@@ -561,7 +561,7 @@ bottom_io(X, Density) ->
 
 bottom_lab(X, Density) ->
     case metric(Density) of
-        Metric when X =< Metric#metric.indent_left_lab ->
+        Metric when X =< Metric#metric.indent_left_io ->
             Metric#metric.indent_bottom_lab;
 
         Metric ->
