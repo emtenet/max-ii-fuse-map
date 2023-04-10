@@ -9,6 +9,7 @@
 
 -export([read_pof/1]).
 -export([read_rcf/1]).
+-export([read_source/1]).
 
 -export_type([slot/0]).
 -export_type([iterator/0]).
