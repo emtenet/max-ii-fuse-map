@@ -16,6 +16,10 @@
 -export([open/1]).
 -export([blocks/2]).
 -export([index_max/2]).
+-export([froms/2]).
+-export([froms/3]).
+-export([experiments/3]).
+-export([experiments/4]).
 
 -type density() :: density:density().
 
@@ -32,6 +36,8 @@
 
 -type froms() :: #{from() => [dir_index()]}.
 -type from() :: {atom(), max_ii:x(), max_ii:y(), non_neg_integer(), non_neg_integer()}.
+
+-type experiment() :: {experiment:title(), experiment:fuses(), rcf_file:rcf()}.
 
 %%====================================================================
 %% run
@@ -244,6 +250,67 @@ index_max(Type, {Type, _, _}, Indexes, Max) ->
     max(Max, lists:max(maps:keys(Indexes)));
 index_max(_, _, _, Max) ->
     Max.
+
+%%====================================================================
+%% froms
+%%====================================================================
+
+-spec froms(from(), cache())
+    -> {ok, [from()]} | false.
+
+froms({Type, X, Y, 0, Index}, Cache = {route_cache, _, _, _}) ->
+    froms({Type, X, Y}, Index, Cache).
+
+%%--------------------------------------------------------------------
+
+-spec froms(block(), index(), cache())
+    -> {ok, [from()]} | false.
+
+froms(Block, Index, {route_cache, _, _, Blocks}) ->
+    case Blocks of
+        #{Block := #{Index := Froms}} ->
+            {ok, lists:sort(maps:keys(Froms))};
+
+        _ ->
+            false
+    end.
+
+%%====================================================================
+%% experiments
+%%====================================================================
+
+-spec experiments(from(), from(), cache())
+    -> {ok, [experiment()]} | false.
+
+experiments({Type, X, Y, 0, Index}, From, Cache = {route_cache, _, _, _}) ->
+    experiments({Type, X, Y}, Index, From, Cache).
+
+%%--------------------------------------------------------------------
+
+-spec experiments(block(), index(), from(), cache())
+    -> {ok, [experiment()]} | false.
+
+experiments(Block, Index, From, {route_cache, _, Dirs, Blocks}) ->
+    case Blocks of
+        #{Block := #{Index := #{From := DirIndexes}}} ->
+            {ok, [
+                experiment(DirIndex, Dirs)
+                ||
+                DirIndex <- DirIndexes
+            ]};
+
+        _ ->
+            false
+    end.
+
+%%--------------------------------------------------------------------
+
+experiment(Index, Dirs) ->
+    #{Index := Dir} = Dirs,
+    Result = {cached, Dir},
+    {ok, Fuses} = experiment:fuses(Result),
+    {ok, RCF} = experiment:rcf(Result),
+    {Index, Fuses, RCF}.
 
 %%====================================================================
 %% utility
