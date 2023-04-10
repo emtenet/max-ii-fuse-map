@@ -2,8 +2,11 @@
 
 -export([build/1]).
 -export([build/2]).
+-export([build_with_location/2]).
 -export([build_with_map/2]).
 -export([is_empty/1]).
+-export([all_ones/1]).
+-export([all_zeros/1]).
 -export([single_ones/1]).
 -export([single_zeros/1]).
 -export([pattern_is/2]).
@@ -62,6 +65,17 @@ name_is_undefined(_) ->
 build(DensityOrDevice, Experiments) ->
     Database = fuse_database:read(DensityOrDevice),
     With = fun (Fuse) -> fuse_database:name(Fuse, Database) end,
+    build_with(With, Experiments).
+
+%%====================================================================
+%% build_with_location
+%%====================================================================
+
+-spec build_with_location(density() | device(), [experiment()]) -> matrix().
+
+build_with_location(DensityOrDevice, Experiments) ->
+    Density = density:or_device(DensityOrDevice),
+    With = fun (Fuse) -> fuse_map:to_location(Fuse, Density) end,
     build_with(With, Experiments).
 
 %%====================================================================
@@ -234,6 +248,44 @@ single_ok(Bit, _, [Bit | _]) ->
     false;
 single_ok(Bit, Name, [_ | Bits]) ->
     single_ok(Bit, Name, Bits).
+
+%%====================================================================
+%% all_ones & all_zeros
+%%====================================================================
+
+-spec all_ones(matrix()) -> [fuse()].
+
+all_ones({matrix, _, Fuses}) ->
+    alls(1, Fuses, []).
+
+%%--------------------------------------------------------------------
+
+-spec all_zeros(matrix()) -> [fuse()].
+
+all_zeros({matrix, _, Fuses}) ->
+    alls(0, Fuses, []).
+
+%%--------------------------------------------------------------------
+
+alls(_, [], Alls) ->
+    lists:reverse(Alls);
+alls(Bit, [{Fuse, Bits, _Name} | Fuses], Alls) ->
+    case all(Bit, Bits) of
+        ok ->
+            alls(Bit, Fuses, [Fuse | Alls]);
+
+        false ->
+            alls(Bit, Fuses, Alls)
+    end.
+
+%%--------------------------------------------------------------------
+
+all(_, []) ->
+    true;
+all(Bit, [Bit | Bits]) ->
+    all(Bit, Bits);
+all(_, [_ | _]) ->
+    false.
 
 %%====================================================================
 %% pattern_is
