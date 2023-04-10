@@ -51,6 +51,8 @@ My experiments are being run in the following
  * [R4 interconnect](experiments/src/r4_interconnect_database.erl) database
  * [C4 interconnect](experiments/src/c4_interconnect_map.erl) map
  * [R4 interconnect](experiments/src/r4_interconnect_map.erl) map
+ * [C4 head](experiments/src/c4_head_experiment.erl)
+ * [C4 tail](experiments/src/c4_tail_experiment.erl)
 
 ## Fuse map
 
