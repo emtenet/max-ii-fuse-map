@@ -10,6 +10,14 @@
 -export([iobs/1]).
 -export([labs/1]).
 -export([metric/1]).
+-export([top_io/1]).
+-export([top_lab/1]).
+-export([left_io/2]).
+-export([left_lab/2]).
+-export([right_io/1]).
+-export([right_lab/1]).
+-export([bottom_io/2]).
+-export([bottom_lab/2]).
 -export([columns/1]).
 -export([rows/1]).
 
@@ -29,6 +37,8 @@
 -type ioc() :: ioc:ioc().
 -type lab() :: lab:lab().
 -type lc() :: lc:lc().
+-type x() :: max_ii:x().
+-type y() :: max_ii:y().
 
 %%====================================================================
 %% list
@@ -473,6 +483,90 @@ metric(Density = epm240) -> ?METRIC(1, 1, 8, 0, 0, 5);
 metric(Density = epm570) -> ?METRIC(0, 9, 13, 0, 3, 8);
 metric(Density = epm1270) -> ?METRIC(0, 11, 17, 0, 3, 11);
 metric(Density = epm2210) -> ?METRIC(0, 13, 21, 0, 3, 14).
+
+%%--------------------------------------------------------------------
+
+-spec top_io(density()) -> y().
+
+top_io(Density) ->
+    Metric = metric(Density),
+    Metric#metric.top_io.
+
+%%--------------------------------------------------------------------
+
+-spec top_lab(density()) -> y().
+
+top_lab(Density) ->
+    Metric = metric(Density),
+    Metric#metric.top_lab.
+
+%%--------------------------------------------------------------------
+
+-spec left_io(y(), density()) -> x().
+
+left_io(Y, Density) ->
+    case metric(Density) of
+        Metric when Y =< Metric#metric.indent_bottom_io ->
+            Metric#metric.indent_left_io;
+
+        Metric ->
+            Metric#metric.left_io
+    end.
+
+%%--------------------------------------------------------------------
+
+-spec left_lab(y(), density()) -> x().
+
+left_lab(Y, Density) ->
+    case metric(Density) of
+        Metric when Y =< Metric#metric.indent_bottom_lab ->
+            Metric#metric.indent_left_lab;
+
+        Metric ->
+            Metric#metric.left_lab
+    end.
+
+%%--------------------------------------------------------------------
+
+-spec right_io(density()) -> x().
+
+right_io(Density) ->
+    Metric = metric(Density),
+    Metric#metric.right_io.
+
+%%--------------------------------------------------------------------
+
+-spec right_lab(density()) -> x().
+
+right_lab(Density) ->
+    Metric = metric(Density),
+    Metric#metric.right_lab.
+
+%%--------------------------------------------------------------------
+
+-spec bottom_io(x(), density()) -> y().
+
+bottom_io(X, Density) ->
+    case metric(Density) of
+        Metric when X =< Metric#metric.indent_left_io ->
+            Metric#metric.indent_bottom_io;
+
+        Metric ->
+            Metric#metric.bottom_io
+    end.
+
+%%--------------------------------------------------------------------
+
+-spec bottom_lab(x(), density()) -> y().
+
+bottom_lab(X, Density) ->
+    case metric(Density) of
+        Metric when X =< Metric#metric.indent_left_lab ->
+            Metric#metric.indent_bottom_lab;
+
+        Metric ->
+            Metric#metric.bottom_lab
+    end.
 
 %%====================================================================
 %% columns

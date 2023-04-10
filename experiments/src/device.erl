@@ -9,6 +9,14 @@
 -export([iobs/1]).
 -export([labs/1]).
 -export([metric/1]).
+-export([top_io/1]).
+-export([top_lab/1]).
+-export([left_io/2]).
+-export([left_lab/2]).
+-export([right_io/1]).
+-export([right_lab/1]).
+-export([bottom_io/2]).
+-export([bottom_lab/2]).
 -export([pins/1]).
 -export([iocs/1]).
 -export([top_pins/2]).
@@ -192,6 +200,62 @@ package(epm2210_f324) -> f324.
 
 metric(Device) ->
     density:metric(density(Device)).
+
+%%--------------------------------------------------------------------
+
+-spec top_io(device()) -> y().
+
+top_io(Device) ->
+    density:top_io(density(Device)).
+
+%%--------------------------------------------------------------------
+
+-spec top_lab(device()) -> y().
+
+top_lab(Device) ->
+    density:top_lab(density(Device)).
+
+%%--------------------------------------------------------------------
+
+-spec left_io(y(), device()) -> x().
+
+left_io(Y, Device) ->
+    density:left_io(Y, density(Device)).
+
+%%--------------------------------------------------------------------
+
+-spec left_lab(y(), device()) -> x().
+
+left_lab(Y, Device) ->
+    density:left_lab(Y, density(Device)).
+
+%%--------------------------------------------------------------------
+
+-spec right_io(device()) -> x().
+
+right_io(Device) ->
+    density:right_io(density(Device)).
+
+%%--------------------------------------------------------------------
+
+-spec right_lab(device()) -> x().
+
+right_lab(Device) ->
+    density:right_lab(density(Device)).
+
+%%--------------------------------------------------------------------
+
+-spec bottom_io(x(), device()) -> y().
+
+bottom_io(X, Device) ->
+    density:bottom_io(X, density(Device)).
+
+%%--------------------------------------------------------------------
+
+-spec bottom_lab(x(), device()) -> y().
+
+bottom_lab(X, Device) ->
+    density:bottom_lab(X, density(Device)).
 
 %%====================================================================
 %% iocs
