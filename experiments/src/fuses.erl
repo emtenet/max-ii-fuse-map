@@ -4,8 +4,10 @@
 -export([intersect/2]).
 -export([union/2]).
 -export([subtract/2]).
+-export([subtract_stripe/2]).
 
 -type fuse() :: fuse:fuse().
+-type density() :: density:density().
 
 %%====================================================================
 %% diff
@@ -89,4 +91,37 @@ subtract([F | Fs], S, [Sh | Ss], Ks) when S =:= F ->
     subtract(Fs, Sh, Ss, Ks);
 subtract([F | Fs], S, Ss, Ks) ->
     subtract(Fs, S, Ss, [F | Ks]).
+
+%%====================================================================
+%% subtract_stripe
+%%====================================================================
+
+-spec subtract_stripe([fuse()], density()) -> [fuse()].
+
+subtract_stripe(Fuses, epm240) ->
+    lists:filtermap(fun subtract_stripe_small/1, Fuses);
+subtract_stripe(Fuses, epm570) ->
+    lists:filtermap(fun subtract_stripe_small/1, Fuses);
+subtract_stripe(Fuses, epm1270) ->
+    lists:filtermap(fun subtract_stripe_large/1, Fuses);
+subtract_stripe(Fuses, epm2210) ->
+    lists:filtermap(fun subtract_stripe_large/1, Fuses).
+
+%%--------------------------------------------------------------------
+
+subtract_stripe_small(Fuse) when Fuse rem 64 =:= 0 ->
+    false;
+subtract_stripe_small(Fuse) when Fuse rem 64 =:= 33 ->
+    false;
+subtract_stripe_small(_) ->
+    true.
+
+%%--------------------------------------------------------------------
+
+subtract_stripe_large(Fuse) when Fuse rem 128 =:= 0 ->
+    false;
+subtract_stripe_large(Fuse) when Fuse rem 128 =:= 65 ->
+    false;
+subtract_stripe_large(_) ->
+    true.
 
