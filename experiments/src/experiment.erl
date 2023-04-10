@@ -8,6 +8,7 @@
 -export([fuses/1]).
 -export([pof/1]).
 -export([rcf/1]).
+-export([source/1]).
 
 -export_type([compile/0]).
 -export_type([result/0]).
@@ -169,6 +170,15 @@ rcf({cached, Dir}) ->
     rcf_file:decode(RCF);
 rcf({compiled, _, RCF}) ->
     rcf_file:decode(RCF).
+
+%%====================================================================
+%% source
+%%====================================================================
+
+-spec source(result()) -> {ok, binary()}.
+
+source({cached, Dir}) ->
+    experiment_cache:read_source(Dir).
 
 %%====================================================================
 %% single
