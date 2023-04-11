@@ -12,6 +12,8 @@
     indent_left_io :: max_ii:x(),
     indent_left_lab :: max_ii:x(),
     indent_bottom_io :: max_ii:y(),
-    indent_bottom_lab :: max_ii:y()
+    indent_bottom_lab :: max_ii:y(),
+    pattern_x :: 0..3,
+    pattern_y :: 0..3
 }).
 

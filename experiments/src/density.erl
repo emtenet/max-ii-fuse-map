@@ -476,10 +476,12 @@ labs(epm2210) ->
     indent_left_io = LL,
     indent_left_lab = LL + 1,
     indent_bottom_io = BB,
-    indent_bottom_lab = BB + 1
+    indent_bottom_lab = BB + 1,
+    pattern_x = L,
+    pattern_y = 3 - BB
 }).
 
-metric(Density = epm240) -> ?METRIC(1, 8, 8, 0, 0, 5);
+metric(Density = epm240) -> ?METRIC(1, 1, 8, 0, 0, 5);
 metric(Density = epm570) -> ?METRIC(0, 9, 13, 0, 3, 8);
 metric(Density = epm1270) -> ?METRIC(0, 11, 17, 0, 3, 11);
 metric(Density = epm2210) -> ?METRIC(0, 13, 21, 0, 3, 14).

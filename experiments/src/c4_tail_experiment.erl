@@ -269,7 +269,7 @@ long(Base, X, _) ->
 mapping_c4(X0, Mux, Metric = #metric{indent_left_io = Indent}) ->
     {XX, Select} = mapping_c4(Mux),
     case X0 + XX of
-        X when X < Indent ->
+        X when X < Indent orelse Indent =:= 1 ->
             Y = Metric#metric.indent_bottom_lab,
             {c4, X, Y, 0, short(Select, X, Metric)};
 
