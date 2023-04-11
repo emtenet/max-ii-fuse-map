@@ -170,12 +170,6 @@ collect_signal(#{dests := Dests}, Dir, Blocks0) ->
 
 %%--------------------------------------------------------------------
 
-collect_dest(#{route := [{io_bypass_out, _, _, _, _} | Route]}, Dir, Blocks) ->
-    collect_route(Route, Dir, Blocks);
-collect_dest(#{route := [{io_data_out, _, _, _, _} | Route]}, Dir, Blocks) ->
-    collect_route(Route, Dir, Blocks);
-collect_dest(#{route := [{io_oe, _, _, _, _} | Route]}, Dir, Blocks) ->
-    collect_route(Route, Dir, Blocks);
 collect_dest(#{route := Route}, Dir, Blocks) ->
     collect_route(Route, Dir, Blocks).
 
@@ -186,10 +180,20 @@ collect_route([], _, Blocks) ->
 collect_route([_], _, Blocks) ->
     Blocks;
 collect_route([Thru | Route = [From | _]], Dir, Blocks0) ->
-    {Type, X, Y, 0, Index} = Thru,
-    Block = {Type, X, Y},
+    {Block, Index} = collect_thru(Thru),
     Blocks = collect_block(Block, Index, From, Dir, Blocks0),
     collect_route(Route, Dir, Blocks).
+
+%%--------------------------------------------------------------------
+
+collect_thru({Type = io_bypass_out, X, Y, Index, 0}) ->
+    {{Type, X, Y}, Index};
+collect_thru({Type = io_data_out, X, Y, Index, 0}) ->
+    {{Type, X, Y}, Index};
+collect_thru({Type = io_oe, X, Y, Index, 0}) ->
+    {{Type, X, Y}, Index};
+collect_thru({Type, X, Y, 0, Index}) ->
+    {{Type, X, Y}, Index}.
 
 %%--------------------------------------------------------------------
 
