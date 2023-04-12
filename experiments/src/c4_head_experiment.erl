@@ -228,6 +228,13 @@ check_mapping(Metric, {C4, IO, {XX, head, Index, cell, Sector}}) ->
         GotC4 ->
             io:format("from_mux(~10w, ~w) -> ~15w got ~p~n", [Block, {mux, Mux}, C4, GotC4])
     end,
+    case c4_interconnect_map:to_mux(C4, Metric#metric.density) of
+        {ok, Block, {mux, Mux}} ->
+            ok;
+
+        GotMux ->
+            io:format("to_mux(~15w) -> ~10w ~w got ~p~n", [C4, Block, {mux, Mux}, GotMux])
+    end,
     ok.
 
 %%--------------------------------------------------------------------

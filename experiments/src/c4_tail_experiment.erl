@@ -214,6 +214,21 @@ check_mapping(Metric, {C4, IO, {XX, tail, Index, cell, Sector}}) ->
             %throw({mapping, X, Index, Sector, to, OtherIO, expecting, IO})
             io:format("mapping ~2b ~2b ~2b to ~p expecting ~p~n", [X, Index, Sector, OtherIO, IO])
     end,
+    Block = mapping_block(X, Metric),
+    case c4_interconnect_map:from_mux(Block, {mux, Mux}, Metric#metric.density) of
+        {ok, C4} ->
+            ok;
+
+        GotC4 ->
+            io:format("from_mux(~10w, ~w) -> ~15w got ~p~n", [Block, {mux, Mux}, C4, GotC4])
+    end,
+    case c4_interconnect_map:to_mux(C4, Metric#metric.density) of
+        {ok, Block, {mux, Mux}} ->
+            ok;
+
+        GotMux ->
+            io:format("to_mux(~15w) -> ~10w ~w got ~p~n", [C4, Block, {mux, Mux}, GotMux])
+    end,
     ok.
 
 %%--------------------------------------------------------------------
@@ -238,6 +253,14 @@ mapping_mux(X,  8, 26) -> {X + 1, 6, mux1};
 mapping_mux(X, 10, 26) -> {X + 1, 7, mux1};
 mapping_mux(X,  8, 25) -> {X,     8, mux1};
 mapping_mux(X, 10, 25) -> {X,     9, mux1}.
+
+%%--------------------------------------------------------------------
+
+mapping_block(X, #metric{indent_bottom_io = Bottom, indent_left_io = Left})
+        when X < Left ->
+    {c4, X, Bottom};
+mapping_block(X, #metric{bottom_io = Bottom}) ->
+    {c4, X, Bottom}.
 
 %%--------------------------------------------------------------------
 
