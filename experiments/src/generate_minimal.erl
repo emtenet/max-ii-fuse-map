@@ -18,18 +18,10 @@ run() ->
 density(Density) ->
     io:format(" => ~s~n", [Density]),
     Device = density:largest_device(Density),
-    [{IOB, _} | _] = device:iobs(Device),
-    [A, B, C, D | _] = [
-        Pin
-        ||
-        {Pin, IOC} <- device:iocs(Device),
-        ioc:in_iob(IOC, IOB)
-    ],
     {ok, Experiments} = experiment:compile_to_fuses([
-        minimal_experiment:source(A, Device, A),
-        minimal_experiment:source(B, Device, B),
-        minimal_experiment:source(C, Device, C),
-        minimal_experiment:source(D, Device, D)
+        source:out_constant(Device, Pin, 0)
+        ||
+        Pin <- pins(Device)
     ]),
     Matrix = matrix:build(Experiments),
     %matrix:print(Matrix),
@@ -37,9 +29,31 @@ density(Density) ->
     Ones = [ Fuse || {Fuse, _} <- matrix:single_ones(Matrix) ],
     %io:format("zeros:~n  ~p~n", [Zeros]),
     %io:format("ones:~n  ~p~n", [Ones]),
-    [{A, Fuses0} | _] = Experiments,
+    [{_, Fuses0} | _] = Experiments,
     Fuses = fuses:union(fuses:subtract(Fuses0, Zeros), Ones),
     density_file(Density, Fuses).
+
+%%--------------------------------------------------------------------
+
+pins(Device) ->
+    [{A, _}, {B, _}, {C, _}, {D, _} | _] = device:iobs(Device),
+    IOCS = device:iocs(Device),
+    [pin(IOCS, A),
+     pin(IOCS, B),
+     pin(IOCS, C),
+     pin(IOCS, D)
+    ].
+
+%%--------------------------------------------------------------------
+
+pin([Pin = {_, IOC} | Pins], IOB) ->
+    case ioc:in_iob(IOC, IOB) of
+        true ->
+            Pin;
+
+        false ->
+            pin(Pins, IOB)
+    end.
 
 %%====================================================================
 %% density_file

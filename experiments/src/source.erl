@@ -7,6 +7,7 @@
 -export([ins_lut_outs/6]).
 -export([lut_out/3]).
 -export([open_drain/3]).
+-export([out_constant/3]).
 
 -export([ioc/1]).
 -export([pin/1]).
@@ -539,6 +540,34 @@ open_drain(Device, In, Out) ->
             "    a_in => i,\n"
             "    a_out => o\n"
             "  );\n"
+            "end behavioral;\n"
+        >>
+    }.
+
+%%====================================================================
+%% out_constant
+%%====================================================================
+
+out_constant(Device, {Pin, IOC}, Bit) ->
+    #{
+        title => {output, IOC, as, Bit},
+        device => Device,
+        settings => [
+            {location, q, Pin}
+        ],
+        vhdl => <<
+            "library IEEE;\n"
+            "use IEEE.STD_LOGIC_1164.ALL;\n"
+            "\n"
+            "entity experiment is\n"
+            "  port (\n"
+            "    q : out STD_LOGIC\n"
+            "  );\n"
+            "end experiment;\n"
+            "\n"
+            "architecture behavioral of experiment is\n",
+            "begin\n"
+            "  q <= '", ($0 + Bit), "';\n"
             "end behavioral;\n"
         >>
     }.
