@@ -48,6 +48,7 @@ run() ->
 %%--------------------------------------------------------------------
 
 build(Density) ->
+    %Db0 = #{},
     {ok, Db0} = open(Density),
     {ok, Routes} = route_cache:open(Density),
     Blocks = route_cache:blocks(c4, Routes),
@@ -92,27 +93,28 @@ build_index({route_cache, Density, Dirs, Blocks}, Block, Index, Db0) ->
 %%--------------------------------------------------------------------
 
 build_from(Density, Dirs, Interconnect, From, DirIndexes, Db) ->
-    case c4_interconnect_map:to_mux(Interconnect, Density) of
-        {error, _} ->
-            Fuses = build_fuses(Density, DirIndexes, Dirs),
-            Location = build_locations(Fuses, Density),
-            io:format("~20w: ~15w <- ~w~n", [Location, Interconnect, From]),
+    {ok, Block, Index} = c4_interconnect_map:to_mux(Interconnect, Density),
+    case find_key(Block, Index, Interconnect, From, Db) of
+        {ok, _} ->
             Db;
 
-        {ok, Block, Index} ->
-            case find_key(Block, Index, Interconnect, From, Db) of
-                {ok, _} ->
+        false ->
+            Fuses = build_fuses(Density, DirIndexes, Dirs),
+            case build_ports(Density, Fuses, #{}, []) of
+                [] ->
+                    io:format("~10w ~8w ~15w: ?????? <- ~w~n", [
+                        Block, Index, Interconnect, From
+                    ]),
+                    %io:format("~p~n", [[
+                    %    fuse_map:to_name(Fuse, Density)
+                    %    ||
+                    %    Fuse <- Fuses
+                    %]]),
+                    throw(fuse_not_found),
                     Db;
 
-                false ->
-                    Fuses = build_fuses(Density, DirIndexes, Dirs),
-                    case build_ports(Density, Fuses, #{}, []) of
-                        [] ->
-                            Db;
-
-                        Ports ->
-                            build_from_pick(Ports, Block, Index, Interconnect, From, Db)
-                    end
+                Ports ->
+                    build_from_pick(Ports, Block, Index, Interconnect, From, Db)
             end
     end.
 
@@ -132,7 +134,7 @@ build_from_pick(Ports, Block, Index, Interconnect, From, Db) ->
 %%--------------------------------------------------------------------
 
 build_add(Block, Index, Interconnect, Key, From, Db) ->
-    io:format("~10w ~8w ~15w: ~w <- ~w~n", [
+    io:format("~10w ~8w ~15w: ~11w <- ~w~n", [
         Block, Index, Interconnect, Key, From
     ]),
     add(Block, Index, Interconnect, Key, From, Db).
@@ -164,10 +166,8 @@ build_ports(Density, [Fuse | Fuses], Muxes0, Ports) ->
     case fuse_map:to_name(Fuse, Density) of
         {ok, {Block = {c4, _, _}, Index = {mux, _}, Direct}}
                 when Direct =:= direct_link orelse
-                     Direct =:= direct_in_0 orelse
-                     Direct =:= direct_in_1 orelse
-                     Direct =:= direct_in_2 orelse
-                     Direct =:= direct_in_3 ->
+                     Direct =:= io_data_in0 orelse
+                     Direct =:= io_data_in1 ->
             Port = {Block, Index, Direct},
             build_ports(Density, Fuses, Muxes0, [Port | Ports]);
 
@@ -197,35 +197,6 @@ build_ports(Density, [Fuse | Fuses], Muxes0, Ports) ->
 
         _ ->
             build_ports(Density, Fuses, Muxes0, Ports)
-    end.
-
-%%--------------------------------------------------------------------
-
-build_locations(Fuses, Density) ->
-    Locations = lists:filtermap(
-        fun (Fuse) -> build_location(Fuse, Density) end,
-        Fuses
-    ),
-    case Locations of
-        [] ->
-            none;
-
-        [Location] ->
-            Location;
-
-        [_ | _] ->
-            many
-    end.
-
-%%--------------------------------------------------------------------
-
-build_location(Fuse, Density) ->
-    case fuse_map:to_name(Fuse, Density) of
-        {ok, _} ->
-            false;
-
-        {error, Location} ->
-            {true, Location}
     end.
 
 %%====================================================================

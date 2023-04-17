@@ -724,6 +724,22 @@
     ?LC_CELL(21, 3, local_line);
 ).
 
+-define(C4_SIDE_HEADS(),
+    ?C4_SIDE_HEAD_L(11,  2, { 2, io_data_in1});
+    ?C4_SIDE_HEAD_L(11,  4, { 3, io_data_in1});
+    ?C4_SIDE_HEAD_L(11,  6, { 4, io_data_in1});
+    ?C4_SIDE_HEAD_L(11,  8, { 5, io_data_in1});
+    ?C4_SIDE_HEAD_L(11, 10, { 6, io_data_in1});
+).
+
+-define(C4_SIDE_TAILS(),
+    ?C4_SIDE_TAIL_L(11,  2, { 3, io_data_in1});
+    ?C4_SIDE_TAIL_L(11,  4, { 4, io_data_in1});
+    ?C4_SIDE_TAIL_L(11,  6, { 5, io_data_in1});
+    ?C4_SIDE_TAIL_L(11,  8, { 6, io_data_in1});
+    ?C4_SIDE_TAIL_L(11, 10, { 7, io_data_in1});
+).
+
 -define(C4_SIDES(),
     ?C4_SIDE_C( 7, 0, 0, { 0, from3, mux0});
     ?C4_SIDE_C( 7, 0, 1, { 0, from3, mux1});
@@ -805,12 +821,49 @@
 ).
 
 -define(C4_HEADS(),
-    ?C4_HEAD(23,  3, { 7, direct_in_2});
-    ?C4_HEAD(23,  7, { 8, direct_in_1});
-    ?C4_HEAD(23,  9, { 9, direct_in_0});
-    ?C4_HEAD(25,  4, { 7, direct_in_3});
-    ?C4_HEAD(25,  8, { 8, direct_in_3});
-    ?C4_HEAD(25, 10, { 9, direct_in_3});
+    ?C4_HEAD_R(23,  1, { 0, io_data_in0});
+    ?C4_HEAD_R(23,  5, { 1, io_data_in0});
+    ?C4_HEAD_R( 0,  1, { 2, io_data_in0});
+    ?C4_HEAD_R( 0,  3, { 3, io_data_in0});
+    ?C4_HEAD_R( 0,  5, { 4, io_data_in0});
+    ?C4_HEAD_R( 0,  7, { 5, io_data_in0});
+    ?C4_HEAD_R( 0,  9, { 6, io_data_in0});
+    ?C4_HEAD_R(23,  3, { 7, io_data_in0});
+    ?C4_HEAD_R(23,  7, { 8, io_data_in0});
+    ?C4_HEAD_R(23,  9, { 9, io_data_in0});
+    ?C4_HEAD_R(25,  2, { 0, io_data_in1});
+    ?C4_HEAD_R(25,  6, { 1, io_data_in1});
+    ?C4_HEAD_L(26,  2, { 2, io_data_in1});
+    ?C4_HEAD_L(26,  4, { 3, io_data_in1});
+    ?C4_HEAD_L(26,  6, { 4, io_data_in1});
+    ?C4_HEAD_L(26,  8, { 5, io_data_in1});
+    ?C4_HEAD_L(26, 10, { 6, io_data_in1});
+    ?C4_HEAD_R(25,  4, { 7, io_data_in1});
+    ?C4_HEAD_R(25,  8, { 8, io_data_in1});
+    ?C4_HEAD_R(25, 10, { 9, io_data_in1});
+).
+
+-define(C4_TAILS(),
+    ?C4_TAIL_R(23,  1, { 0, io_data_in0});
+    ?C4_TAIL_R(23,  3, { 1, io_data_in0});
+    ?C4_TAIL_R(23,  5, { 2, io_data_in0});
+    ?C4_TAIL_R( 0,  1, { 3, io_data_in0});
+    ?C4_TAIL_R( 0,  3, { 4, io_data_in0});
+    ?C4_TAIL_R( 0,  5, { 5, io_data_in0});
+    ?C4_TAIL_R( 0,  7, { 6, io_data_in0});
+    ?C4_TAIL_R( 0,  9, { 7, io_data_in0});
+    ?C4_TAIL_R(23,  7, { 8, io_data_in0});
+    ?C4_TAIL_R(23,  9, { 9, io_data_in0});
+    ?C4_TAIL_R(25,  2, { 0, io_data_in1});
+    ?C4_TAIL_R(25,  4, { 1, io_data_in1});
+    ?C4_TAIL_R(25,  6, { 2, io_data_in1});
+    ?C4_TAIL_L(26,  2, { 3, io_data_in1});
+    ?C4_TAIL_L(26,  4, { 4, io_data_in1});
+    ?C4_TAIL_L(26,  6, { 5, io_data_in1});
+    ?C4_TAIL_L(26,  8, { 6, io_data_in1});
+    ?C4_TAIL_L(26, 10, { 7, io_data_in1});
+    ?C4_TAIL_R(25,  8, { 8, io_data_in1});
+    ?C4_TAIL_R(25, 10, { 9, io_data_in1});
 ).
 
 -define(C4_CELLS(),
@@ -2567,9 +2620,44 @@ from_ioc(X, Y, N, Name, _With) ->
     from_c4(X, Y, Name, With) when X =:= With#with.right_x - 1 ->
         from_side(X + 1, Sector, Y, N, I, With)
 ).
--define(C4_HEAD(Sector, Index, Name),
+-define(C4_SIDE_HEAD_L(Sector, Index, Name),
+    from_c4(X, Y, Name, With)
+            when Y =:= With#with.top_y andalso
+                 X =:= With#with.left_x + 1 ->
+        from_head(X - 1, Sector, Index, With)
+).
+-define(C4_SIDE_TAIL_L(Sector, Index, Name),
+    from_c4(X, Y, Name, With)
+            when Y =:= With#with.short_y andalso
+                 X =:= With#with.left_x + 1 ->
+        from_tail(X - 1, Sector, Index, With, With#with.short_lines)
+).
+-define(C4_HEAD_L(Sector, Index, Name),
+    from_c4(X, Y, Name, With) when Y =:= With#with.top_y ->
+        from_head(X - 1, Sector, Index, With)
+).
+-define(C4_HEAD_R(Sector, Index, Name),
     from_c4(X, Y, Name, With) when Y =:= With#with.top_y ->
         from_head(X, Sector, Index, With)
+).
+-define(C4_TAIL_L(Sector, Index, Name),
+    from_c4(X, Y, Name, With = #with{short_y = Y})
+            when X < With#with.grow_x ->
+        from_tail(X - 1, Sector, Index, With, With#with.short_lines);
+    from_c4(X, Y, Name, With = #with{long_y = Y})
+            when X =:= With#with.grow_x ->
+        from_tail(X - 1, Sector, Index, With, With#with.short_lines);
+    from_c4(X, Y, Name, With = #with{long_y = Y})
+            when X > With#with.grow_x ->
+        from_tail(X - 1, Sector, Index, With, With#with.long_lines)
+).
+-define(C4_TAIL_R(Sector, Index, Name),
+    from_c4(X, Y, Name, With = #with{short_y = Y})
+            when X < With#with.grow_x ->
+        from_tail(X, Sector, Index, With, With#with.short_lines);
+    from_c4(X, Y, Name, With = #with{long_y = Y})
+            when X > With#with.grow_x ->
+        from_tail(X, Sector, Index, With, With#with.long_lines)
 ).
 -define(C4_CELL_C(Sector, N, I, Name),
     from_c4(X, Y, Name, With) ->
@@ -2589,14 +2677,22 @@ from_ioc(X, Y, N, Name, _With) ->
 ).
 
 ?C4_SIDES()
+?C4_SIDE_HEADS()
+?C4_SIDE_TAILS()
 ?C4_HEADS()
+?C4_TAILS()
 ?C4_CELLS()
 from_c4(X, Y, Name, _With) ->
-    {error, {r4, X, Y, Name}}.
+    {error, {c4, X, Y, Name}}.
 
 -undef(C4_SIDE_C).
 -undef(C4_SIDE_E).
--undef(C4_HEAD).
+-undef(C4_SIDE_HEAD_L).
+-undef(C4_SIDE_TAIL_L).
+-undef(C4_HEAD_L).
+-undef(C4_HEAD_R).
+-undef(C4_TAIL_L).
+-undef(C4_TAIL_R).
 -undef(C4_CELL_C).
 -undef(C4_CELL_E).
 -undef(C4_CELL_L).
@@ -3169,8 +3265,12 @@ to_name(Fuse, epm2210) ->
 
 to_name_at({Side, Index, strip, R, C}, With) ->
     to_strip(Side, Index, R, C, With);
+to_name_at({X, head, Index, side, Sector}, With) ->
+    to_side_head(X, Index, Sector, With);
 to_name_at({X, head, Index, cell, Sector}, With) ->
     to_cell_head(X, Index, Sector, With);
+to_name_at({X, tail, Index, side, Sector}, With) ->
+    to_side_tail(X, Index, Sector, With);
 to_name_at({X, tail, Index, cell, Sector}, With) ->
     to_cell_tail(X, Index, Sector, With);
 to_name_at({X, Y, N, zero, I}, _) ->
@@ -3266,7 +3366,11 @@ to_ioc_strip(X, Y, N, R, C) ->
 
 %%--------------------------------------------------------------------
 
--define(C4_HEAD(Sector, Index, Name),
+-define(C4_HEAD_L(Sector, Index, Name),
+    to_cell_head(X, Index, Sector, With) when X + 1 < With#with.right_x ->
+        to_c4(X + 1, With#with.top_y, Name)
+ ).
+-define(C4_HEAD_R(Sector, Index, Name),
     to_cell_head(X, Index, Sector, With) ->
         to_c4(X, With#with.top_y, Name)
  ).
@@ -3285,12 +3389,29 @@ to_ioc_strip(X, Y, N, R, C) ->
 to_cell_head(X, Index, Sector, _With) ->
     {error, {X, head, Index, cell, Sector}}.
 
--undef(C4_HEAD).
+-undef(C4_HEAD_L).
+-undef(C4_HEAD_R).
 -undef(IOB_HEAD).
 -undef(IOC_HEAD).
 
 %%--------------------------------------------------------------------
 
+-define(C4_TAIL_L(Sector, Index, Name),
+    to_cell_tail(X, Index, Sector, With) when X =:= With#with.grow_x - 1 ->
+        to_c4(X + 1, With#with.long_y, Name);
+    to_cell_tail(X, Index, Sector, With) when X < With#with.grow_x ->
+        to_c4(X + 1, With#with.short_y, Name);
+    to_cell_tail(X, Index, Sector, With)
+            when X >= With#with.grow_x andalso
+                 X + 1 < With#with.right_x ->
+        to_c4(X + 1, With#with.long_y, Name)
+ ).
+-define(C4_TAIL_R(Sector, Index, Name),
+    to_cell_tail(X, Index, Sector, With) when X < With#with.grow_x ->
+        to_c4(X, With#with.short_y, Name);
+    to_cell_tail(X, Index, Sector, With) when X > With#with.grow_x ->
+        to_c4(X, With#with.long_y, Name)
+ ).
 -define(IOB_HEAD(Sector, Index, Name),
     to_cell_tail(X, Index, Sector, With) when X < With#with.grow_x ->
         to_iob(X, With#with.short_y, Name);
@@ -3304,11 +3425,14 @@ to_cell_head(X, Index, Sector, _With) ->
         to_ioc(X, With#with.long_y, N, Name)
 ).
 
+?C4_TAILS()
 ?IOB_HEADS()
 ?IOC_HEADS()
 to_cell_tail(X, Index, Sector, _With) ->
     {error, {X, tail, Index, cell, Sector}}.
 
+-undef(C4_TAIL_L).
+-undef(C4_TAIL_R).
 -undef(IOB_HEAD).
 -undef(IOC_HEAD).
 
@@ -3324,6 +3448,32 @@ to_zero(X, Y, N, I) ->
     {error, {X, Y, N, zero, I}}.
 
 -undef(IOC_ZERO).
+
+%%--------------------------------------------------------------------
+
+-define(C4_SIDE_HEAD_L(Sector, Index, Name),
+    to_side_head(X, Index, Sector, With) when X =:= With#with.left_x ->
+        to_c4(X + 1, With#with.top_y, Name)
+ ).
+
+?C4_SIDE_HEADS()
+to_side_head(X, Index, Sector, _With) ->
+    {error, {X, head, Index, side, Sector}}.
+
+-undef(C4_SIDE_HEAD_L).
+
+%%--------------------------------------------------------------------
+
+-define(C4_SIDE_TAIL_L(Sector, Index, Name),
+    to_side_tail(X, Index, Sector, With) when X =:= With#with.left_x ->
+        to_c4(X + 1, With#with.short_y, Name)
+ ).
+
+?C4_SIDE_TAILS()
+to_side_tail(X, Index, Sector, _With) ->
+    {error, {X, tail, Index, side, Sector}}.
+
+-undef(C4_SIDE_TAIL_L).
 
 %%--------------------------------------------------------------------
 

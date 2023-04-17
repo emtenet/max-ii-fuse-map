@@ -278,38 +278,44 @@ Not used at the same time as the interconnect muxes below.
 
 ### `{lab(), {interconnect, #}, from4, mux#}` and `{lab(), {interconnect, #}, from3, mux#}`
 
-Selects a direct-link, c4 or r4 onto a LAB's interconnect.
+Selects a direct-link, C4 or R4 onto a LAB's interconnect.
 
 Not used at the same time as the dedicated direct-link above.
 
 Each interconnect has a two dimentional mux of size 4 x 3
 selecting from 12 alternative sources.
 
-### `{c4_port(), port4, mux#}` and `{c4_port(), port4, mux#}` and `{c4_port(), direct_link}`
+### `{c4(), {mux, #}, from4, mux#}` and `{c4(), {mux, #}, from3, mux#}` and `{c4(), {mux, #}, direct_link}`
 
-Where `c4_port()` is `{c4, x(), y(), port, 0..13}`.
+C4 blocks located either side (left & right) of LABs:
 
-Select a direct-link, C4 or R4 into a C4's interconnect.
+ * where `c4()` is `{c4, x(), y()}`,
+ * having 14 interconnects numbered `{mux, 0}` to `{mux, 13}`.
 
-The fuse names the port into the C4 interconnect,
-not the C4 interconnect itself.
-
-Either select:
+These fuses select a direct-link, C4 or R4 onto the interconnects:
 
  * via the direct-link fuse, or
  * via the two dimentional mux of size 4 x 3
    selecting from 12 alternative sources.
 
-### `{r4_port(), port4, mux#}` and `{r4_port(), port4, mux#}` and `{r4_port(), direct_link}`
+### `{c4(), {mux, #}, io_data_in#}`
 
-Where `r4_port()` is `{r4, x(), y(), port, 0..13}`.
+C4 blocks located in each of the top and bottom IO blocks:
 
-Select a direct-link, C4 or R4 into a R4's interconnect.
+ * where `c4()` is `{c4, x(), y()}`,
+ * having 10 interconnects numbered `{mux, 0}` to `{mux, 9}`.
 
-The fuse names the port into the C4 interconnect,
-not the R4 interconnect itself.
+These fuses select an IO cell input via a one dimentional mux of size 2
+(`io_data_in0` and `io_data_in1`).
 
-Either select:
+### `{r4(), {mux, #}, from4, mux#}` and `{r4(), {mux, #}, from3, mux#}` and `{r4(), {mux, #}, direct_link}`
+
+R4 blocks located either side (left & right) of LABs:
+
+ * where `r4()` is `{r4, x(), y()}`,
+ * having 16 interconnects numbered `{mux, 0}` to `{mux, 15}`.
+
+These fuses select a direct-link, C4 or R4 onto the interconnects:
 
  * via the direct-link fuse, or
  * via the two dimentional mux of size 4 x 3

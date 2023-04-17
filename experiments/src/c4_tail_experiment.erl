@@ -194,10 +194,8 @@ check_mappings(Density, Mappings) ->
 
 %%--------------------------------------------------------------------
 
-check_mapping(Metric, {C4, IO, {X, tail, Index, side, 11}}) ->
-    check_mapping(Metric, {C4, IO, {X, tail, Index, cell, 26}});
-check_mapping(Metric, {C4, IO, {XX, tail, Index, cell, Sector}}) ->
-    {X, Mux, Sel} = mapping_mux(XX, Index, Sector),
+check_mapping(Metric, {C4, IO, Fuse = {XX, tail, Index, Cell, Sector}}) ->
+    {X, Mux, Sel} = mapping_mux(XX, Index, Cell, Sector),
     case mapping_c4(X, Mux, Metric) of
         C4 ->
             ok;
@@ -229,30 +227,42 @@ check_mapping(Metric, {C4, IO, {XX, tail, Index, cell, Sector}}) ->
         GotMux ->
             io:format("to_mux(~15w) -> ~10w ~w got ~p~n", [C4, Block, {mux, Mux}, GotMux])
     end,
+    case fuse_map:to_name(Fuse, Metric#metric.density) of
+        {ok, {Block, {mux, Mux}, Sel}} ->
+            ok;
+
+        GotFuse ->
+            throw({fuse, Fuse, to, GotFuse, expecting, {Block, {mux, Mux}, Sel}})
+    end,
     ok.
 
 %%--------------------------------------------------------------------
 
-mapping_mux(X,  1, 23) -> {X,     0, mux0};
-mapping_mux(X,  3, 23) -> {X,     1, mux0};
-mapping_mux(X,  5, 23) -> {X,     2, mux0};
-mapping_mux(X,  1,  0) -> {X,     3, mux0};
-mapping_mux(X,  3,  0) -> {X,     4, mux0};
-mapping_mux(X,  5,  0) -> {X,     5, mux0};
-mapping_mux(X,  7,  0) -> {X,     6, mux0};
-mapping_mux(X,  9,  0) -> {X,     7, mux0};
-mapping_mux(X,  7, 23) -> {X,     8, mux0};
-mapping_mux(X,  9, 23) -> {X,     9, mux0};
-mapping_mux(X,  2, 25) -> {X,     0, mux1};
-mapping_mux(X,  4, 25) -> {X,     1, mux1};
-mapping_mux(X,  6, 25) -> {X,     2, mux1};
-mapping_mux(X,  2, 26) -> {X + 1, 3, mux1};
-mapping_mux(X,  4, 26) -> {X + 1, 4, mux1};
-mapping_mux(X,  6, 26) -> {X + 1, 5, mux1};
-mapping_mux(X,  8, 26) -> {X + 1, 6, mux1};
-mapping_mux(X, 10, 26) -> {X + 1, 7, mux1};
-mapping_mux(X,  8, 25) -> {X,     8, mux1};
-mapping_mux(X, 10, 25) -> {X,     9, mux1}.
+mapping_mux(X,  2, side, 11) -> {X + 1, 3, io_data_in1};
+mapping_mux(X,  4, side, 11) -> {X + 1, 4, io_data_in1};
+mapping_mux(X,  6, side, 11) -> {X + 1, 5, io_data_in1};
+mapping_mux(X,  8, side, 11) -> {X + 1, 6, io_data_in1};
+mapping_mux(X, 10, side, 11) -> {X + 1, 7, io_data_in1};
+mapping_mux(X,  1, cell, 23) -> {X,     0, io_data_in0};
+mapping_mux(X,  3, cell, 23) -> {X,     1, io_data_in0};
+mapping_mux(X,  5, cell, 23) -> {X,     2, io_data_in0};
+mapping_mux(X,  1, cell,  0) -> {X,     3, io_data_in0};
+mapping_mux(X,  3, cell,  0) -> {X,     4, io_data_in0};
+mapping_mux(X,  5, cell,  0) -> {X,     5, io_data_in0};
+mapping_mux(X,  7, cell,  0) -> {X,     6, io_data_in0};
+mapping_mux(X,  9, cell,  0) -> {X,     7, io_data_in0};
+mapping_mux(X,  7, cell, 23) -> {X,     8, io_data_in0};
+mapping_mux(X,  9, cell, 23) -> {X,     9, io_data_in0};
+mapping_mux(X,  2, cell, 25) -> {X,     0, io_data_in1};
+mapping_mux(X,  4, cell, 25) -> {X,     1, io_data_in1};
+mapping_mux(X,  6, cell, 25) -> {X,     2, io_data_in1};
+mapping_mux(X,  2, cell, 26) -> {X + 1, 3, io_data_in1};
+mapping_mux(X,  4, cell, 26) -> {X + 1, 4, io_data_in1};
+mapping_mux(X,  6, cell, 26) -> {X + 1, 5, io_data_in1};
+mapping_mux(X,  8, cell, 26) -> {X + 1, 6, io_data_in1};
+mapping_mux(X, 10, cell, 26) -> {X + 1, 7, io_data_in1};
+mapping_mux(X,  8, cell, 25) -> {X,     8, io_data_in1};
+mapping_mux(X, 10, cell, 25) -> {X,     9, io_data_in1}.
 
 %%--------------------------------------------------------------------
 
@@ -326,24 +336,24 @@ mapping_io(X, Mux, Sel, #metric{bottom_io = Y}) ->
 
 %%--------------------------------------------------------------------
 
-mapping_io(0, mux0) -> 0;
-mapping_io(1, mux0) -> 2;
-mapping_io(2, mux0) -> 0;
-mapping_io(3, mux0) -> 0;
-mapping_io(4, mux0) -> 2;
-mapping_io(5, mux0) -> 0;
-mapping_io(6, mux0) -> 1;
-mapping_io(7, mux0) -> 0;
-mapping_io(8, mux0) -> 1;
-mapping_io(9, mux0) -> 0;
-mapping_io(0, mux1) -> 1;
-mapping_io(1, mux1) -> 3;
-mapping_io(2, mux1) -> 2;
-mapping_io(3, mux1) -> 1;
-mapping_io(4, mux1) -> 3;
-mapping_io(5, mux1) -> 2;
-mapping_io(6, mux1) -> 3;
-mapping_io(7, mux1) -> 3;
-mapping_io(8, mux1) -> 3;
-mapping_io(9, mux1) -> 3.
+mapping_io(0, io_data_in0) -> 0;
+mapping_io(1, io_data_in0) -> 2;
+mapping_io(2, io_data_in0) -> 0;
+mapping_io(3, io_data_in0) -> 0;
+mapping_io(4, io_data_in0) -> 2;
+mapping_io(5, io_data_in0) -> 0;
+mapping_io(6, io_data_in0) -> 1;
+mapping_io(7, io_data_in0) -> 0;
+mapping_io(8, io_data_in0) -> 1;
+mapping_io(9, io_data_in0) -> 0;
+mapping_io(0, io_data_in1) -> 1;
+mapping_io(1, io_data_in1) -> 3;
+mapping_io(2, io_data_in1) -> 2;
+mapping_io(3, io_data_in1) -> 1;
+mapping_io(4, io_data_in1) -> 3;
+mapping_io(5, io_data_in1) -> 2;
+mapping_io(6, io_data_in1) -> 3;
+mapping_io(7, io_data_in1) -> 3;
+mapping_io(8, io_data_in1) -> 3;
+mapping_io(9, io_data_in1) -> 3.
 
