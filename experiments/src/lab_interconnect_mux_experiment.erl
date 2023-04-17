@@ -463,7 +463,7 @@ interconnect_sub_pairs([A, B]) ->
         {lo, hi} ->
             ok;
 
-        {ho, lo} ->
+        {hi, lo} ->
             ok
     end.
 

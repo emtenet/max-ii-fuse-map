@@ -11,6 +11,7 @@
 -export([source/1]).
 
 -export_type([compile/0]).
+-export_type([fuses/0]).
 -export_type([result/0]).
 -export_type([title/0]).
 

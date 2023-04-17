@@ -22,7 +22,7 @@
 -type block() :: {r4, max_ii:x(), max_ii:y()}.
 
 -type muxes() :: #{mux_index() => {max_ii:r4(), mux()}}.
--type mux_index() :: 0..15.
+-type mux_index() :: {mux, 0..15}.
 
 -type mux() :: #{mux_key() => from()}.
 -type mux_key() :: direct_link | {mux4(), mux3()}.
@@ -186,7 +186,7 @@ build_port(Density, [Fuse | Fuses], Muxes0, Ports) ->
 %% open
 %%====================================================================
 
--spec open(density()) -> blocks().
+-spec open(density()) -> {ok, blocks()}.
 
 open(Density) ->
     File = database_file(Density),

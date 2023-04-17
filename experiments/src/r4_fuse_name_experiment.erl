@@ -65,10 +65,16 @@ entry(Density, Fuse) ->
 
 %%--------------------------------------------------------------------
 
-port({R4 = {r4, _, _, port, _}, port3, _}, {R4, port4, _}, _, _) -> ok;
-port({R4 = {r4, _, _, port, _}, port4, _}, {R4, port3, _}, _, _) -> ok.
+port({R4 = {r4, _, _}, Index = {mux, _}, from3, _},
+     {R4, Index, from4, _},
+     _, _) ->
+    ok;
+port({R4 = {r4, _, _}, Index = {mux, _}, from4, _},
+     {R4, Index, from3, _},
+     _, _) ->
+    ok.
 
 %%--------------------------------------------------------------------
 
-port({{r4, _, _, port, _}, direct_link}, _) -> ok.
+port({{r4, _, _}, {mux, _}, direct_link}, _) -> ok.
 

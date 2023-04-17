@@ -241,7 +241,7 @@ blocks(Type, {route_cache, _, _, Blocks}) ->
 %% index_max
 %%====================================================================
 
--spec index_max(atom(), cache()) -> [block()].
+-spec index_max(atom(), cache()) -> index().
 
 index_max(Type, {route_cache, _, _, Blocks}) ->
     maps:fold(fun (Block, Indexes, Max) ->

@@ -271,7 +271,7 @@ alls(_, [], Alls) ->
     lists:reverse(Alls);
 alls(Bit, [{Fuse, Bits, _Name} | Fuses], Alls) ->
     case all(Bit, Bits) of
-        ok ->
+        true ->
             alls(Bit, Fuses, [Fuse | Alls]);
 
         false ->

@@ -3630,9 +3630,7 @@ to_cell(X, Y, N, I, Sector, _) ->
 to_iob(X, Y, {Name, Key, Value}) ->
     {ok, {{iob, X, Y}, Name, Key, Value}};
 to_iob(X, Y, {Name, Value}) ->
-    {ok, {{iob, X, Y}, Name, Value}};
-to_iob(X, Y, Name) ->
-    {ok, {{iob, X, Y}, Name}}.
+    {ok, {{iob, X, Y}, Name, Value}}.
 
 %%--------------------------------------------------------------------
 

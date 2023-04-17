@@ -40,7 +40,7 @@
 -type index() :: non_neg_integer().
 
 -type mux() :: #{entry() => from()}.
--type entry() :: fuse:location() | {fuse:location(), fuse:location()}.
+-type entry() :: fuse_map:location() | {fuse_map:location(), fuse_map:location()}.
 -type from() ::
     {c4, max_ii:x(), max_ii:y(), 0, index()} |
     {le_buffer, max_ii:x(), max_ii:y(), 0, index()} |
@@ -150,7 +150,7 @@ run_common(Density, [DirIndex | DirIndexes], Dirs, Fuses0) ->
 %% open
 %%====================================================================
 
--spec open(density()) -> blocks().
+-spec open(density()) -> {ok, blocks()}.
 
 open(Density) ->
     File = database_file(Density),
