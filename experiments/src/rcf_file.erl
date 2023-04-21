@@ -297,6 +297,8 @@ decode_dest(Name, <<"DATAD ), route_port = ", Line/binary>>) ->
     decode_dest_route(Name, data_d, Line);
 decode_dest(Name, <<"DATAIN )", Line/binary>>) ->
     decode_dest_ioc(Name, data_in, Line);
+decode_dest(Name, <<"ENA )", Line/binary>>) ->
+    decode_dest_lc(Name, ena, Line);
 decode_dest(Name, <<"OE )", Line/binary>>) ->
     decode_dest_ioc(Name, oe, Line);
 decode_dest(Name, <<"SCLR )", Line/binary>>) ->
