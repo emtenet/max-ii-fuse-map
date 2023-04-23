@@ -50,72 +50,81 @@ run() ->
 build(Density) ->
     %Db0 = #{},
     {ok, Db0} = open(Density),
-    {ok, Routes} = route_cache:open(Density),
-    Blocks = route_cache:blocks(c4, Routes),
-    Db1 = lists:foldl(
-        fun (Block, Db) ->
-            build_block(Routes, Block, Db)
+    {ok, Cache} = route_cache:open(Density),
+    Db1 = route_cache:fold_blocks(
+        c4,
+        fun (Block, Indexes, Acc) ->
+            build_block(Density, Block, Indexes, Acc)
         end,
         Db0,
-        lists:sort(Blocks)
+        Cache
     ),
     save(Density, Db1),
     ok.
 
 %%--------------------------------------------------------------------
 
-build_block(Routes, Block, Db0) ->
+build_block(Density, Block, Indexes, Db0) ->
     io:format(" ==> ~p:~n", [Block]),
-    lists:foldl(
-        fun (Index, Db) ->
-            build_index(Routes, Block, Index, Db)
+    route_cache:fold_indexes(
+        fun (Index, Froms, Acc) ->
+            build_index(Density, Block, Index, Froms, Acc)
         end,
         Db0,
-        lists:seq(0, 13)
+        Indexes
     ).
 
 %%--------------------------------------------------------------------
 
-build_index({route_cache, Density, Dirs, Blocks}, Block, Index, Db0) ->
-    #{Block := Indexes} = Blocks,
-    case Indexes of
-        #{Index := Froms} ->
-            {c4, X, Y} = Block,
-            Interconnect = {c4, X, Y, 0, Index},
-            maps:fold(fun (From, DirIndexes, Db) ->
-                build_from(Density, Dirs, Interconnect, From, DirIndexes, Db)
-            end, Db0, Froms);
+build_index(Density, {c4, X, Y}, Index, Froms, Db0) ->
+    Interconnect = {c4, X, Y, 0, Index},
+    route_cache:fold_froms(
+        fun (From, Cached, Acc) ->
+            build_from_check(Density, Interconnect, From, Cached, Acc)
+        end,
+        Db0,
+        Froms
+    ).
 
-        _ ->
-            Db0
+%%--------------------------------------------------------------------
+
+build_from_check(Density, Interconnect, From, Cached, Db) ->
+    case c4_interconnect_map:to_mux(Interconnect, Density) of
+        {ok, Block, Index} ->
+            case find_key(Block, Index, Interconnect, From, Db) of
+                {ok, _} ->
+                    Db;
+
+                false ->
+                    build_from(Density, Block, Index, Interconnect, From, Cached, Db)
+            end;
+
+        Error ->
+            io:format("-----------------------------------------------~n", []),
+            io:format("TO MUX ~p ~p ~p~n", [Density, Interconnect, Error]),
+            io:format("-----------------------------------------------~n", []),
+            Db
     end.
 
 %%--------------------------------------------------------------------
 
-build_from(Density, Dirs, Interconnect, From, DirIndexes, Db) ->
-    {ok, Block, Index} = c4_interconnect_map:to_mux(Interconnect, Density),
-    case find_key(Block, Index, Interconnect, From, Db) of
-        {ok, _} ->
+build_from(Density, Block, Index, Interconnect, From, Cached, Db) ->
+    Fuses = build_fuses(Density, Cached),
+    case build_ports(Density, Fuses, #{}, []) of
+        [] ->
+            io:format("~10w ~8w ~15w: ?????? <- ~w~n", [
+                Block, Index, Interconnect, From
+            ]),
+            %io:format("~p~n", [[
+            %    fuse_map:to_name(Fuse, Density)
+            %    ||
+            %    Fuse <- Fuses
+            %]]),
+            throw(fuse_not_found),
             Db;
 
-        false ->
-            Fuses = build_fuses(Density, DirIndexes, Dirs),
-            case build_ports(Density, Fuses, #{}, []) of
-                [] ->
-                    io:format("~10w ~8w ~15w: ?????? <- ~w~n", [
-                        Block, Index, Interconnect, From
-                    ]),
-                    %io:format("~p~n", [[
-                    %    fuse_map:to_name(Fuse, Density)
-                    %    ||
-                    %    Fuse <- Fuses
-                    %]]),
-                    throw(fuse_not_found),
-                    Db;
-
-                Ports ->
-                    build_from_pick(Ports, Block, Index, Interconnect, From, Db)
-            end
+        Ports ->
+            build_from_pick(Ports, Block, Index, Interconnect, From, Db)
     end.
 
 %%--------------------------------------------------------------------
@@ -141,22 +150,22 @@ build_add(Block, Index, Interconnect, Key, From, Db) ->
 
 %%--------------------------------------------------------------------
 
-build_fuses(Density, [DirIndex | DirIndexes], Dirs) ->
-    #{DirIndex := Dir} = Dirs,
-    Experiment = {cached, Dir},
-    {ok, Fuses0} = experiment:fuses(Experiment),
-    Fuses = fuses:subtract(Fuses0, density:minimal_fuses(Density)),
-    build_fuses_rest(DirIndexes, Dirs, Fuses).
+build_fuses(Density, Cached) ->
+    route_cache:fold_cached(
+        fun build_fuses_reduce/2,
+        {first, Density},
+        Cached,
+        {limit, 100}
+    ).
 
 %%--------------------------------------------------------------------
 
-build_fuses_rest([], _, Fuses) ->
-    Fuses;
-build_fuses_rest([DirIndex | DirIndexes], Dirs, Fuses0) ->
-    #{DirIndex := Dir} = Dirs,
-    Experiment = {cached, Dir},
+build_fuses_reduce(Experiment, {first, Density}) ->
     {ok, Fuses} = experiment:fuses(Experiment),
-    build_fuses_rest(DirIndexes, Dirs, fuses:intersect(Fuses0, Fuses)).
+    fuses:subtract(Fuses, density:minimal_fuses(Density));
+build_fuses_reduce(Experiment, Fuses0) ->
+    {ok, Fuses} = experiment:fuses(Experiment),
+    fuses:intersect(Fuses0, Fuses).
 
 %%--------------------------------------------------------------------
 

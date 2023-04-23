@@ -171,20 +171,24 @@ from_mux({c4, X, Y}, {mux, Index}, Density) ->
 
 %%--------------------------------------------------------------------
 
-from_mux_top(X, _, #metric{left_io = X}) ->
-    {error, top_left};
+from_mux_top(X, Index, #metric{left_io = X})
+        when Index < 2 orelse Index > 6 ->
+    {error, bottom_left_index};
 from_mux_top(X, _, #metric{right_io = X}) ->
     {error, top_right};
-from_mux_top(X, 0, Metric) -> from_mux_top_indent(X,     28,  7, Metric);
-from_mux_top(X, 1, Metric) -> from_mux_top_indent(X,     29,  8, Metric);
-from_mux_top(X, 2, Metric) -> from_mux_top_indent(X - 1, 30,  9, Metric);
-from_mux_top(X, 3, Metric) -> from_mux_top_indent(X - 1, 31, 10, Metric);
-from_mux_top(X, 4, Metric) -> from_mux_top_indent(X - 1, 32, 11, Metric);
-from_mux_top(X, 5, Metric) -> from_mux_top_indent(X - 1, 33, 12, Metric);
-from_mux_top(X, 6, Metric) -> from_mux_top_indent(X - 1, 34, 13, Metric);
-from_mux_top(X, 7, Metric) -> from_mux_top_right(X,       9,  7, Metric);
-from_mux_top(X, 8, Metric) -> from_mux_top_right(X,      10,  8, Metric);
-from_mux_top(X, 9, Metric) -> from_mux_top_right(X,      11,  9, Metric);
+from_mux_top(X, Index, #metric{right_lab = X})
+        when Index >= 2 andalso Index =< 6 ->
+    {error, top_right_index};
+from_mux_top(X, 0, Metric) -> from_mux_top_indent(X, 28,  7, Metric);
+from_mux_top(X, 1, Metric) -> from_mux_top_indent(X, 29,  8, Metric);
+from_mux_top(X, 2, Metric) -> from_mux_top_indent(X, 30,  9, Metric);
+from_mux_top(X, 3, Metric) -> from_mux_top_indent(X, 31, 10, Metric);
+from_mux_top(X, 4, Metric) -> from_mux_top_indent(X, 32, 11, Metric);
+from_mux_top(X, 5, Metric) -> from_mux_top_indent(X, 33, 12, Metric);
+from_mux_top(X, 6, Metric) -> from_mux_top_indent(X, 34, 13, Metric);
+from_mux_top(X, 7, Metric) -> from_mux_top_right(X,   9,  7, Metric);
+from_mux_top(X, 8, Metric) -> from_mux_top_right(X,  10,  8, Metric);
+from_mux_top(X, 9, Metric) -> from_mux_top_right(X,  11,  9, Metric);
 from_mux_top(_, _, _) ->
     {error, top_mux_out_of_bounds}.
 
@@ -209,47 +213,54 @@ from_mux_top_right(X, _, Lo, #metric{top_io = Top}) ->
 
 %%--------------------------------------------------------------------
 
-from_mux_bottom(X, 0) -> {X,      0};
-from_mux_bottom(X, 1) -> {X,      4};
-from_mux_bottom(X, 2) -> {X,      8};
-from_mux_bottom(X, 3) -> {X - 1, 12};
-from_mux_bottom(X, 4) -> {X - 1, 16};
-from_mux_bottom(X, 5) -> {X - 1, 20};
-from_mux_bottom(X, 6) -> {X - 1, 24};
-from_mux_bottom(X, 7) -> {X - 1, left, 12, 0};
-from_mux_bottom(X, 8) -> {X,    right, 0, 12};
-from_mux_bottom(X, 9) -> {X,    right, 4, 16};
-from_mux_bottom(_, _) ->
+from_mux_bottom(0) ->  0;
+from_mux_bottom(1) ->  4;
+from_mux_bottom(2) ->  8;
+from_mux_bottom(3) -> 12;
+from_mux_bottom(4) -> 16;
+from_mux_bottom(5) -> 20;
+from_mux_bottom(6) -> 24;
+from_mux_bottom(7) -> {left,  12, 0};
+from_mux_bottom(8) -> {right, 0, 12};
+from_mux_bottom(9) -> {right, 4, 16};
+from_mux_bottom(_) ->
     false.
 
 %%--------------------------------------------------------------------
 
-from_mux_bottom(X, _, _, #metric{left_io = X}) ->
-    {error, bottom_left};
+from_mux_bottom(X, _, Index, #metric{left_io = X})
+        when Index < 3 orelse Index > 7 ->
+    {error, bottom_left_index};
+from_mux_bottom(X, _, Index, #metric{indent_right_lab = X})
+        when Index >= 3 andalso Index =< 7 ->
+    {error, indent_left_index};
 from_mux_bottom(X, _, _, #metric{right_io = X}) ->
     {error, bottom_right};
-from_mux_bottom(X0, Y, Index, Metric) ->
-    case from_mux_bottom(X0, Index) of
-        {X, Base} ->
+from_mux_bottom(X, _, Index, #metric{right_lab = X})
+        when Index >= 3 andalso Index =< 7 ->
+    {error, bottom_right_index};
+from_mux_bottom(X, Y, Index, Metric) ->
+    case from_mux_bottom(Index) of
+        {left, _, Base} when X =:= Metric#metric.left_io ->
             I = Base + to_pattern(X, Y, Metric),
             {ok, {c4, X, Y + 1, 0, I}};
 
-        {X, left, _, Base} when X =:= Metric#metric.left_io ->
-            I = Base + to_pattern(X, Y, Metric),
-            {ok, {c4, X, Y + 1, 0, I}};
-
-        {X, left, Base, _} ->
+        {left, Base, _} ->
             I = Base + to_pattern(X, Y + 1, Metric),
             {ok, {c4, X, Y + 1, 0, I}};
 
-        {X, right, _, Base}
+        {right, _, Base}
                 when X =:= Metric#metric.right_lab orelse
-                     X =:= Metric#metric.indent_left_io - 1 ->
+                     X =:= Metric#metric.indent_right_lab ->
             I = Base + to_pattern(X, Y, Metric),
             {ok, {c4, X, Y + 1, 0, I}};
 
-        {X, right, Base, _} ->
+        {right, Base, _} ->
             I = Base + to_pattern(X, Y + 1, Metric),
+            {ok, {c4, X, Y + 1, 0, I}};
+
+        Base when is_integer(Base) ->
+            I = Base + to_pattern(X, Y, Metric),
             {ok, {c4, X, Y + 1, 0, I}};
 
         _ ->
@@ -289,10 +300,6 @@ to_mux({c4, X, Y, 0, I}, Density) ->
         Metric when X >= Metric#metric.right_io ->
             {error, right};
 
-        Metric when Y =:= Metric#metric.bottom_lab andalso
-                    X =:= Metric#metric.indent_left_io - 1 ->
-            to_mux_indent_tip(X, I, Metric);
-
         Metric when Y < Metric#metric.indent_bottom_io andalso
                     X < Metric#metric.indent_left_io ->
             {error, indent_bottom};
@@ -323,16 +330,12 @@ to_mux_indent(X, Y, I, Metric) when Y =:= ?INDENT_BOTTOM + 1 andalso I < 28 ->
                     to_mux_bottom(X, ?INDENT_BOTTOM, 7, Metric);
 
                 3 when X =:= Metric#metric.right_lab orelse
-                       X =:= Metric#metric.indent_left_io - 1 ->
+                       X =:= Metric#metric.indent_right_lab ->
                     to_mux_bottom(X, ?INDENT_BOTTOM, 8, Metric);
 
                 4 when X =:= Metric#metric.right_lab orelse
-                       X =:= Metric#metric.indent_left_io - 1 ->
+                       X =:= Metric#metric.indent_right_lab ->
                     to_mux_bottom(X, ?INDENT_BOTTOM, 9, Metric);
-
-                Index when X =:= Metric#metric.indent_left_io - 1 andalso
-                           Index > 4 ->
-                    {error, indent_bottom_index};
 
                 Index ->
                     to_mux_bottom(X, ?INDENT_BOTTOM, Index, Metric)
@@ -340,20 +343,19 @@ to_mux_indent(X, Y, I, Metric) when Y =:= ?INDENT_BOTTOM + 1 andalso I < 28 ->
 
         ?INDENT_BOTTOM + 1 ->
             case I div 4 of
-                3 when X > Metric#metric.left_io andalso
-                       X =/= Metric#metric.indent_left_io - 1 ->
+                3 when X > Metric#metric.left_io ->
                     to_mux_bottom(X, ?INDENT_BOTTOM, 7, Metric);
 
                 0 when X < Metric#metric.right_lab andalso
-                       X =/= Metric#metric.indent_left_io - 1 ->
+                       X =/= Metric#metric.indent_right_lab ->
                     to_mux_bottom(X, ?INDENT_BOTTOM, 8, Metric);
 
                 1 when X < Metric#metric.right_lab andalso
-                       X =/= Metric#metric.indent_left_io - 1 ->
+                       X =/= Metric#metric.indent_right_lab ->
                     to_mux_bottom(X, ?INDENT_BOTTOM, 9, Metric);
 
                 _ ->
-                    {error, indent_bottom_index}
+                    {error, indent_bottom_index_1}
             end;
 
         _ ->
@@ -367,23 +369,6 @@ to_mux_indent(X, Y, I, _) when Y =:= ?INDENT_BOTTOM + 1 ->
     {ok, {c4, X, ?INDENT_MIDDLE}, {mux, I - 21}};
 to_mux_indent(X, Y, I, Metric) ->
     to_mux_common(X, Y, I, Metric).
-
-%%--------------------------------------------------------------------
-
-to_mux_indent_tip(_, I, _) when I >= 28 ->
-    {error, indent_tip_i};
-to_mux_indent_tip(X, I, Metric) ->
-    Index = I div 4,
-    case from_pattern(X, I, 0, 4, Metric) of
-        ?BOTTOM when Index >= 3 andalso Index =< 6 ->
-             to_mux_bottom_x(X + 1, ?BOTTOM, Index, Metric);
-
-        ?BOTTOM + 1 when Index =:= 3 ->
-             to_mux_bottom_x(X + 1, ?BOTTOM, 7, Metric);
-
-        _ ->
-            {error, bottom_y}
-    end.
 
 %%--------------------------------------------------------------------
 
@@ -427,7 +412,7 @@ to_mux(X, Y, I, Metric) when Y =:= ?BOTTOM + 1 andalso I < 28 ->
                     to_mux_bottom(X, ?BOTTOM, 9, Metric);
 
                 _ ->
-                    {error, bottom_index}
+                    {error, bottom_index_1}
             end;
 
         _ ->
@@ -469,34 +454,31 @@ to_mux_common(_, _, _, _) ->
 
 %%--------------------------------------------------------------------
 
-to_mux_top(X, Index, Metric) when Index < 2 orelse Index > 6 ->
-    to_mux_top_x(X, Index, Metric);
-to_mux_top(X, Index, Metric) ->
-    to_mux_top_x(X + 1, Index, Metric).
-
-%%--------------------------------------------------------------------
-
-to_mux_top_x(X, _, #metric{left_io = X}) ->
-    {error, top_left};
-to_mux_top_x(X, _, #metric{right_io = X}) ->
+to_mux_top(X, _, #metric{right_io = X}) ->
     {error, top_right};
-to_mux_top_x(X, Index, Metric) ->
+to_mux_top(X, Index, #metric{left_io = X})
+        when Index < 2 orelse Index > 6 ->
+    {error, top_left_index_out_of_bounds};
+to_mux_top(X, Index, #metric{right_lab = X})
+        when Index >= 2 andalso Index =< 6 ->
+    {error, top_right_index_out_of_bounds};
+to_mux_top(X, Index, Metric) ->
     {ok, {c4, X, Metric#metric.top_io}, {mux, Index}}.
 
 %%--------------------------------------------------------------------
 
-to_mux_bottom(X, Y, Index, Metric) when Index < 3 orelse Index > 7 ->
-    to_mux_bottom_x(X, Y, Index, Metric);
-to_mux_bottom(X, Y, Index, Metric) ->
-    to_mux_bottom_x(X + 1, Y, Index, Metric).
-
-%%--------------------------------------------------------------------
-
-to_mux_bottom_x(X, _, _, #metric{left_io = X}) ->
-    {error, bottom_left};
-to_mux_bottom_x(X, _, _, #metric{right_io = X}) ->
+to_mux_bottom(X, _, _, #metric{right_io = X}) ->
     {error, bottom_right};
-to_mux_bottom_x(X, Y, Index, _) ->
+to_mux_bottom(X, _, Index, #metric{left_io = X})
+        when Index < 3 orelse Index > 7 ->
+    {error, bottom_left_index_out_of_bounds};
+to_mux_bottom(X, _, Index, #metric{right_lab = X})
+        when Index >= 3 andalso Index =< 7 ->
+    {error, bottom_right_index_out_of_bounds};
+to_mux_bottom(X, _, Index, #metric{indent_right_lab = X})
+        when Index >= 3 andalso Index =< 7 ->
+    {error, indent_right_index_out_of_bounds};
+to_mux_bottom(X, Y, Index, _) ->
     {ok, {c4, X, Y}, {mux, Index}}.
 
 %%====================================================================

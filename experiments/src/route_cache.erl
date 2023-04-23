@@ -14,16 +14,28 @@
 -export([run/0]).
 
 -export([open/1]).
+-export([block_types/1]).
 -export([blocks/2]).
 -export([index_max/2]).
 -export([froms/2]).
 -export([froms/3]).
 -export([experiments/3]).
 -export([experiments/4]).
+-export([cached/2]).
+
+-export([fold_blocks/4]).
+-export([fold_indexes/3]).
+-export([fold_froms/3]).
+-export([fold_cached/3]).
+-export([fold_cached/4]).
 
 -type density() :: density:density().
 
 -type cache() :: {route_cache, density(), dirs(), blocks()}.
+
+-type fold_indexes() :: {fold_indexes, indexes(), dirs()}.
+-type fold_froms() :: {fold_froms, froms(), dirs()}.
+-type fold_cached() :: {fold_cached, [dir_index()], dirs()}.
 
 -type dirs() :: #{dir_index() => file:name()}.
 -type dir_index() :: non_neg_integer().
@@ -38,6 +50,8 @@
 -type from() :: {atom(), max_ii:x(), max_ii:y(), non_neg_integer(), non_neg_integer()}.
 
 -type experiment() :: {experiment:title(), experiment:fuses(), rcf_file:rcf()}.
+
+-define(INCREMENTAL, true).
 
 %%====================================================================
 %% run
@@ -126,33 +140,59 @@ collect_start(Density) ->
 
 %%--------------------------------------------------------------------
 
+-ifdef(INCREMENTAL).
+
 collect_init(Density) ->
-    collect_loop(Density, 0, #{}, #{}).
+    {ok, {route_cache, Density, Dirs, Blocks}} = open(Density),
+    {Seen, DirCount} = maps:fold(fun collect_init/3, {#{}, 0}, Dirs),
+    io:format(" ==> ~p INCREMENTAL~n", [Density]),
+    collect_loop(Density, Seen, DirCount, Dirs, Blocks).
 
 %%--------------------------------------------------------------------
 
-collect_loop(Density, DirCount, Dirs, Blocks) ->
+collect_init(DirIndex, Dir, {Seen, DirCount}) ->
+    {Seen#{Dir => seen}, max(DirIndex, DirCount)}.
+
+-else.
+
+collect_init(Density) ->
+    io:format(" ==> ~p EMPTY~n", [Density]),
+    Seen = #{},
+    DirCount = 0,
+    Dirs = #{},
+    Blocks = #{},
+    collect_loop(Density, Seen, DirCount, Dirs, Blocks).
+
+-endif.
+
+%%--------------------------------------------------------------------
+
+collect_loop(Density, Seen, DirCount, Dirs, Blocks) ->
     receive
         {collect, From, Experiment} ->
-            collect(Experiment, From, Density, DirCount, Dirs, Blocks);
+            collect(Experiment, From, Density, Seen, DirCount, Dirs, Blocks);
 
         save ->
-            io:format(" ==> ~s SAVE~n", [Density]),
-            File = density_file(Density),
-            Binary = erlang:term_to_binary({Dirs, Blocks}, [compressed]),
-            ok = file:write_file(File, Binary)
+            save(Density, Dirs, Blocks)
     end.
 
 %%--------------------------------------------------------------------
 
-collect(Experiment, From, Density, DirCount0, Dirs0, Blocks0) ->
+collect(Experiment, From, Density, Seen, DirCount0, Dirs0, Blocks0) ->
     {cached, Dir} = Experiment,
-    DirCount = DirCount0 + 1,
-    Dirs = Dirs0#{DirCount => Dir},
-    {ok, #{signals := Signals}} = experiment:rcf(Experiment),
-    Blocks = collect_signals(Signals, DirCount, Blocks0),
-    From ! {collected, Density},
-    collect_loop(Density, DirCount, Dirs, Blocks).
+    case Seen of
+        #{Dir := seen} ->
+            From ! {collected, Density},
+            collect_loop(Density, Seen, DirCount0, Dirs0, Blocks0);
+
+        _ ->
+            DirCount = DirCount0 + 1,
+            Dirs = Dirs0#{DirCount => Dir},
+            {ok, #{signals := Signals}} = experiment:rcf(Experiment),
+            Blocks = collect_signals(Signals, DirCount, Blocks0),
+            From ! {collected, Density},
+            collect_loop(Density, Seen, DirCount, Dirs, Blocks)
+    end.
 
 %%--------------------------------------------------------------------
 
@@ -223,6 +263,36 @@ open(Density) ->
     {ok, Binary} = file:read_file(File),
     {Dirs, Blocks} = erlang:binary_to_term(Binary), %, [safe]),
     {ok, {route_cache, Density, Dirs, Blocks}}.
+
+%%====================================================================
+%% save
+%%====================================================================
+
+save(Density, Dirs, Blocks) ->
+    io:format(" ==> ~s SAVE~n", [Density]),
+    File = density_file(Density),
+    Binary = erlang:term_to_binary({Dirs, Blocks}, [compressed]),
+    ok = file:write_file(File, Binary).
+
+%%====================================================================
+%% block_types
+%%====================================================================
+
+-spec block_types(cache()) -> [atom()].
+
+block_types({route_cache, _, _, Blocks}) ->
+    maps:keys(maps:fold(fun block_types/3, #{}, Blocks)).
+
+%%--------------------------------------------------------------------
+
+block_types({Type, _X, _Y}, _Indexes, Types) ->
+    case Types of
+        #{Type := _} ->
+            Types;
+
+        _ ->
+            Types#{Type => true}
+    end.
 
 %%====================================================================
 %% blocks
@@ -309,12 +379,146 @@ experiments(Block, Index, From, {route_cache, _, Dirs, Blocks}) ->
 
 %%--------------------------------------------------------------------
 
-experiment(Index, Dirs) ->
-    #{Index := Dir} = Dirs,
-    Result = {cached, Dir},
+experiment(DirIndex, Dirs) ->
+    Result = cached(DirIndex, Dirs),
     {ok, Fuses} = experiment:fuses(Result),
     {ok, RCF} = experiment:rcf(Result),
-    {Index, Fuses, RCF}.
+    {DirIndex, Fuses, RCF}.
+
+%%====================================================================
+%% cached
+%%====================================================================
+
+-spec cached(dir_index(), cache() | dirs()) -> experiment:result().
+
+cached(DirIndex, {route_cache, _, Dirs, _}) ->
+    #{DirIndex := Dir} = Dirs,
+    {cached, <<"cache/", Dir/binary>>};
+cached(DirIndex, Dirs) ->
+    #{DirIndex := Dir} = Dirs,
+    {cached, <<"cache/", Dir/binary>>}.
+
+%%====================================================================
+%% fold_blocks
+%%====================================================================
+
+-spec fold_blocks(Type, Fold, Acc, cache()) -> Acc when
+    Type :: atom(),
+    Fold :: fun((block(), fold_indexes(), Acc) -> Acc),
+    Acc :: term().
+
+fold_blocks(Type, Fold, Init, Cache) ->
+    Blocks = route_cache:blocks(Type, Cache),
+    lists:foldl(
+        fun (Block, Acc) ->
+            fold_block(Fold, Block, Cache, Acc)
+        end,
+        Init,
+        Blocks
+    ).
+
+%%--------------------------------------------------------------------
+
+fold_block(Fold, Block, {route_cache, _, Dirs, Blocks}, Acc) ->
+    #{Block := Indexes} = Blocks,
+    Fold(Block, {fold_indexes, Indexes, Dirs}, Acc).
+
+%%====================================================================
+%% fold_indexes
+%%====================================================================
+
+-spec fold_indexes(Fold, Acc, fold_indexes()) -> Acc when
+    Fold :: fun((index(), fold_froms(), Acc) -> Acc),
+    Acc :: term().
+
+fold_indexes(Fold, Init, Cache) ->
+    Indexes = fold_indexes(Cache),
+    lists:foldl(
+        fun (Index, Acc) ->
+            fold_index(Fold, Index, Cache, Acc)
+        end,
+        Init,
+        Indexes
+    ).
+
+%%--------------------------------------------------------------------
+
+fold_indexes({fold_indexes, Indexes, _}) ->
+    lists:sort(maps:keys(Indexes)).
+
+%%--------------------------------------------------------------------
+
+fold_index(Fold, Index, {fold_indexes, Indexes, Dirs}, Acc) ->
+    #{Index := Froms} = Indexes,
+    Fold(Index, {fold_froms, Froms, Dirs}, Acc).
+
+%%====================================================================
+%% fold_froms
+%%====================================================================
+
+-spec fold_froms(Fold, Acc, fold_froms()) -> Acc when
+    Fold :: fun((from(), fold_cached(), Acc) -> Acc),
+    Acc :: term().
+
+fold_froms(Fold, Init, {fold_froms, Froms, Dirs}) ->
+    maps:fold(
+        fun (From, DirIndexes, Acc) ->
+            Fold(From, {fold_cached, DirIndexes, Dirs}, Acc)
+        end,
+        Init,
+        Froms
+    ).
+
+%%====================================================================
+%% fold_cached
+%%====================================================================
+
+-spec fold_cached(Fold, Acc, fold_cached()) -> Acc when
+    Fold :: fun((experiment:result(), Acc) -> Acc),
+    Acc :: term().
+
+-spec fold_cached(Fold, Acc, fold_cached(), {limit, Limit}) -> Acc when
+    Fold :: fun((experiment:result(), Acc) -> Acc),
+    Acc :: term(),
+    Limit :: pos_integer().
+
+fold_cached(Fold, Init, {fold_cached, DirIndexes, Dirs}) ->
+    lists:foldl(
+        fun (DirIndex, Acc) ->
+            fold_cached_fold(Fold, DirIndex, Dirs, Acc)
+        end,
+        Init,
+        DirIndexes
+    ).
+
+%%--------------------------------------------------------------------
+
+fold_cached(Fold, Init, {fold_cached, DirIndexes0, Dirs}, {limit, Limit}) ->
+    DirIndexes = limit(DirIndexes0, Limit),
+    lists:foldl(
+        fun (DirIndex, Acc) ->
+            fold_cached_fold(Fold, DirIndex, Dirs, Acc)
+        end,
+        Init,
+        DirIndexes
+    ).
+
+%%--------------------------------------------------------------------
+
+fold_cached_fold(Fold, DirIndex, Dirs, Acc) ->
+    Cached = cached(DirIndex, Dirs),
+    Fold(Cached, Acc).
+
+%%--------------------------------------------------------------------
+
+limit(List, Limit) ->
+    case length(List) of
+        Total when Total < Limit ->
+            List;
+
+        Total ->
+            lists:nthtail(Total - Limit, List)
+    end.
 
 %%====================================================================
 %% utility

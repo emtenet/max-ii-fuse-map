@@ -43,10 +43,6 @@ My experiments are being run in the following
  * [OE mux](experiments/src/output_enable_mux_playground.erl) playground
  * [OE invert](experiments/src/output_enable_invert_experiment.erl)
  * [OE mux](experiments/src/output_enable_mux_theory.erl) theory
- * [C4 fuses](experiments/src/c4_fuses_database.erl) database
- * [R4 fuses](experiments/src/r4_fuses_database.erl) database
- * [C4 fuse name](experiments/src/c4_fuse_name_experiment.erl)
- * [R4 fuse name](experiments/src/r4_fuse_name_experiment.erl)
  * [C4 interconnect](experiments/src/c4_interconnect_database.erl) database
  * [R4 interconnect](experiments/src/r4_interconnect_database.erl) database
  * [C4 interconnect](experiments/src/c4_interconnect_map.erl) map
@@ -75,29 +71,22 @@ and some mapping tables printed:
  * [IOB interconnect](experiments/src/iob_interconnect_mux_database.erl)
  * [LAB interconnect](experiments/src/lab_interconnect_mux_database.erl)
 
-## C4/R4 interconnect map
-
-A mapping from fuse locations to internconnect indexes is encoded in:
-
- * [C4 interconnect map](experiments/src/c4_interconnect_map.erl)
- * [R4 interconnect map](experiments/src/r4_interconnect_map.erl)
-
 ## C4/R4 interconnect mux
 
-Databases are being collected with C4 & R4 interconnect mux details.
-
-List of fuse locations involved:
-
- * [C4 fuses](experiments/src/c4_fuses_database.erl)
- * [R4 fuses](experiments/src/r4_fuses_database.erl)
-
-After the fuses have been named, a mapping of
+A mapping of
  * mux index to interconnect, and
  * mux key to interconnect source
 mappings have been collected:
 
  * [C4 interconnect](experiments/src/c4_interconnect_database.erl)
  * [R4 interconnect](experiments/src/r4_interconnect_database.erl)
+
+## C4/R4 interconnect map
+
+A mapping from fuse locations to internconnect indexes is encoded in:
+
+ * [C4 interconnect map](experiments/src/c4_interconnect_map.erl)
+ * [R4 interconnect map](experiments/src/r4_interconnect_map.erl)
 
 ## Fuses
 

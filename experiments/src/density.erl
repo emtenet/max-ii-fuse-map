@@ -20,6 +20,8 @@
 -export([bottom_lab/2]).
 -export([columns/1]).
 -export([rows/1]).
+-export([left_rows/1]).
+-export([right_rows/1]).
 
 -export_type([density/0]).
 
@@ -475,6 +477,7 @@ labs(epm2210) ->
     bottom_lab = B + 1,
     indent_left_io = LL,
     indent_left_lab = LL + 1,
+    indent_right_lab = LL - 1,
     indent_bottom_io = BB,
     indent_bottom_lab = BB + 1,
     pattern_x = L,
@@ -591,4 +594,25 @@ rows(epm240) -> [1,2,3,4];
 rows(epm570) -> [1,2,3,4,5,6,7];
 rows(epm1270) -> [1,2,3,4,5,6,7,8,9,10];
 rows(epm2210) -> [1,2,3,4,5,6,7,8,9,10,11,12,13].
+
+%%====================================================================
+%% left_rows
+%%====================================================================
+
+-spec left_rows(density()) -> [max_ii:y()].
+
+left_rows(Density = epm240) ->
+    rows(Density);
+left_rows(Density) ->
+    [_, _, _ | Rows] = rows(Density),
+    Rows.
+
+%%====================================================================
+%% right_rows
+%%====================================================================
+
+-spec right_rows(density()) -> [max_ii:y()].
+
+right_rows(Density) ->
+    rows(Density).
 

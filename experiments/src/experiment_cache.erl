@@ -102,7 +102,7 @@ iterate([], Outer, [_ | Outers]) ->
     iterate([], Outer, Outers);
 iterate([Inner | Inners], Outer, Outers) ->
     Next = {cache, Inners, Outer, Outers},
-    Dir = filename:join(["cache", Outer, Inner]),
+    Dir = list_to_binary(filename:join(["cache", Outer, Inner])),
     case read_source(Dir) of
         {ok, Source} ->
             [Device0, _] = binary:split(Source, <<"\n">>),

@@ -15,8 +15,9 @@
 -type mux() :: {mux, 0..15}.
 
 -record(with, {
-    zero :: non_neg_integer(),
-    zero_columns :: {column(), column(), column(), column()},
+    left_io :: non_neg_integer(),
+    left_io_columns :: {column(), column(), column(), column()},
+    left_io_offset :: non_neg_integer(),
     left :: non_neg_integer(),
     right :: non_neg_integer(),
     top :: non_neg_integer(),
@@ -151,6 +152,10 @@ from_mux({r4, X, Y}, {mux, Index}, Density) ->
         With when Y < With#with.bottom ->
             {error, bottom};
 
+        With when X =:= With#with.left_io andalso
+                  Y >= With#with.indent_top ->
+            from_left_io(X, Y, Index, With);
+
         With when X < With#with.left ->
             {error, left};
 
@@ -164,6 +169,13 @@ from_mux({r4, X, Y}, {mux, Index}, Density) ->
         With ->
             from_mux(X, Y, Index, With)
     end.
+
+%%--------------------------------------------------------------------
+
+from_left_io(_, _, Index, _) when Index > 7 ->
+    {error, left_io_mux_out_of_bounds};
+from_left_io(X, Y, Index, With) ->
+    {ok, {r4, X, Y, 0, (4 * Index) + With#with.left_io_offset}}.
 
 %%--------------------------------------------------------------------
 
@@ -198,7 +210,7 @@ from_mux(X, Y, Index, With)
     Pattern = to_pattern(X, Y, Index, With),
     Column = (23 - X) rem 4,
     I = Column + (4 * Pattern),
-    {ok, {r4, With#with.zero, Y, 0, I}};
+    {ok, {r4, With#with.left_io, Y, 0, I}};
 from_mux(X, Y, Index, With) ->
     I = to_pattern(X, Y, Index, With),
     {ok, {r4, X - 3, Y, 0, I}}.
@@ -221,7 +233,7 @@ to_mux({r4, X, Y, 0, I}, Density) ->
         With when Y < With#with.bottom ->
             {error, bottom};
 
-        With when X < With#with.zero ->
+        With when X < With#with.left_io ->
             {error, left};
 
         With when X >= With#with.right ->
@@ -244,6 +256,25 @@ to_mux(X, Y, I, With)
              I rem 4 =:= With#with.stride ->
     Index = 8 + (I div 4),
     {ok, {r4, X, Y}, {mux, Index}};
+to_mux(X, Y, I, With = #with{left_io = X}) when I < 32 ->
+    case I rem 4 of
+        Offset when Offset =:= With#with.left_io_offset ->
+            Index = I div 4,
+            {ok, {r4, X, Y}, {mux, Index}};
+
+        _ ->
+            {error, left_io_32}
+    end;
+to_mux(X, Y, I, With = #with{left_io = X}) ->
+    case element(1 + (I rem 4), With#with.left_io_columns) of
+        undefined ->
+            {error, left_io_column};
+
+        XX ->
+            Pattern = I div 4,
+            Index = from_pattern(XX, Y, Pattern, With),
+            {ok, {r4, XX, Y}, {mux, Index}}
+    end;
 to_mux(X, _, I, With)
         when I < 16 andalso
              X < With#with.left ->
@@ -274,16 +305,6 @@ to_mux(X, Y, I, With) when I < 16 ->
     {ok, {r4, X + 3, Y}, {mux, Index}};
 to_mux(_, _, I, _) when I < 32 ->
     {error, i_32};
-to_mux(X, Y, I, With = #with{zero = X})  ->
-    case element(1 + (I rem 4), With#with.zero_columns) of
-        undefined ->
-            {error, zero_column};
-
-        XX ->
-            Pattern = I div 4,
-            Index = from_pattern(XX, Y, Pattern, With),
-            {ok, {r4, XX, Y}, {mux, Index}}
-    end;
 to_mux(X, Y, I, With = #with{indent_right = X})
         when Y < With#with.indent_top ->
     case element(1 + (I rem 4), With#with.indent_columns) of
@@ -304,13 +325,14 @@ to_mux(_, _, _, _) ->
 
 with(epm240) ->
     #with{
-       zero = 1,
-       zero_columns = {3, 2, undefined, 4},
+       left_io = 1,
+       left_io_columns = {3, 2, undefined, 4},
+       left_io_offset = 3,
        left = 2,
        right = 8,
        top = 4,
        bottom = 1,
-       indent_top = 0,
+       indent_top = 1,
        indent_right = 1,
        indent_columns = {undefined, undefined, undefined, undefined},
        pattern_offset = 0,
@@ -318,8 +340,9 @@ with(epm240) ->
     };
 with(epm570) ->
     #with{
-       zero = 0,
-       zero_columns = {3, 2, 1, undefined},
+       left_io = 0,
+       left_io_columns = {3, 2, 1, undefined},
+       left_io_offset = 0,
        left = 1,
        right = 13,
        top = 7,
@@ -332,8 +355,9 @@ with(epm570) ->
     };
 with(epm1270) ->
     #with{
-       zero = 0,
-       zero_columns = {3, 2, 1, undefined},
+       left_io = 0,
+       left_io_columns = {3, 2, 1, undefined},
+       left_io_offset = 0,
        left = 1,
        right = 17,
        top = 10,
@@ -346,8 +370,9 @@ with(epm1270) ->
     };
 with(epm2210) ->
     #with{
-       zero = 0,
-       zero_columns = {3, 2, 1, undefined},
+       left_io = 0,
+       left_io_columns = {3, 2, 1, undefined},
+       left_io_offset = 0,
        left = 1,
        right = 21,
        top = 13,

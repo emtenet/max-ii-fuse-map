@@ -238,29 +238,29 @@ check_mapping(Metric, {C4, IO, Fuse = {XX, tail, Index, Cell, Sector}}) ->
 
 %%--------------------------------------------------------------------
 
-mapping_mux(X,  2, side, 11) -> {X + 1, 3, io_data_in1};
-mapping_mux(X,  4, side, 11) -> {X + 1, 4, io_data_in1};
-mapping_mux(X,  6, side, 11) -> {X + 1, 5, io_data_in1};
-mapping_mux(X,  8, side, 11) -> {X + 1, 6, io_data_in1};
-mapping_mux(X, 10, side, 11) -> {X + 1, 7, io_data_in1};
+mapping_mux(X,  2, side, 11) -> {X,     3, io_data_in1};
+mapping_mux(X,  4, side, 11) -> {X,     4, io_data_in1};
+mapping_mux(X,  6, side, 11) -> {X,     5, io_data_in1};
+mapping_mux(X,  8, side, 11) -> {X,     6, io_data_in1};
+mapping_mux(X, 10, side, 11) -> {X,     7, io_data_in1};
 mapping_mux(X,  1, cell, 23) -> {X,     0, io_data_in0};
 mapping_mux(X,  3, cell, 23) -> {X,     1, io_data_in0};
 mapping_mux(X,  5, cell, 23) -> {X,     2, io_data_in0};
-mapping_mux(X,  1, cell,  0) -> {X,     3, io_data_in0};
-mapping_mux(X,  3, cell,  0) -> {X,     4, io_data_in0};
-mapping_mux(X,  5, cell,  0) -> {X,     5, io_data_in0};
-mapping_mux(X,  7, cell,  0) -> {X,     6, io_data_in0};
-mapping_mux(X,  9, cell,  0) -> {X,     7, io_data_in0};
+mapping_mux(X,  1, cell,  0) -> {X - 1, 3, io_data_in0};
+mapping_mux(X,  3, cell,  0) -> {X - 1, 4, io_data_in0};
+mapping_mux(X,  5, cell,  0) -> {X - 1, 5, io_data_in0};
+mapping_mux(X,  7, cell,  0) -> {X - 1, 6, io_data_in0};
+mapping_mux(X,  9, cell,  0) -> {X - 1, 7, io_data_in0};
 mapping_mux(X,  7, cell, 23) -> {X,     8, io_data_in0};
 mapping_mux(X,  9, cell, 23) -> {X,     9, io_data_in0};
 mapping_mux(X,  2, cell, 25) -> {X,     0, io_data_in1};
 mapping_mux(X,  4, cell, 25) -> {X,     1, io_data_in1};
 mapping_mux(X,  6, cell, 25) -> {X,     2, io_data_in1};
-mapping_mux(X,  2, cell, 26) -> {X + 1, 3, io_data_in1};
-mapping_mux(X,  4, cell, 26) -> {X + 1, 4, io_data_in1};
-mapping_mux(X,  6, cell, 26) -> {X + 1, 5, io_data_in1};
-mapping_mux(X,  8, cell, 26) -> {X + 1, 6, io_data_in1};
-mapping_mux(X, 10, cell, 26) -> {X + 1, 7, io_data_in1};
+mapping_mux(X,  2, cell, 26) -> {X,     3, io_data_in1};
+mapping_mux(X,  4, cell, 26) -> {X,     4, io_data_in1};
+mapping_mux(X,  6, cell, 26) -> {X,     5, io_data_in1};
+mapping_mux(X,  8, cell, 26) -> {X,     6, io_data_in1};
+mapping_mux(X, 10, cell, 26) -> {X,     7, io_data_in1};
 mapping_mux(X,  8, cell, 25) -> {X,     8, io_data_in1};
 mapping_mux(X, 10, cell, 25) -> {X,     9, io_data_in1}.
 
@@ -299,61 +299,62 @@ long(Base, X, _) ->
 
 %%--------------------------------------------------------------------
 
-mapping_c4(X0, Mux, Metric = #metric{indent_left_io = Indent}) ->
-    {XX, Select} = mapping_c4(Mux),
-    case X0 + XX of
-        X when X < Indent orelse Indent =:= 1 ->
+mapping_c4(X, Mux, Metric = #metric{indent_left_io = Indent}) ->
+    Select = mapping_c4(Mux),
+    case X of
+        _ when X < Indent orelse Indent =:= 1 ->
             Y = Metric#metric.indent_bottom_lab,
             {c4, X, Y, 0, short(Select, X, Metric)};
 
-        X ->
+        _ ->
             Y = Metric#metric.bottom_lab,
             {c4, X, Y, 0, long(Select, X, Metric)}
     end.
 
 %%--------------------------------------------------------------------
 
-mapping_c4(0) -> { 0,  0};
-mapping_c4(1) -> { 0,  4};
-mapping_c4(2) -> { 0,  8};
-mapping_c4(3) -> {-1, 12};
-mapping_c4(4) -> {-1, 16};
-mapping_c4(5) -> {-1, 20};
-mapping_c4(6) -> {-1, 24};
-mapping_c4(7) -> {-1, {left, 12, 0}};
-mapping_c4(8) -> { 0, {right, 0, 12}};
-mapping_c4(9) -> { 0, {right, 4, 16}}.
+mapping_c4(0) ->  0;
+mapping_c4(1) ->  4;
+mapping_c4(2) ->  8;
+mapping_c4(3) -> 12;
+mapping_c4(4) -> 16;
+mapping_c4(5) -> 20;
+mapping_c4(6) -> 24;
+mapping_c4(7) -> {left, 12, 0};
+mapping_c4(8) -> {right, 0, 12};
+mapping_c4(9) -> {right, 4, 16}.
 
 %%--------------------------------------------------------------------
 
-mapping_io(X, Mux, Sel, #metric{indent_bottom_io = Y, indent_left_lab = Indent})
-        when X < Indent ->
-    I = mapping_io(Mux, Sel),
-    {io_data_in, X, Y, I, 0};
-mapping_io(X, Mux, Sel, #metric{bottom_io = Y}) ->
-    I = mapping_io(Mux, Sel),
-    {io_data_in, X, Y, I, 0}.
+mapping_io(X0, Mux, Sel, Metric = #metric{indent_left_lab = Indent}) ->
+    case mapping_io(X0, Mux, Sel) of
+        {X, I} when X < Indent ->
+            {io_data_in, X, Metric#metric.indent_bottom_io, I, 0};
+
+        {X, I} ->
+            {io_data_in, X, Metric#metric.bottom_io, I, 0}
+    end.
 
 %%--------------------------------------------------------------------
 
-mapping_io(0, io_data_in0) -> 0;
-mapping_io(1, io_data_in0) -> 2;
-mapping_io(2, io_data_in0) -> 0;
-mapping_io(3, io_data_in0) -> 0;
-mapping_io(4, io_data_in0) -> 2;
-mapping_io(5, io_data_in0) -> 0;
-mapping_io(6, io_data_in0) -> 1;
-mapping_io(7, io_data_in0) -> 0;
-mapping_io(8, io_data_in0) -> 1;
-mapping_io(9, io_data_in0) -> 0;
-mapping_io(0, io_data_in1) -> 1;
-mapping_io(1, io_data_in1) -> 3;
-mapping_io(2, io_data_in1) -> 2;
-mapping_io(3, io_data_in1) -> 1;
-mapping_io(4, io_data_in1) -> 3;
-mapping_io(5, io_data_in1) -> 2;
-mapping_io(6, io_data_in1) -> 3;
-mapping_io(7, io_data_in1) -> 3;
-mapping_io(8, io_data_in1) -> 3;
-mapping_io(9, io_data_in1) -> 3.
+mapping_io(X, 0, io_data_in0) -> {X,     0};
+mapping_io(X, 1, io_data_in0) -> {X,     2};
+mapping_io(X, 2, io_data_in0) -> {X,     0};
+mapping_io(X, 3, io_data_in0) -> {X + 1, 0};
+mapping_io(X, 4, io_data_in0) -> {X + 1, 2};
+mapping_io(X, 5, io_data_in0) -> {X + 1, 0};
+mapping_io(X, 6, io_data_in0) -> {X + 1, 1};
+mapping_io(X, 7, io_data_in0) -> {X + 1, 0};
+mapping_io(X, 8, io_data_in0) -> {X,     1};
+mapping_io(X, 9, io_data_in0) -> {X,     0};
+mapping_io(X, 0, io_data_in1) -> {X,     1};
+mapping_io(X, 1, io_data_in1) -> {X,     3};
+mapping_io(X, 2, io_data_in1) -> {X,     2};
+mapping_io(X, 3, io_data_in1) -> {X + 1, 1};
+mapping_io(X, 4, io_data_in1) -> {X + 1, 3};
+mapping_io(X, 5, io_data_in1) -> {X + 1, 2};
+mapping_io(X, 6, io_data_in1) -> {X + 1, 3};
+mapping_io(X, 7, io_data_in1) -> {X + 1, 3};
+mapping_io(X, 8, io_data_in1) -> {X,     3};
+mapping_io(X, 9, io_data_in1) -> {X,     3}.
 
