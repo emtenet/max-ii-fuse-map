@@ -49,6 +49,7 @@ My experiments are being run in the following
  * [R4 interconnect](experiments/src/r4_interconnect_map.erl) map
  * [C4 head](experiments/src/c4_head_experiment.erl)
  * [C4 tail](experiments/src/c4_tail_experiment.erl)
+ * [Global enable](experiments/src/global_enable_experiment.erl)
 
 ## Fuse map
 
@@ -96,6 +97,21 @@ There are 32 bits of user oode numbered LSB (0) to MSB (31).
 
 The user code bits are stored in the POF file inverted,
 so a user code bit of `1` is stored as a `0`.
+
+### `{global(), disable0 | disable1}`
+
+Each of the four global clock networks can be disabled when not in use.
+
+They are always disbabled with a pair of fuses.
+
+### `{global(), interconnect}`
+
+Each of the global clock networks can be driven from either:
+
+ * dedicated pins, or
+ * internal interconnects.
+
+This fuse selects an interconnect, rather than the default dedicated pin.
 
 ### `{ioc(), bus_hold}` and `{ioc(), weak_pull_up}`
 

@@ -61,7 +61,7 @@
     long_base :: non_neg_integer(),
     right_base :: non_neg_integer(),
     end_base :: non_neg_integer(),
-    sector_skip :: non_neg_integer(),
+    skip :: non_neg_integer(),
     left_strip :: non_neg_integer(),
     top_strip :: non_neg_integer(),
     right_strip :: non_neg_integer(),
@@ -76,6 +76,57 @@
 -define(COLUMN_SECTORS, 28).
 -define(SHORT_SECTORS, 20).
 -define(LONG_SECTORS, (?COLUMN_SECTORS - ?SHORT_SECTORS)).
+
+-define(GLOBAL_SKIPS(),
+    ?GLOBAL_SKIP(epm240,   1, side, 12, 0, disable0);
+    ?GLOBAL_SKIP(epm240,   2, cell,  0, 1, disable0);
+    ?GLOBAL_SKIP(epm240,   1, side,  4, 2, disable0);
+    ?GLOBAL_SKIP(epm240,   1, side, 10, 3, disable0);
+    ?GLOBAL_SKIP(epm240,   2, cell,  5, 0, disable1);
+    ?GLOBAL_SKIP(epm240,   2, cell,  1, 1, disable1);
+    ?GLOBAL_SKIP(epm240,   2, cell,  2, 2, disable1);
+    ?GLOBAL_SKIP(epm240,   2, cell,  3, 3, disable1);
+    ?GLOBAL_SKIP(epm240,   2, cell,  4, 0, interconnect);
+    ?GLOBAL_SKIP(epm240,   1, side, 11, 1, interconnect);
+    ?GLOBAL_SKIP(epm240,   1, side,  3, 2, interconnect);
+    ?GLOBAL_SKIP(epm240,   1, side,  9, 3, interconnect);
+    ?GLOBAL_SKIP(epm570,   1, cell, 27, 0, disable0);
+    ?GLOBAL_SKIP(epm570,   2, cell,  0, 1, disable0);
+    ?GLOBAL_SKIP(epm570,   2, cell,  2, 2, disable0);
+    ?GLOBAL_SKIP(epm570,   2, cell,  3, 3, disable0);
+    ?GLOBAL_SKIP(epm570,  10, cell,  5, 0, disable1);
+    ?GLOBAL_SKIP(epm570,  10, cell,  1, 1, disable1);
+    ?GLOBAL_SKIP(epm570,   9, cell, 25, 2, disable1);
+    ?GLOBAL_SKIP(epm570,   9, cell, 23, 3, disable1);
+    ?GLOBAL_SKIP(epm570,  10, cell,  4, 0, interconnect);
+    ?GLOBAL_SKIP(epm570,   9, cell, 26, 1, interconnect);
+    ?GLOBAL_SKIP(epm570,   9, cell, 24, 2, interconnect);
+    ?GLOBAL_SKIP(epm570,   9, cell, 22, 3, interconnect);
+    ?GLOBAL_SKIP(epm1270,  1, cell, 27, 0, disable0);
+    ?GLOBAL_SKIP(epm1270,  2, cell,  0, 1, disable0);
+    ?GLOBAL_SKIP(epm1270,  2, cell,  2, 2, disable0);
+    ?GLOBAL_SKIP(epm1270,  2, cell,  3, 3, disable0);
+    ?GLOBAL_SKIP(epm1270, 12, cell,  5, 0, disable1);
+    ?GLOBAL_SKIP(epm1270, 12, cell,  1, 1, disable1);
+    ?GLOBAL_SKIP(epm1270, 11, cell, 25, 2, disable1);
+    ?GLOBAL_SKIP(epm1270, 11, cell, 23, 3, disable1);
+    ?GLOBAL_SKIP(epm1270, 12, cell,  4, 0, interconnect);
+    ?GLOBAL_SKIP(epm1270, 11, cell, 26, 1, interconnect);
+    ?GLOBAL_SKIP(epm1270, 11, cell, 24, 2, interconnect);
+    ?GLOBAL_SKIP(epm1270, 11, cell, 22, 3, interconnect);
+    ?GLOBAL_SKIP(epm2210,  1, cell, 27, 0, disable0);
+    ?GLOBAL_SKIP(epm2210,  2, cell,  0, 1, disable0);
+    ?GLOBAL_SKIP(epm2210,  2, cell,  2, 2, disable0);
+    ?GLOBAL_SKIP(epm2210,  2, cell,  3, 3, disable0);
+    ?GLOBAL_SKIP(epm2210, 14, cell,  5, 0, disable1);
+    ?GLOBAL_SKIP(epm2210, 14, cell,  1, 1, disable1);
+    ?GLOBAL_SKIP(epm2210, 13, cell, 25, 2, disable1);
+    ?GLOBAL_SKIP(epm2210, 13, cell, 23, 3, disable1);
+    ?GLOBAL_SKIP(epm2210, 14, cell,  4, 0, interconnect);
+    ?GLOBAL_SKIP(epm2210, 13, cell, 26, 1, interconnect);
+    ?GLOBAL_SKIP(epm2210, 13, cell, 24, 2, interconnect);
+    ?GLOBAL_SKIP(epm2210, 13, cell, 22, 3, interconnect);
+).
 
 -define(IOB_SIDES(),
     ?IOB_SIDE( 7, 0, 2, {{interconnect, 0}, from3, mux0});
@@ -2325,6 +2376,14 @@ from_epm2210(Name) ->
 
 %%--------------------------------------------------------------------
 
+from_density({{global, G}, Name}, With = #with{}) ->
+    case from_density_global(G) of
+        ok ->
+            from_global(G, Name, With);
+
+        error ->
+            {error, {{invalid_global, G}, Name}}
+    end;
 from_density({{iob, X, Y}, Name}, With = #with{}) ->
     case from_density_iob(X, Y, With) of
         side ->
@@ -2454,6 +2513,13 @@ from_density({{r4, X, Y}, {mux, Index}, Key, Value}, With = #with{}) ->
     end;
 from_density(_Name, _With = #with{}) ->
     {error, density}.
+
+%%--------------------------------------------------------------------
+
+from_density_global(G) when G >= 0 andalso G =< 3 ->
+    ok;
+from_density_global(_) ->
+    error.
 
 %%--------------------------------------------------------------------
 
@@ -2848,6 +2914,19 @@ from_epm2210_strip(X, Y, N, R, C, _With) ->
 
 %%--------------------------------------------------------------------
 
+-define(GLOBAL_SKIP(Density, X, Cell, Sector, G, Name),
+    from_global(G, Name, With = #with{density = Density, skip = Skip}) ->
+        from_sector_pad(X, Sector, Skip, With)
+).
+
+?GLOBAL_SKIPS()
+from_global(G, Name, _With) ->
+    {error, {{global, G}, Name}}.
+
+-undef(GLOBAL_SKIP).
+
+%%--------------------------------------------------------------------
+
 from_side_strip(left, Index, R, C, With = #with{left_strip = Base}) ->
     from_base_strip(Base, Index, R, C, With);
 from_side_strip(top, Index, R, C, With = #with{top_strip = Base}) ->
@@ -2941,7 +3020,7 @@ from_line(X, Sector, Y, Offset, With = #with{top_y = TopY}) ->
 %%--------------------------------------------------------------------
 
 from_sector_skip(X, Sector, Offset, With = #with{})
-        when Offset >= With#with.sector_skip  ->
+        when Offset >= With#with.skip  ->
     from_sector_pad(X, Sector, Offset + 1, With);
 from_sector_skip(X, Sector, Offset, With) ->
     from_sector_pad(X, Sector, Offset, With).
@@ -3181,7 +3260,7 @@ to_strip(Row, Col, _With) ->
 %%--------------------------------------------------------------------
 
 to_column(Type, Sector, X, Offset0, With = #with{}, Lines) ->
-    Skip = With#with.sector_skip,
+    Skip = With#with.skip,
     Top = With#with.top_y - 1,
     End = ?HEAD_WIDTH + 1 + (Lines * ?LINE_WIDTH),
     Padding = 3 * (1 + (Offset0 div With#with.strip_width)),
@@ -3305,6 +3384,8 @@ to_name_at({X, Y, line, Index, cell, Sector}, With) ->
     to_cell_line(X, Y, Index, Sector, With);
 to_name_at({X, Y, N, I, cell, Sector}, With) ->
     to_cell(X, Y, N, I, Sector, With);
+to_name_at({X, skip, Skip, Cell, Sector}, With = #with{skip = Skip}) ->
+    to_skip(X, Cell, Sector, With);
 to_name_at(Location = {user_code, _}, _) ->
     {ok, Location};
 to_name_at(Location, _) ->
@@ -3650,6 +3731,24 @@ to_cell(X, Y, N, I, Sector, _) ->
 
 %%--------------------------------------------------------------------
 
+-define(GLOBAL_SKIP(Density, X, Cell, Sector, G, Name),
+    to_skip(X, Cell, Sector, #with{density = Density}) ->
+        to_global(G, Name)
+).
+
+?GLOBAL_SKIPS()
+to_skip(X, Cell, Sector, #with{skip = Skip}) ->
+    {error, {X, skip, Skip, Cell, Sector}}.
+
+-undef(GLOBAL_SKIP).
+
+%%--------------------------------------------------------------------
+
+to_global(G, Name) ->
+    {ok, {{global, G}, Name}}.
+
+%%--------------------------------------------------------------------
+
 to_iob(X, Y, {Name, Key, Value}) ->
     {ok, {{iob, X, Y}, Name, Key, Value}};
 to_iob(X, Y, {Name, Value}) ->
@@ -3716,7 +3815,7 @@ epm240() ->
         long_base = 3360,
         right_base = 46368,
         end_base = 49696,
-        sector_skip = 103,
+        skip = 103,
         left_strip = 1081,
         top_strip = 1177,
         right_strip = 1315,
@@ -3746,7 +3845,7 @@ epm570() ->
         long_base = 68896,
         right_base = 101152,
         end_base = 106144,
-        sector_skip = 149,
+        skip = 149,
         left_strip = 2369,
         top_strip = 2561,
         right_strip = 2837,
@@ -3776,7 +3875,7 @@ epm1270() ->
         long_base = 124352,
         right_base = 196032,
         end_base = 202688,
-        sector_skip = 241,
+        skip = 241,
         left_strip = 1848,
         top_strip = 2154,
         right_strip = 2472,
@@ -3806,7 +3905,7 @@ epm2210() ->
         long_base = 194624,
         right_base = 332608,
         end_base = 341760,
-        sector_skip = 287,
+        skip = 287,
         left_strip = 3647,
         top_strip = 4055,
         right_strip = 4451,
