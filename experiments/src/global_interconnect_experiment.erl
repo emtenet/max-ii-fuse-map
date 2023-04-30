@@ -57,11 +57,11 @@ density(Density, Device, D, Q) ->
     {ok, Experiments} = experiment:compile_to_fuses_and_rcf(Sources),
     Matrix0 = matrix:build_with_map(Density, Experiments),
     Matrix = matrix:remove_fuses(Matrix0, fun
-        ({{iob,1,3}, {interconnect, _}, _}) -> false;
-        ({{iob,1,3}, {interconnect, _}, _, _}) -> false;
-        ({{iob,1,3}, {interconnect, _}, _, _, _}) -> false;
-        ({{ioc,1,3,4}, _, _}) -> false;
-        ({{ioc,1,3,5}, _, _}) -> false;
+        ({{global, _}, _, _}) -> false;
+        ({Block = {iob, _, _}, {interconnect, _}, _, _}) ->
+            remove_interconnect(Density, Block);
+        ({Block = {iob, _, _}, {interconnect, _}, _, _, _}) ->
+            remove_interconnect(Density, Block);
         ({{c4, _, _}, _, _}) -> true;
         ({{c4, _, _}, _, _, _}) -> true;
         ({{iob, _, _}, _, _}) -> true;
@@ -88,6 +88,14 @@ density(Density, Device, D, Q) ->
         {Name, _, #{signals := Signals}} <- Experiments
     ],
     ok.
+
+%%--------------------------------------------------------------------
+
+remove_interconnect(epm240, {iob, 1, 3}) -> false;
+remove_interconnect(epm570, {iob, 9, 3}) -> false;
+remove_interconnect(epm1270, {iob, 11, 3}) -> false;
+remove_interconnect(epm2210, {iob, 13, 3}) -> false;
+remove_interconnect(_, _) -> true.
 
 %%--------------------------------------------------------------------
 

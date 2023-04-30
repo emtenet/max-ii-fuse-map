@@ -114,6 +114,19 @@ Each of the global clock networks can be driven from either:
 
 This fuse selects an interconnect, rather than the default dedicated pin.
 
+### `{global(), from6, mux#}`, `{global(), from4, mux#}` and `{global(), from3, mux#}`
+
+Selects an interconnect into each of the four global networks.
+
+For the EPM240,
+each global network has a two dimentional mux of size 6 x 3
+selecting from 18 interconnects at `{iob,1,3}`.
+
+For other densities,
+each global network has a two dimentional mux of size 4 x 3
+selecting from 10 interconnects
+at `{iob,9,3}`, `{iob,11,3}` & `{iob,13,3}` respectively.
+
 ### `{ioc(), bus_hold}` and `{ioc(), weak_pull_up}`
 
 Each IOC can have bus-hold or weak pull-up enabled.
@@ -200,6 +213,15 @@ Selects a direct-link from a neighbouring LAB onto an IOB's interconnect.
 Only applicable for IOBs on the left and right sides.
 
 Not used at the same time as the interconnect muxes below.
+
+### `{iob(), {interconnect, #}, from4, mux#}` and `{iob(), {interconnect, #}, from3, mux#}`
+
+Selects a direct-link, C4 or R4 onto an IOB's interconnect.
+
+Not used at the same time as the dedicated direct-link above.
+
+Each interconnect has a two dimentional mux of size 4 x 3
+selecting from 12 alternative sources.
 
 ### `{lc(), data_#3, mux#}` and `{lc(), data_#6, mux#}`
 

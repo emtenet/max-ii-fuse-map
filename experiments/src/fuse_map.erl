@@ -128,6 +128,66 @@
     ?GLOBAL_SKIP(epm2210, 13, cell, 22, 3, interconnect);
 ).
 
+-define(GLOBAL_SIDES(),
+    ?GLOBAL_SIDE( 2, 6, 0, 0, {from3, mux1});
+    ?GLOBAL_SIDE( 2, 6, 3, 1, {from3, mux1});
+    ?GLOBAL_SIDE( 2, 7, 0, 2, {from3, mux1});
+    ?GLOBAL_SIDE( 2, 7, 3, 3, {from3, mux1});
+    ?GLOBAL_SIDE( 3, 6, 0, 0, {from3, mux0});
+    ?GLOBAL_SIDE( 3, 6, 1, 0, {from3, mux2});
+    ?GLOBAL_SIDE( 3, 6, 2, 1, {from3, mux2});
+    ?GLOBAL_SIDE( 3, 6, 3, 1, {from3, mux0});
+    ?GLOBAL_SIDE( 3, 7, 0, 2, {from3, mux0});
+    ?GLOBAL_SIDE( 3, 7, 1, 2, {from3, mux2});
+    ?GLOBAL_SIDE( 3, 7, 2, 3, {from3, mux2});
+    ?GLOBAL_SIDE( 3, 7, 3, 3, {from3, mux0});
+    ?GLOBAL_SIDE( 4, 6, 0, 0, {from6, mux0});
+    ?GLOBAL_SIDE( 4, 6, 1, 0, {from6, mux1});
+    ?GLOBAL_SIDE( 4, 6, 2, 1, {from6, mux1});
+    ?GLOBAL_SIDE( 4, 6, 3, 1, {from6, mux0});
+    ?GLOBAL_SIDE( 4, 7, 0, 2, {from6, mux0});
+    ?GLOBAL_SIDE( 4, 7, 1, 2, {from6, mux1});
+    ?GLOBAL_SIDE( 4, 7, 2, 3, {from6, mux1});
+    ?GLOBAL_SIDE( 4, 7, 3, 3, {from6, mux0});
+    ?GLOBAL_SIDE( 5, 6, 0, 0, {from6, mux2});
+    ?GLOBAL_SIDE( 5, 6, 1, 0, {from6, mux3});
+    ?GLOBAL_SIDE( 5, 6, 2, 1, {from6, mux3});
+    ?GLOBAL_SIDE( 5, 6, 3, 1, {from6, mux2});
+    ?GLOBAL_SIDE( 5, 7, 0, 2, {from6, mux2});
+    ?GLOBAL_SIDE( 5, 7, 1, 2, {from6, mux3});
+    ?GLOBAL_SIDE( 5, 7, 2, 3, {from6, mux3});
+    ?GLOBAL_SIDE( 5, 7, 3, 3, {from6, mux2});
+    ?GLOBAL_SIDE( 6, 6, 0, 0, {from6, mux4});
+    ?GLOBAL_SIDE( 6, 6, 1, 0, {from6, mux5});
+    ?GLOBAL_SIDE( 6, 6, 2, 1, {from6, mux5});
+    ?GLOBAL_SIDE( 6, 6, 3, 1, {from6, mux4});
+    ?GLOBAL_SIDE( 6, 7, 0, 2, {from6, mux4});
+    ?GLOBAL_SIDE( 6, 7, 1, 2, {from6, mux5});
+    ?GLOBAL_SIDE( 6, 7, 2, 3, {from6, mux5});
+    ?GLOBAL_SIDE( 6, 7, 3, 3, {from6, mux4});
+).
+
+-define(GLOBAL_SELECTS(),
+    ?GLOBAL_SELECT(20, 0, from3, mux1);
+    ?GLOBAL_SELECT(20, 1, from3, mux0);
+    ?GLOBAL_SELECT(20, 2, from4, mux0);
+    ?GLOBAL_SELECT(20, 3, from4, mux1);
+    ?GLOBAL_SELECT(21, 0, from3, mux2);
+    ?GLOBAL_SELECT(21, 2, from4, mux2);
+    ?GLOBAL_SELECT(21, 3, from4, mux3);
+).
+
+-define(GLOBAL_INTERCONNECTS(),
+    ?GLOBAL_INTERCONNECT_F(22, 2, from3, mux1);
+    ?GLOBAL_INTERCONNECT_F(22, 3, from3, mux2);
+    ?GLOBAL_INTERCONNECT_F(23, 2, from3, mux0);
+    ?GLOBAL_INTERCONNECT_D(23, 3, direct_link);
+    ?GLOBAL_INTERCONNECT_F(24, 2, from4, mux2);
+    ?GLOBAL_INTERCONNECT_F(24, 3, from4, mux3);
+    ?GLOBAL_INTERCONNECT_F(25, 2, from4, mux0);
+    ?GLOBAL_INTERCONNECT_F(25, 3, from4, mux1);
+).
+
 -define(IOB_SIDES(),
     ?IOB_SIDE( 7, 0, 2, {{interconnect, 0}, from3, mux0});
     ?IOB_SIDE( 7, 0, 3, {{interconnect, 0}, from3, mux1});
@@ -2384,6 +2444,14 @@ from_density({{global, G}, Name}, With = #with{}) ->
         error ->
             {error, {{invalid_global, G}, Name}}
     end;
+from_density({{global, G}, Name, Value}, With = #with{}) ->
+    case from_density_global(G) of
+        ok ->
+            from_global(G, {Name, Value}, With);
+
+        error ->
+            {error, {{invalid_global, G}, Name}}
+    end;
 from_density({{iob, X, Y}, Name}, With = #with{}) ->
     case from_density_iob(X, Y, With) of
         side ->
@@ -2592,6 +2660,31 @@ from_density_r4(_, _, _) ->
 
 %%--------------------------------------------------------------------
 
+-define(GLOBAL_SKIP(Density, X, Cell, Sector, G, Name),
+    from_global(G, Name, With = #with{density = Density, skip = Skip}) ->
+        from_sector_pad(X, Sector, Skip, With)
+).
+-define(GLOBAL_SIDE(Sector, N, Index, G, Name),
+    from_global(G, Name, With = #with{density = epm240}) ->
+        from_side(1, Sector, 3, N, Index, With)
+).
+-define(GLOBAL_SELECT(Sector, Index, From, Mux),
+    from_global(G, {From, Mux}, With = #with{grow_x = X, short_y = Y}) ->
+        from_cell(X, Sector, Y, G, Index, With)
+).
+
+?GLOBAL_SKIPS()
+?GLOBAL_SIDES()
+?GLOBAL_SELECTS()
+from_global(G, Name, _With) ->
+    {error, {{global, G}, Name}}.
+
+-undef(GLOBAL_SKIP).
+-undef(GLOBAL_SIDE).
+-undef(GLOBAL_SELECT).
+
+%%--------------------------------------------------------------------
+
 -define(IOB_SIDE(Sector, N, Index, Name),
     from_iob_side(X, Y, Name, With) ->
         from_side(X, Sector, Y, N, Index, With)
@@ -2615,12 +2708,23 @@ from_iob_side(X, Y, Name, _With) ->
             when X > With#with.grow_x ->
         from_tail(X, Sector, Index, With, With#with.long_lines)
 ).
+-define(GLOBAL_INTERCONNECT_D(Sector, Index, Direct),
+    from_iob(X, Y, {{interconnect, N}, Direct}, With = #with{grow_x = X, short_y = Y}) ->
+        from_cell(X, Sector, Y, N, Index, With)
+).
+-define(GLOBAL_INTERCONNECT_F(Sector, Index, From, Mux),
+    from_iob(X, Y, {{interconnect, N}, From, Mux}, With = #with{grow_x = X, short_y = Y}) ->
+        from_cell(X, Sector, Y, N, Index, With)
+).
 
 ?IOB_HEADS()
+?GLOBAL_INTERCONNECTS()
 from_iob(X, Y, Name, _With) ->
     {error, {iob, X, Y, Name}}.
 
 -undef(IOB_HEAD).
+-undef(GLOBAL_INTERCONNECT_D).
+-undef(GLOBAL_INTERCONNECT_F).
 
 %%--------------------------------------------------------------------
 
@@ -2911,19 +3015,6 @@ from_epm2210_strip(X, Y, N, R, C, _With) ->
     {error, {strip, X, Y, N, R, C}}.
 
 -undef(STRIP).
-
-%%--------------------------------------------------------------------
-
--define(GLOBAL_SKIP(Density, X, Cell, Sector, G, Name),
-    from_global(G, Name, With = #with{density = Density, skip = Skip}) ->
-        from_sector_pad(X, Sector, Skip, With)
-).
-
-?GLOBAL_SKIPS()
-from_global(G, Name, _With) ->
-    {error, {{global, G}, Name}}.
-
--undef(GLOBAL_SKIP).
 
 %%--------------------------------------------------------------------
 
@@ -3627,6 +3718,10 @@ to_side_line(X, Y, Index, Sector, _) ->
     to_side(X, Y, U, V, Sector, With) when X =:= With#with.right_x ->
         to_ioc(X, Y, N, Name)
 ).
+-define(GLOBAL_SIDE(Sector, N, Index, G, Name),
+    to_side(X, Y, N, Index, Sector, #with{density = epm240}) when X =:= 1 andalso Y =:= 3 ->
+        to_global(G, Name)
+).
 -define(IOC_SIDE(Sector, Index, Name),
     to_side(X, Y, N, Index, Sector, _) when N >= 2 andalso N =< 8 ->
         to_ioc(X, Y, N - 2, Name);
@@ -3639,6 +3734,7 @@ to_side_line(X, Y, Index, Sector, _) ->
 ?IOB_SIDES()
 ?IOC_LEFTS()
 ?IOC_RIGHTS()
+?GLOBAL_SIDES()
 ?IOC_SIDES()
 to_side(X, Y, N, Index, Sector, _) ->
     {error, {X, Y, N, Index, side, Sector}}.
@@ -3650,6 +3746,7 @@ to_side(X, Y, N, Index, Sector, _) ->
 -undef(IOB_SIDE).
 -undef(IOC_LEFT).
 -undef(IOC_RIGHT).
+-undef(GLOBAL_SIDE).
 -undef(IOC_SIDE).
 
 %%--------------------------------------------------------------------
@@ -3699,6 +3796,18 @@ to_cell_line(X, Y, Index, Sector, _) ->
     to_cell(X, Y, N, I, Sector, _) ->
         to_r4(X, Y, Name)
  ).
+-define(GLOBAL_INTERCONNECT_D(Sector, Index, Direct),
+    to_cell(X, Y, N, Index, Sector, #with{grow_x = X, short_y = Y}) ->
+        to_iob(X, Y, {{interconnect, N}, Direct})
+).
+-define(GLOBAL_INTERCONNECT_F(Sector, Index, From, Mux),
+    to_cell(X, Y, N, Index, Sector, #with{grow_x = X, short_y = Y}) ->
+        to_iob(X, Y, {{interconnect, N}, From, Mux})
+).
+-define(GLOBAL_SELECT(Sector, Index, From, Mux),
+    to_cell(X, Y, G, Index, Sector, #with{grow_x = X, short_y = Y}) when G < 4 ->
+        to_global(G, {From, Mux})
+).
 -define(LAB_CELL(Sector, N, I, Name),
     to_cell(X, Y, N, I, Sector, _) ->
         to_lab(X, Y, Name)
@@ -3710,6 +3819,8 @@ to_cell_line(X, Y, Index, Sector, _) ->
 
 ?C4_CELLS()
 ?R4_CELLS()
+?GLOBAL_INTERCONNECTS()
+?GLOBAL_SELECTS()
 to_cell(X, Y, N, I, Sector, With = #with{})
         when X =< With#with.grow_x andalso
              Y =< With#with.short_y ->
@@ -3726,6 +3837,9 @@ to_cell(X, Y, N, I, Sector, _) ->
 -undef(R4_CELL_E).
 -undef(R4_CELL_L).
 -undef(R4_CELL_R).
+-undef(GLOBAL_INTERCONNECTS_D).
+-undef(GLOBAL_INTERCONNECTS_F).
+-undef(GLOBAL_SELECT).
 -undef(LAB_CELL).
 -undef(LC_CELL).
 
@@ -3744,6 +3858,8 @@ to_skip(X, Cell, Sector, #with{skip = Skip}) ->
 
 %%--------------------------------------------------------------------
 
+to_global(G, {Name, Value}) ->
+    {ok, {{global, G}, Name, Value}};
 to_global(G, Name) ->
     {ok, {{global, G}, Name}}.
 
