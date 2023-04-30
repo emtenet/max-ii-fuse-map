@@ -50,6 +50,7 @@ My experiments are being run in the following
  * [C4 head](experiments/src/c4_head_experiment.erl)
  * [C4 tail](experiments/src/c4_tail_experiment.erl)
  * [Global enable](experiments/src/global_enable_experiment.erl)
+ * [Global interconnect](experiments/src/global_interconnect_experiment.erl) experiment
 
 ## Fuse map
 
