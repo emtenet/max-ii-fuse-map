@@ -9,7 +9,7 @@
 % Although this is was a playground, it has been run for all IOCs
 % to generate data for `output_enable_mux_theory` to process.
 
--define(PLAYGROUND, true).
+%-define(PLAYGROUND, true).
 
 %%====================================================================
 %% run
@@ -18,7 +18,7 @@
 -ifdef(PLAYGROUND).
 run() ->
     %block(epm240, epm240_t100, {iob, 8, 2}, {lab, 7, 2}),
-    block(epm240, epm240_t100, {iob, 1, 2}, {lab, 2, 2}),
+    block(epm240, epm240_t100, {iob, 1, 3}, {lab, 2, 3}),
     %block(epm240, epm240_t100, {iob, 4, 0}, {lab, 4, 1}),
     %block(epm240, epm240_t100, {iob, 3, 5}, {lab, 3, 4}),
     %block(epm570, epm570_f256, {iob, 13, 2}, {lab, 12, 2}),
@@ -61,7 +61,13 @@ pins(Device, IOB) ->
 
 pin(Density, Device, {Pin, IOC}, LAB) ->
     io:format(" => ~s ~p ~p~n", [Device, IOC, LAB]),
+    Globals = device:gclk_pins(Device),
     {ok, Experiments} = experiment:compile_to_fuses_and_rcf([
+        source_global(Device, Pin, Global)
+        ||
+        Global <- Globals,
+        Global =/= Pin
+    ] ++ [
         source(Device, Pin, lab:lc(LAB, N))
         ||
         N <- lists:seq(0, 9)
@@ -116,6 +122,43 @@ source(Device, Pin, LC) ->
             "    a_in => '1',\n"
             "    a_out => oe\n"
             "  );\n",
+            "  ioc: ALT_OUTBUF_TRI port map (\n"
+            "    i => '1',\n"
+            "    o => o,\n"
+            "    oe => oe\n"
+            "  );\n"
+            "end behavioral;\n"
+        >>
+    }.
+
+%%--------------------------------------------------------------------
+
+source_global(Device, Pin, OE) ->
+    #{
+        title => {Pin, OE},
+        device => Device,
+        settings => [
+            {global_clock, oe, true},
+            {location, oe, OE},
+            {location, o, Pin}
+        ],
+        vhdl => <<
+            "library IEEE;\n"
+            "use IEEE.STD_LOGIC_1164.ALL;\n"
+            "library altera;\n"
+            "use altera.altera_primitives_components.all;\n"
+            "library altera_mf;\n"
+            "use altera_mf.altera_mf_components.all;\n"
+            "\n"
+            "entity experiment is\n"
+            "  port (\n"
+            "    oe : in STD_LOGIC;\n"
+            "    o : out STD_LOGIC\n"
+            "  );\n"
+            "end experiment;\n"
+            "\n"
+            "architecture behavioral of experiment is\n",
+            "begin\n"
             "  ioc: ALT_OUTBUF_TRI port map (\n"
             "    i => '1',\n"
             "    o => o,\n"
