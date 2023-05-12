@@ -51,6 +51,7 @@ My experiments are being run in the following
  * [C4 tail](experiments/src/c4_tail_experiment.erl)
  * [Global enable](experiments/src/global_enable_experiment.erl)
  * [Global interconnect](experiments/src/global_interconnect_experiment.erl) experiment
+ * [LAB clk1](experiments/src/lab_clk1_playground.erl) playground
 
 ## Fuse map
 
