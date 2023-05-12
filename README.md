@@ -52,6 +52,7 @@ My experiments are being run in the following
  * [Global enable](experiments/src/global_enable_experiment.erl)
  * [Global interconnect](experiments/src/global_interconnect_experiment.erl) experiment
  * [LAB clk1](experiments/src/lab_clk1_playground.erl) playground
+ * [LAB control](experiments/src/lab_control_playground.erl) playground
 
 ## Fuse map
 
@@ -275,6 +276,27 @@ This fuse either:
 Each LC can drive the LUT output to the left or right
 via direct-links, r4s & c4s.
 
+### `{lab(), a_clr1, control_5_not_4}`
+
+Selects the asyncronous clr1 line from either control line 4 or 5:
+
+ * a `0` bit selects 5
+ * a `1` bit selects 4
+
+### `{lab(), a_load, control_3_not_2}`
+
+Selects the asyncronous load line from either control line 2 or 3:
+
+ * a `0` bit selects 3
+ * a `1` bit selects 2
+
+### `{lab(), clk1, control_0_not_1}`
+
+Selects the asyncronous load line from either control line 2 or 3:
+
+ * a `0` bit selects 0
+ * a `1` bit selects 1
+
 ### `{lab(), clk#_global#}`
 
 Each LAB can select a clk1 & clk2
@@ -298,6 +320,13 @@ the selection is active with a bit of `0`.
 ### `{lab(), clr#_invert}`
 
 Each LAB's clr1 can be inverted. Invert is selected when the bit is `0`.
+
+### `{lab(), {control, #}, from6, mux#}` and `{lab(), {control, #}, from3, mux#}`
+
+Six LAB control lines are selected from local interconnects
+via two dimentional muxes, one of size 3, and the other of size 6.
+
+These muxes are one-cold.
 
 ### `{lab(), {interconnect, #}, direct_link}`
 

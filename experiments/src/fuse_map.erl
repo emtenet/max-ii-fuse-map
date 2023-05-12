@@ -770,8 +770,67 @@
 ).
 
 -define(LAB_LINES(),
+    ?LAB_LINE( 5, 20, {a_clr1, control_5_not_4});
+    ?LAB_LINE( 6, 20, {{control, 0}, from6, mux0});
+    ?LAB_LINE( 6, 21, {{control, 0}, from6, mux1});
+    ?LAB_LINE( 6, 22, {{control, 2}, from6, mux0});
+    ?LAB_LINE( 6, 23, {{control, 2}, from6, mux1});
+    ?LAB_LINE( 6, 24, {{control, 4}, from6, mux0});
+    ?LAB_LINE( 6, 25, {{control, 4}, from6, mux1});
+    ?LAB_LINE( 7, 20, {{control, 0}, from6, mux2});
+    ?LAB_LINE( 7, 21, {{control, 0}, from6, mux3});
+    ?LAB_LINE( 7, 22, {{control, 2}, from6, mux2});
+    ?LAB_LINE( 7, 23, {{control, 2}, from6, mux3});
+    ?LAB_LINE( 7, 24, {{control, 4}, from6, mux2});
+    ?LAB_LINE( 7, 25, {{control, 4}, from6, mux3});
+    ?LAB_LINE( 8, 20, {{control, 0}, from6, mux4});
+    ?LAB_LINE( 8, 21, {{control, 0}, from6, mux5});
+    ?LAB_LINE( 8, 22, {{control, 2}, from6, mux4});
+    ?LAB_LINE( 8, 23, {{control, 2}, from6, mux5});
+    ?LAB_LINE( 8, 24, {{control, 4}, from6, mux4});
+    ?LAB_LINE( 8, 25, {{control, 4}, from6, mux5});
+    ?LAB_LINE( 9, 20, {{control, 1}, from6, mux0});
+    ?LAB_LINE( 9, 21, {{control, 1}, from6, mux1});
+    ?LAB_LINE( 9, 22, {{control, 3}, from6, mux0});
+    ?LAB_LINE( 9, 23, {{control, 3}, from6, mux1});
+    ?LAB_LINE( 9, 24, {{control, 5}, from6, mux0});
+    ?LAB_LINE( 9, 25, {{control, 5}, from6, mux1});
+    ?LAB_LINE(10, 20, {{control, 1}, from6, mux2});
+    ?LAB_LINE(10, 21, {{control, 1}, from6, mux3});
+    ?LAB_LINE(10, 22, {{control, 3}, from6, mux2});
+    ?LAB_LINE(10, 23, {{control, 3}, from6, mux3});
+    ?LAB_LINE(10, 24, {{control, 5}, from6, mux2});
+    ?LAB_LINE(10, 25, {{control, 5}, from6, mux3});
+    ?LAB_LINE(11, 20, {{control, 1}, from6, mux4});
+    ?LAB_LINE(11, 21, {{control, 1}, from6, mux5});
+    ?LAB_LINE(11, 22, {{control, 3}, from6, mux4});
+    ?LAB_LINE(11, 23, {{control, 3}, from6, mux5});
+    ?LAB_LINE(11, 24, {{control, 5}, from6, mux4});
+    ?LAB_LINE(11, 25, {{control, 5}, from6, mux5});
+    ?LAB_LINE(12, 20, {{control, 0}, from3, mux0});
+    ?LAB_LINE(12, 21, {{control, 1}, from3, mux0});
+    ?LAB_LINE(12, 22, {{control, 2}, from3, mux0});
+    ?LAB_LINE(12, 23, {{control, 3}, from3, mux0});
+    ?LAB_LINE(12, 24, {{control, 4}, from3, mux0});
+    ?LAB_LINE(12, 25, {{control, 5}, from3, mux0});
+    ?LAB_LINE(13, 20, {{control, 0}, from3, mux1});
+    ?LAB_LINE(13, 21, {{control, 1}, from3, mux1});
+    ?LAB_LINE(13, 22, {{control, 2}, from3, mux1});
+    ?LAB_LINE(13, 23, {{control, 3}, from3, mux1});
+    ?LAB_LINE(13, 24, {{control, 4}, from3, mux1});
+    ?LAB_LINE(13, 25, {{control, 5}, from3, mux1});
+    ?LAB_LINE(14, 20, {{control, 0}, from3, mux2});
+    ?LAB_LINE(14, 21, {{control, 1}, from3, mux2});
+    ?LAB_LINE(14, 22, {{control, 2}, from3, mux2});
+    ?LAB_LINE(14, 23, {{control, 3}, from3, mux2});
+    ?LAB_LINE(14, 24, {{control, 4}, from3, mux2});
+    ?LAB_LINE(14, 25, {{control, 5}, from3, mux2});
+   %?LAB_LINE(15, 20, clk1_local);
     ?LAB_LINE(15, 21, clk1_invert);
+    ?LAB_LINE(15, 22, {a_load, control_3_not_2});
+    ?LAB_LINE(16, 20, {clk1, control_0_not_1});
     ?LAB_LINE(19, 22, clk2_invert);
+   %?LAB_LINE(20, 25, clr1_nothing);
     ?LAB_LINE(21, 23, clr1_invert);
 ).
 
