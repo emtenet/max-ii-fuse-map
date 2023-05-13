@@ -78,54 +78,34 @@
 -define(LONG_SECTORS, (?COLUMN_SECTORS - ?SHORT_SECTORS)).
 
 -define(GLOBAL_SKIPS(),
-    ?GLOBAL_SKIP(epm240,   1, side, 12, 0, disable0);
-    ?GLOBAL_SKIP(epm240,   2, cell,  0, 1, disable0);
-    ?GLOBAL_SKIP(epm240,   1, side,  4, 2, disable0);
-    ?GLOBAL_SKIP(epm240,   1, side, 10, 3, disable0);
-    ?GLOBAL_SKIP(epm240,   2, cell,  5, 0, disable1);
-    ?GLOBAL_SKIP(epm240,   2, cell,  1, 1, disable1);
-    ?GLOBAL_SKIP(epm240,   2, cell,  2, 2, disable1);
-    ?GLOBAL_SKIP(epm240,   2, cell,  3, 3, disable1);
-    ?GLOBAL_SKIP(epm240,   2, cell,  4, 0, interconnect);
-    ?GLOBAL_SKIP(epm240,   1, side, 11, 1, interconnect);
-    ?GLOBAL_SKIP(epm240,   1, side,  3, 2, interconnect);
-    ?GLOBAL_SKIP(epm240,   1, side,  9, 3, interconnect);
-    ?GLOBAL_SKIP(epm570,   1, cell, 27, 0, disable0);
-    ?GLOBAL_SKIP(epm570,   2, cell,  0, 1, disable0);
-    ?GLOBAL_SKIP(epm570,   2, cell,  2, 2, disable0);
-    ?GLOBAL_SKIP(epm570,   2, cell,  3, 3, disable0);
-    ?GLOBAL_SKIP(epm570,  10, cell,  5, 0, disable1);
-    ?GLOBAL_SKIP(epm570,  10, cell,  1, 1, disable1);
-    ?GLOBAL_SKIP(epm570,   9, cell, 25, 2, disable1);
-    ?GLOBAL_SKIP(epm570,   9, cell, 23, 3, disable1);
-    ?GLOBAL_SKIP(epm570,  10, cell,  4, 0, interconnect);
-    ?GLOBAL_SKIP(epm570,   9, cell, 26, 1, interconnect);
-    ?GLOBAL_SKIP(epm570,   9, cell, 24, 2, interconnect);
-    ?GLOBAL_SKIP(epm570,   9, cell, 22, 3, interconnect);
-    ?GLOBAL_SKIP(epm1270,  1, cell, 27, 0, disable0);
-    ?GLOBAL_SKIP(epm1270,  2, cell,  0, 1, disable0);
-    ?GLOBAL_SKIP(epm1270,  2, cell,  2, 2, disable0);
-    ?GLOBAL_SKIP(epm1270,  2, cell,  3, 3, disable0);
-    ?GLOBAL_SKIP(epm1270, 12, cell,  5, 0, disable1);
-    ?GLOBAL_SKIP(epm1270, 12, cell,  1, 1, disable1);
-    ?GLOBAL_SKIP(epm1270, 11, cell, 25, 2, disable1);
-    ?GLOBAL_SKIP(epm1270, 11, cell, 23, 3, disable1);
-    ?GLOBAL_SKIP(epm1270, 12, cell,  4, 0, interconnect);
-    ?GLOBAL_SKIP(epm1270, 11, cell, 26, 1, interconnect);
-    ?GLOBAL_SKIP(epm1270, 11, cell, 24, 2, interconnect);
-    ?GLOBAL_SKIP(epm1270, 11, cell, 22, 3, interconnect);
-    ?GLOBAL_SKIP(epm2210,  1, cell, 27, 0, disable0);
-    ?GLOBAL_SKIP(epm2210,  2, cell,  0, 1, disable0);
-    ?GLOBAL_SKIP(epm2210,  2, cell,  2, 2, disable0);
-    ?GLOBAL_SKIP(epm2210,  2, cell,  3, 3, disable0);
-    ?GLOBAL_SKIP(epm2210, 14, cell,  5, 0, disable1);
-    ?GLOBAL_SKIP(epm2210, 14, cell,  1, 1, disable1);
-    ?GLOBAL_SKIP(epm2210, 13, cell, 25, 2, disable1);
-    ?GLOBAL_SKIP(epm2210, 13, cell, 23, 3, disable1);
-    ?GLOBAL_SKIP(epm2210, 14, cell,  4, 0, interconnect);
-    ?GLOBAL_SKIP(epm2210, 13, cell, 26, 1, interconnect);
-    ?GLOBAL_SKIP(epm2210, 13, cell, 24, 2, interconnect);
-    ?GLOBAL_SKIP(epm2210, 13, cell, 22, 3, interconnect);
+    ?GLOBAL_ROW_CELL_R( 5, 0);
+    ?GLOBAL_ROW_CELL_R( 1, 1);
+    ?GLOBAL_ROW_SIDE_L( 4, 2); % EPM240
+    ?GLOBAL_ROW_SIDE_L(10, 3); % EPM240
+    ?GLOBAL_ROW_CELL_L(25, 2); % others
+    ?GLOBAL_ROW_CELL_L(23, 3); % others
+
+    ?GLOBAL_COLUMN_SIDE_0( 5, 0);
+    ?GLOBAL_COLUMN_SIDE_0( 6, 1);
+    ?GLOBAL_COLUMN_SIDE_0( 7, 2);
+    ?GLOBAL_COLUMN_SIDE_0( 8, 3);
+
+    ?GLOBAL_COLUMN_SIDE_L(12, 0);
+    ?GLOBAL_COLUMN_CELL_L(27, 0);
+    ?GLOBAL_COLUMN_SIDE_R(12, 1);
+    ?GLOBAL_COLUMN_SIDE_R(10, 2);
+    ?GLOBAL_COLUMN_SIDE_R( 9, 3);
+    ?GLOBAL_COLUMN_CELL_R( 0, 1);
+    ?GLOBAL_COLUMN_CELL_R( 2, 2);
+    ?GLOBAL_COLUMN_CELL_R( 3, 3);
+
+    ?GLOBAL_INTERCONNECT_CELL_R( 4, 0);
+    ?GLOBAL_INTERCONNECT_SIDE_L(11, 1); % EPM240
+    ?GLOBAL_INTERCONNECT_SIDE_L( 3, 2); % EPM240
+    ?GLOBAL_INTERCONNECT_SIDE_L( 9, 3); % EPM240
+    ?GLOBAL_INTERCONNECT_CELL_L(26, 1); % others
+    ?GLOBAL_INTERCONNECT_CELL_L(24, 2); % others
+    ?GLOBAL_INTERCONNECT_CELL_L(22, 3); % others
 ).
 
 -define(GLOBAL_SIDES(),
@@ -2719,9 +2699,50 @@ from_density_r4(_, _, _) ->
 
 %%--------------------------------------------------------------------
 
--define(GLOBAL_SKIP(Density, X, Cell, Sector, G, Name),
-    from_global(G, Name, With = #with{density = Density}) ->
+-define(GLOBAL_ROW_SIDE_L(Sector, G),
+    from_global(G, {row, off}, With = #with{density = epm240, grow_x = X}) ->
         from_skip(X, Sector, With)
+).
+-define(GLOBAL_ROW_CELL_L(Sector, G),
+    from_global(G, {row, off}, With = #with{grow_x = X}) ->
+        from_skip(X, Sector, With)
+).
+-define(GLOBAL_ROW_CELL_R(Sector, G),
+    from_global(G, {row, off}, With = #with{grow_x = X}) ->
+        from_skip(X + 1, Sector, With)
+).
+-define(GLOBAL_COLUMN_SIDE_0(Sector, G),
+    from_global(G, {{column, X}, off}, With = #with{left_x = X}) ->
+        from_skip(X, Sector, With)
+).
+-define(GLOBAL_COLUMN_SIDE_L(Sector, G),
+    from_global(G, {{column, X}, off}, With = #with{left_x = Left})
+            when X - 1 =:= Left ->
+        from_skip(X - 1, Sector, With)
+).
+-define(GLOBAL_COLUMN_CELL_L(Sector, G),
+    from_global(G, {{column, X}, off}, With) ->
+        from_skip(X - 1, Sector, With)
+).
+-define(GLOBAL_COLUMN_SIDE_R(Sector, G),
+    from_global(G, {{column, X}, off}, With = #with{right_x = X}) ->
+        from_skip(X, Sector, With)
+).
+-define(GLOBAL_COLUMN_CELL_R(Sector, G),
+    from_global(G, {{column, X}, off}, With) ->
+        from_skip(X, Sector, With)
+).
+-define(GLOBAL_INTERCONNECT_SIDE_L(Sector, G),
+    from_global(G, interconnect, With = #with{density = epm240, grow_x = X}) ->
+        from_skip(X, Sector, With)
+).
+-define(GLOBAL_INTERCONNECT_CELL_L(Sector, G),
+    from_global(G, interconnect, With = #with{grow_x = X}) ->
+        from_skip(X, Sector, With)
+).
+-define(GLOBAL_INTERCONNECT_CELL_R(Sector, G),
+    from_global(G, interconnect, With = #with{grow_x = X}) ->
+        from_skip(X + 1, Sector, With)
 ).
 -define(GLOBAL_SIDE(Sector, N, Index, G, Name),
     from_global(G, Name, With = #with{density = epm240}) ->
@@ -2738,7 +2759,17 @@ from_density_r4(_, _, _) ->
 from_global(G, Name, _With) ->
     {error, {{global, G}, Name}}.
 
--undef(GLOBAL_SKIP).
+-undef(GLOBAL_ROW_SIDE_L).
+-undef(GLOBAL_ROW_CELL_L).
+-undef(GLOBAL_ROW_CELL_R).
+-undef(GLOBAL_COLUMN_SIDE_0).
+-undef(GLOBAL_COLUMN_SIDE_L).
+-undef(GLOBAL_COLUMN_CELL_L).
+-undef(GLOBAL_COLUMN_SIDE_R).
+-undef(GLOBAL_COLUMN_CELL_R).
+-undef(GLOBAL_INTERCONNECT_SIDE_L).
+-undef(GLOBAL_INTERCONNECT_CELL_L).
+-undef(GLOBAL_INTERCONNECT_CELL_R).
 -undef(GLOBAL_SIDE).
 -undef(GLOBAL_SELECT).
 
@@ -3905,16 +3936,66 @@ to_cell(X, Y, N, I, Sector, _) ->
 
 %%--------------------------------------------------------------------
 
--define(GLOBAL_SKIP(Density, X, Cell, Sector, G, Name),
-    to_skip(X, Cell, Sector, #with{density = Density}) ->
-        to_global(G, Name)
+-define(GLOBAL_ROW_SIDE_L(Sector, G),
+    to_skip(X, side, Sector, #with{density = epm240, grow_x = X}) ->
+        to_global(G, {row, off})
+).
+-define(GLOBAL_ROW_CELL_L(Sector, G),
+    to_skip(X, cell, Sector, #with{grow_x = X}) ->
+        to_global(G, {row, off})
+).
+-define(GLOBAL_ROW_CELL_R(Sector, G),
+    to_skip(XX, cell, Sector, #with{grow_x = X}) when XX =:= X + 1 ->
+        to_global(G, {row, off})
+).
+-define(GLOBAL_COLUMN_SIDE_0(Sector, G),
+    to_skip(X, side, Sector, #with{left_x = X}) ->
+        to_global(G, {{column, X}, off})
+).
+-define(GLOBAL_COLUMN_SIDE_L(Sector, G),
+    to_skip(X, side, Sector, #with{left_x = X}) ->
+        to_global(G, {{column, X + 1}, off})
+).
+-define(GLOBAL_COLUMN_CELL_L(Sector, G),
+    to_skip(X, cell, Sector, #with{}) ->
+        to_global(G, {{column, X + 1}, off})
+).
+-define(GLOBAL_COLUMN_SIDE_R(Sector, G),
+    to_skip(X, side, Sector, #with{right_x = X}) ->
+        to_global(G, {{column, X}, off})
+).
+-define(GLOBAL_COLUMN_CELL_R(Sector, G),
+    to_skip(X, cell, Sector, #with{}) ->
+        to_global(G, {{column, X}, off})
+).
+-define(GLOBAL_INTERCONNECT_SIDE_L(Sector, G),
+    to_skip(X, side, Sector, #with{density = epm240, grow_x = X}) ->
+        to_global(G, interconnect)
+).
+-define(GLOBAL_INTERCONNECT_CELL_L(Sector, G),
+    to_skip(X, cell, Sector, #with{grow_x = X}) ->
+        to_global(G, interconnect)
+).
+-define(GLOBAL_INTERCONNECT_CELL_R(Sector, G),
+    to_skip(XX, cell, Sector, #with{grow_x = X}) when XX =:= X + 1 ->
+        to_global(G, interconnect)
 ).
 
 ?GLOBAL_SKIPS()
 to_skip(X, Cell, Sector, #with{skip = Skip}) ->
     {error, {X, skip, Skip, Cell, Sector}}.
 
--undef(GLOBAL_SKIP).
+-undef(GLOBAL_ROW_SIDE_L).
+-undef(GLOBAL_ROW_CELL_L).
+-undef(GLOBAL_ROW_CELL_R).
+-undef(GLOBAL_COLUMN_SIDE_0).
+-undef(GLOBAL_COLUMN_SIDE_L).
+-undef(GLOBAL_COLUMN_CELL_L).
+-undef(GLOBAL_COLUMN_SIDE_R).
+-undef(GLOBAL_COLUMN_CELL_R).
+-undef(GLOBAL_INTERCONNECT_SIDE_L).
+-undef(GLOBAL_INTERCONNECT_CELL_L).
+-undef(GLOBAL_INTERCONNECT_CELL_R).
 
 %%--------------------------------------------------------------------
 

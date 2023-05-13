@@ -54,6 +54,7 @@ My experiments are being run in the following
  * [LAB clk1](experiments/src/lab_clk1_playground.erl) playground
  * [LAB control](experiments/src/lab_control_playground.erl) playground
  * [LAB control mux](experiments/src/lab_control_mux_experiment.erl)
+ * [Global network](experiments/src/global_network_experiment.erl)
 
 ## Fuse map
 
@@ -102,11 +103,11 @@ There are 32 bits of user oode numbered LSB (0) to MSB (31).
 The user code bits are stored in the POF file inverted,
 so a user code bit of `1` is stored as a `0`.
 
-### `{global(), disable0 | disable1}`
+### `{global(), row, off}` and `{global(), {column, #}, off}`
 
-Each of the four global clock networks can be disabled when not in use.
-
-They are always disbabled with a pair of fuses.
+Each of the four global clock networks are driven horizontally (row)
+and then to each column. Unused clock networks are turned off either
+at individual columns or for the whole row.
 
 ### `{global(), interconnect}`
 
