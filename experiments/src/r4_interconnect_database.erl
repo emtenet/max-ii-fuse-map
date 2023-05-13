@@ -108,7 +108,17 @@ build_from_check(Density, Interconnect, From, Cached, Db) ->
 %%--------------------------------------------------------------------
 
 build_from(Density, Block, Index, Interconnect, From, Cached, Db) ->
-    Fuses = build_fuses(Density, Cached),
+    case build_fuses(Density, Cached) of
+        false ->
+            Db;
+
+        {ok, Fuses} ->
+            build_fuses(Density, Block, Index, Interconnect, From, Fuses, Db)
+    end.
+
+%%--------------------------------------------------------------------
+
+build_fuses(Density, Block, Index, Interconnect, From, Fuses, Db) ->
     case build_ports(Density, Fuses, #{}, []) of
         [] ->
             io:format("~10w ~8w ~15w: ?????? <- ~w~n", [
@@ -163,17 +173,21 @@ build_add(Block, Index, Interconnect, Key, From, Db) ->
 
 build_fuses(Density, Cached) ->
     route_cache:fold_cached(
+        fun build_fuses_reduce0/2,
+        Density,
         fun build_fuses_reduce/2,
-        {first, Density},
         Cached,
-        {limit, 100}
+        #{limit => 50}
     ).
 
 %%--------------------------------------------------------------------
 
-build_fuses_reduce(Experiment, {first, Density}) ->
+build_fuses_reduce0(Experiment, Density) ->
     {ok, Fuses} = experiment:fuses(Experiment),
-    fuses:subtract(Fuses, density:minimal_fuses(Density));
+    fuses:subtract(Fuses, density:minimal_fuses(Density)).
+
+%%--------------------------------------------------------------------
+
 build_fuses_reduce(Experiment, Fuses0) ->
     {ok, Fuses} = experiment:fuses(Experiment),
     fuses:intersect(Fuses0, Fuses).

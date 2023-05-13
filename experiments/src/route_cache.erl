@@ -26,8 +26,8 @@
 -export([fold_blocks/4]).
 -export([fold_indexes/3]).
 -export([fold_froms/3]).
--export([fold_cached/3]).
 -export([fold_cached/4]).
+-export([fold_cached/5]).
 
 -type density() :: density:density().
 
@@ -179,7 +179,7 @@ collect_loop(Density, Seen, DirCount, Dirs, Blocks) ->
 %%--------------------------------------------------------------------
 
 collect(Experiment, From, Density, Seen, DirCount0, Dirs0, Blocks0) ->
-    {cached, Dir} = Experiment,
+    {cached, <<"cache/", Dir/binary>>} = Experiment,
     case Seen of
         #{Dir := seen} ->
             From ! {collected, Density},
@@ -473,35 +473,45 @@ fold_froms(Fold, Init, {fold_froms, Froms, Dirs}) ->
 %% fold_cached
 %%====================================================================
 
--spec fold_cached(Fold, Acc, fold_cached()) -> Acc when
-    Fold :: fun((experiment:result(), Acc) -> Acc),
-    Acc :: term().
+-spec fold_cached(Init, Seed, Fold, fold_cached())
+    -> {ok, Acc} | false
+    when
+        Init :: fun((experiment:result(), Seed) -> Acc),
+        Seed :: term(),
+        Fold :: fun((experiment:result(), Acc) -> Acc),
+        Acc :: term().
 
--spec fold_cached(Fold, Acc, fold_cached(), {limit, Limit}) -> Acc when
-    Fold :: fun((experiment:result(), Acc) -> Acc),
-    Acc :: term(),
-    Limit :: pos_integer().
+-spec fold_cached(Init, Fold, Seed, fold_cached(), Options)
+    -> {ok, Acc} | false
+    when
+        Init :: fun((experiment:result(), Seed) -> Acc),
+        Seed :: term(),
+        Fold :: fun((experiment:result(), Acc) -> Acc),
+        Acc :: term(),
+        Options :: #{limit => pos_integer()}.
 
-fold_cached(Fold, Init, {fold_cached, DirIndexes, Dirs}) ->
-    lists:foldl(
-        fun (DirIndex, Acc) ->
-            fold_cached_fold(Fold, DirIndex, Dirs, Acc)
-        end,
-        Init,
-        DirIndexes
-    ).
+fold_cached(Init, Seed, Fold, Cached) ->
+    fold_cached(Init, Seed, Fold, Cached, #{}).
 
 %%--------------------------------------------------------------------
 
-fold_cached(Fold, Init, {fold_cached, DirIndexes0, Dirs}, {limit, Limit}) ->
-    DirIndexes = limit(DirIndexes0, Limit),
-    lists:foldl(
-        fun (DirIndex, Acc) ->
-            fold_cached_fold(Fold, DirIndex, Dirs, Acc)
-        end,
-        Init,
-        DirIndexes
-    ).
+fold_cached(Init, Seed, Fold, {fold_cached, DirIndexes0, Dirs}, Options) ->
+    case limit(DirIndexes0, Options) of
+        [] ->
+            false;
+
+        [_] ->
+            false;
+
+        [DirIndex0 | DirIndexes] ->
+            {ok, lists:foldl(
+                fun (DirIndex, Acc) ->
+                    fold_cached_fold(Fold, DirIndex, Dirs, Acc)
+                end,
+                fold_cached_fold(Init, DirIndex0, Dirs, Seed),
+                DirIndexes
+            )}
+    end.
 
 %%--------------------------------------------------------------------
 
@@ -511,14 +521,16 @@ fold_cached_fold(Fold, DirIndex, Dirs, Acc) ->
 
 %%--------------------------------------------------------------------
 
-limit(List, Limit) ->
+limit(List, #{limit := Limit}) ->
     case length(List) of
         Total when Total < Limit ->
             List;
 
         Total ->
             lists:nthtail(Total - Limit, List)
-    end.
+    end;
+limit(List, _) ->
+    List.
 
 %%====================================================================
 %% utility
