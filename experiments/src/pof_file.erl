@@ -4,6 +4,7 @@
 -export([decode/1]).
 -export([fuse_count/1]).
 -export([fuses/1]).
+-export([has_fuse/2]).
 
 -export_type([pof/0]).
 -export_type([flash/0]).
@@ -108,7 +109,13 @@ fuses_test() ->
     CFM = <<16#fe, 16#ff, 16#ff, 16#ff, 16#fd, 16#3f, 16#9f, 16#e7>>,
     POF = #{cfm => #{data => CFM}},
     Fuses = [0, 33, 46, 47, 53, 54, 59, 60],
-    ?assertEqual(Fuses, fuses(POF)).
+    ?assertEqual(Fuses, fuses(POF)),
+    [
+        ?assertEqual(lists:member(Fuse, Fuses), has_fuse(Fuse, POF))
+        ||
+        Fuse <- lists:seq(0, bit_size(CFM) - 1)
+    ],
+    ok.
 
 -endif.
 
@@ -123,7 +130,7 @@ fuses(#{cfm := #{data := Bytes}}) ->
 
 fuses_bytes(_, <<>>, Fuses) ->
     lists:reverse(Fuses);
-fuses_bytes(Fuse, <<0, Bytes/binary>>, Fuses) ->
+fuses_bytes(Fuse, <<255, Bytes/binary>>, Fuses) ->
     fuses_bytes(Fuse + 8, Bytes, Fuses);
 fuses_bytes(Fuse, <<Byte, Bytes/binary>>, Fuses) ->
     fuses_bytes(Fuse + 8, Bytes, fuses_byte(8, Fuse, Byte, Fuses)).
@@ -136,4 +143,21 @@ fuses_byte(N, Fuse, Byte, Fuses) when Byte band 1 =:= 0 ->
     fuses_byte(N - 1, Fuse + 1, Byte bsr 1, [Fuse | Fuses]);
 fuses_byte(N, Fuse, Byte, Fuses) ->
     fuses_byte(N - 1, Fuse + 1, Byte bsr 1, Fuses).
+
+%%====================================================================
+%% has_fuse
+%%====================================================================
+
+-spec has_fuse(fuse:fuse(), pof()) -> boolean().
+
+has_fuse(Fuse, #{cfm := #{data := Bytes}}) ->
+    Skip = Fuse div 8,
+    Bit = 1 bsl (Fuse rem 8),
+    case Bytes of
+        <<_:Skip/binary, Byte, _/binary>> when Byte band Bit =:= 0 ->
+            true;
+
+        _ ->
+            false
+    end.
 
