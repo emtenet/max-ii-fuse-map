@@ -210,8 +210,19 @@ collect_signal(#{dests := Dests}, Dir, Blocks0) ->
 
 %%--------------------------------------------------------------------
 
-collect_dest(#{route := Route}, Dir, Blocks) ->
-    collect_route(Route, Dir, Blocks).
+collect_dest(Dest = #{route := Route}, Dir, Blocks0) ->
+    Blocks = collect_route(Route, Dir, Blocks0),
+    case Dest of
+        #{lc := {lc, X, Y, N}, port := Type, route := [From | _]} ->
+            Block = {Type, X, Y},
+            Index = N,
+            collect_block(Block, Index, From, Dir, Blocks);
+
+        #{ioc := {ioc, X, Y, N}, port := Type, route := [From | _]} ->
+            Block = {Type, X, Y},
+            Index = N,
+            collect_block(Block, Index, From, Dir, Blocks)
+    end.
 
 %%--------------------------------------------------------------------
 
