@@ -2720,8 +2720,8 @@ from_density_r4(_, _, _) ->
 %%--------------------------------------------------------------------
 
 -define(GLOBAL_SKIP(Density, X, Cell, Sector, G, Name),
-    from_global(G, Name, With = #with{density = Density, skip = Skip}) ->
-        from_sector_pad(X, Sector, Skip, With)
+    from_global(G, Name, With = #with{density = Density}) ->
+        from_skip(X, Sector, With)
 ).
 -define(GLOBAL_SIDE(Sector, N, Index, G, Name),
     from_global(G, Name, With = #with{density = epm240}) ->
@@ -2801,7 +2801,7 @@ from_iob(X, Y, Name, _With) ->
 ).
 -define(IOC_LEFT_LINE(Sector, Index, N, Name),
     from_ioc_side(X, Y, N, Name, With) when X =:= With#with.left_x ->
-        from_side_line(X, Sector, Y, Index, With)
+        from_line(X, Sector, Y, Index, With)
 ).
 -define(IOC_RIGHT(Sector, U, V, N, Name),
     from_ioc_side(X, Y, N, Name, With) when X =:= With#with.right_x ->
@@ -2809,7 +2809,7 @@ from_iob(X, Y, Name, _With) ->
 ).
 -define(IOC_RIGHT_LINE(Sector, Index, N, Name),
     from_ioc_side(X, Y, N, Name, With) when X =:= With#with.right_x ->
-        from_side_line(X, Sector, Y, Index, With)
+        from_line(X, Sector, Y, Index, With)
 ).
 -define(IOC_STRIP(R, C, Name),
     from_ioc_side(X, Y, N, Name, With) ->
@@ -3102,31 +3102,20 @@ from_base_strip7(Base, Index, R, C, #with{strip_width = Width}) ->
 
 %%--------------------------------------------------------------------
 
-from_zero(X, Y, 0, I, With) -> from_side_line(X, 0, Y, 0 + I, With);
-from_zero(X, Y, 1, I, With) -> from_side_line(X, 0, Y, 7 + I, With);
-from_zero(X, Y, 2, I, With) -> from_side_line(X, 0, Y, 13 + I, With);
-from_zero(X, Y, 3, I, With) -> from_side_line(X, 0, Y, 20 + I, With);
-from_zero(X, Y, 4, I, With) -> from_side_line(X, 0, Y, 27 + I, With);
-from_zero(X, Y, 5, I, With) -> from_side_line(X, 0, Y, 33 + I, With);
-from_zero(X, Y, 6, I, With) -> from_side_line(X, 0, Y, 40 + I, With).
+from_zero(X, Y, 0, I, With) -> from_line(X, 0, Y, 0 + I, With);
+from_zero(X, Y, 1, I, With) -> from_line(X, 0, Y, 7 + I, With);
+from_zero(X, Y, 2, I, With) -> from_line(X, 0, Y, 13 + I, With);
+from_zero(X, Y, 3, I, With) -> from_line(X, 0, Y, 20 + I, With);
+from_zero(X, Y, 4, I, With) -> from_line(X, 0, Y, 27 + I, With);
+from_zero(X, Y, 5, I, With) -> from_line(X, 0, Y, 33 + I, With);
+from_zero(X, Y, 6, I, With) -> from_line(X, 0, Y, 40 + I, With).
 
 %%--------------------------------------------------------------------
 
-from_side(X, Sector, Y, N, I, With) when N < 5 andalso X < 2 ->
-    from_line(X, Sector, Y, (N * 4) + I, With);
-from_side(X, Sector, Y, N, I, With) when X < 2 ->
-    from_line(X, Sector, Y, 9 + (N * 4) - I, With);
 from_side(X, Sector, Y, N, I, With) when N < 5 ->
-    from_line(X, ?SIDE_SECTORS - 1 - Sector, Y, (N * 4) + I, With);
+    from_line(X, Sector, Y, (N * 4) + I, With);
 from_side(X, Sector, Y, N, I, With) ->
-    from_line(X, ?SIDE_SECTORS - 1 - Sector, Y, 9 + (N * 4) - I, With).
-
-%%--------------------------------------------------------------------
-
-from_side_line(X, Sector, Y, I, With) when X =:= With#with.left_x ->
-    from_line(X, Sector, Y, I, With);
-from_side_line(X, Sector, Y, I, With) ->
-    from_line(X, ?SIDE_SECTORS - 1 - Sector, Y, I, With).
+    from_line(X, Sector, Y, 9 + (N * 4) - I, With).
 
 %%--------------------------------------------------------------------
 
@@ -3171,8 +3160,20 @@ from_line(X, Sector, Y, Offset, With = #with{top_y = TopY}) ->
 
 from_sector_skip(X, Sector, Offset, With = #with{})
         when Offset >= With#with.skip  ->
-    from_sector_pad(X, Sector, Offset + 1, With);
+    from_sector_reverse(X, Sector, Offset + 1, With);
 from_sector_skip(X, Sector, Offset, With) ->
+    from_sector_reverse(X, Sector, Offset, With).
+
+%%--------------------------------------------------------------------
+
+from_skip(X, Sector, With = #with{skip = Skip}) ->
+    from_sector_reverse(X, Sector, Skip, With).
+
+%%--------------------------------------------------------------------
+
+from_sector_reverse(X, Sector, Offset, With = #with{right_x = X}) ->
+    from_sector_pad(X, ?SIDE_SECTORS - 1 - Sector, Offset, With);
+from_sector_reverse(X, Sector, Offset, With) ->
     from_sector_pad(X, Sector, Offset, With).
 
 %%--------------------------------------------------------------------
