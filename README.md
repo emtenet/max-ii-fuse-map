@@ -53,6 +53,7 @@ My experiments are being run in the following
  * [Global interconnect](experiments/src/global_interconnect_experiment.erl) experiment
  * [LAB clk1](experiments/src/lab_clk1_playground.erl) playground
  * [LAB control](experiments/src/lab_control_playground.erl) playground
+ * [LAB control mux](experiments/src/lab_control_mux_experiment.erl)
 
 ## Fuse map
 
