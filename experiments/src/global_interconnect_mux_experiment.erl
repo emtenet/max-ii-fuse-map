@@ -1,4 +1,4 @@
--module(global_interconnect_experiment).
+-module(global_interconnect_mux_experiment).
 
 -export([run/0]).
 
@@ -16,6 +16,9 @@
 % The EPM240 is different re-using the 1,3 IO-block's:
 %  * unused output/enable 6x3 selection muxes for the global networks, and
 %  * sharing the IO-blocks 18 local interconnects.
+
+%-define(PRINT_MATRIX, true).
+%-define(PRINT_ROUTES, true).
 
 %%====================================================================
 %% run
@@ -75,18 +78,10 @@ density(Density, Device, D, Q) ->
         ({{r4, _, _}, _, _, _}) -> true;
         (_) -> false
     end),
-    matrix:print(Matrix),
-    [
-        io:format(" ==> ~w~n  clk <- ~w~n  clr <- ~w~n  pr  <- ~w~n  ena <- ~w~n", [
-            Name,
-            route(clk, Signals),
-            route(clr, Signals),
-            route(pr, Signals),
-            route(ena, Signals)
-        ])
-        ||
-        {Name, _, #{signals := Signals}} <- Experiments
-    ],
+    print_matrix(Matrix),
+    print_routes(Experiments),
+    Routes = routes(Experiments),
+    fuses(Routes, Experiments, Matrix),
     ok.
 
 %%--------------------------------------------------------------------
@@ -99,15 +94,42 @@ remove_interconnect(_, _) -> true.
 
 %%--------------------------------------------------------------------
 
-route(Key, Signals) ->
-    #{Key := #{dests := [#{route := Route}]}} = Signals,
-    route(Route).
+-ifdef(PRINT_MATRIX).
+print_matrix(Matrix) ->
+    matrix:print(Matrix).
+-else.
+print_matrix(_) ->
+    ok.
+-endif.
 
 %%--------------------------------------------------------------------
 
-route([]) ->
+-ifdef(PRINT_ROUTES).
+print_routes(Experiments) ->
+    [
+        io:format(" ==> ~w~n  clk <- ~w~n  clr <- ~w~n  pr  <- ~w~n  ena <- ~w~n", [
+            Name,
+            route_of(clk, Signals),
+            route_of(clr, Signals),
+            route_of(pr, Signals),
+            route_of(ena, Signals)
+        ])
+        ||
+        {Name, _, #{signals := Signals}} <- Experiments
+    ],
+    ok.
+
+%%--------------------------------------------------------------------
+
+route_of(Key, Signals) ->
+    #{Key := #{dests := [#{route := Route}]}} = Signals,
+    route_of(Route).
+
+%%--------------------------------------------------------------------
+
+route_of([]) ->
     undefined;
-route([{lab_clk,_,_,_,_},{global_clk_h,_,_,_,G} | Route]) ->
+route_of([{lab_clk,_,_,_,_},{global_clk_h,_,_,_,G} | Route]) ->
     case Route of
         [Buf={clk_buffer,_,_,_,_}] ->
             {{gclk, G}, Buf};
@@ -115,8 +137,12 @@ route([{lab_clk,_,_,_,_},{global_clk_h,_,_,_,G} | Route]) ->
         [{global_clk_mux,_,_,_,G},Interconnect,From | _] ->
             {{gclk, G}, Interconnect, From}
     end;
-route([_ | Route]) ->
-    route(Route).
+route_of([_ | Route]) ->
+    route_of(Route).
+-else.
+print_routes(_) ->
+    ok.
+-endif.
 
 %%--------------------------------------------------------------------
 
@@ -175,4 +201,107 @@ source(Device, D, Clk, Clr, Pr, Ena, Q, LC) ->
             "end behavioral;\n"
         >>
     }.
+
+%%====================================================================
+%% global fuses
+%%====================================================================
+
+routes(Experiments) ->
+    lists:foldl(fun routes_experiment/2, #{}, Experiments).
+
+%%--------------------------------------------------------------------
+
+routes_experiment({Name, _, #{signals := Signals}}, Routes0) ->
+    Routes1 = routes_signal(Name, clk, Signals, Routes0),
+    Routes2 = routes_signal(Name, clr, Signals, Routes1),
+    Routes3 = routes_signal(Name, pr, Signals, Routes2),
+    Routes4 = routes_signal(Name, ena, Signals, Routes3),
+    Routes4.
+
+%%--------------------------------------------------------------------
+
+routes_signal(Name, Key, Signals, Routes) ->
+    #{Key := #{dests := [#{route := Route}]}} = Signals,
+    routes_route(Name, Route, Routes).
+
+%%--------------------------------------------------------------------
+
+routes_route(_, [], Routes) ->
+    Routes;
+routes_route(Name, [{global_clk_mux, _, _, _, G} | Route], Routes) ->
+    [{local_interconnect, _, 3, 0, N} | _] = Route,
+    Key = {G, N},
+    case Routes of
+        #{Key := Names} ->
+            Routes#{Key => Names#{Name => true}};
+
+        _ ->
+            Routes#{Key => #{Name => true}}
+    end;
+routes_route(Name, [_ | Route], Routes) ->
+    routes_route(Name, Route, Routes).
+
+%%--------------------------------------------------------------------
+
+fuses(Routes, Experiments, Matrix) ->
+    lists:foreach(fun ({{G, N}, Names}) ->
+        fuses(G, N, Names, Experiments, Matrix)
+    end, lists:sort(maps:to_list(Routes))),
+    ok.
+
+%%--------------------------------------------------------------------
+
+fuses(Global, Interconnect, Names, Experiments, Matrix) ->
+    %io:format("{global, ~p} <- {local_interconnect, _, _, 0, ~p}~n", [
+    %    Global, Interconnect
+    %]),
+    Pattern = lists:map(fun (Experiment) ->
+        pattern(Experiment, Names)
+    end, Experiments),
+    Fuses0 = matrix:pattern_match(Matrix, Pattern),
+    Fuses = lists:filtermap(fun
+        ({_, {{global, G}, From, Mux}}) when G =:= Global ->
+            {true, {From, Mux}};
+        (_) ->
+            false
+    end, Fuses0),
+    fuses_map(Fuses, Interconnect).
+
+%%--------------------------------------------------------------------
+
+pattern({Name, _, _}, Names) when is_map_key(Name, Names) ->
+    0;
+pattern(_, _) ->
+    x.
+
+%%--------------------------------------------------------------------
+
+fuses_map([{from3, Mux3}, {from6, Mux6}], Interconnect) ->
+    fuses_epm240(Mux6, Mux3, Interconnect);
+fuses_map([{from6, Mux6}, {from3, Mux3}], Interconnect) ->
+    fuses_epm240(Mux6, Mux3, Interconnect);
+fuses_map([{from3, Mux3}, {from4, Mux4}], Interconnect) ->
+    fuses_other(Mux4, Mux3, Interconnect);
+fuses_map([{from4, Mux4}, {from3, Mux3}], Interconnect) ->
+    fuses_other(Mux4, Mux3, Interconnect).
+
+%%--------------------------------------------------------------------
+
+fuses_epm240(Mux6, Mux3, Interconnect) ->
+    {interconnect, Interconnect} =
+        output_mux_map:to_row_interconnect(Mux6, Mux3),
+    ok.
+
+%%--------------------------------------------------------------------
+
+fuses_other(mux0, mux0, 0) -> ok;
+fuses_other(mux0, mux1, 1) -> ok;
+fuses_other(mux0, mux2, 2) -> ok;
+fuses_other(mux1, mux0, 3) -> ok;
+fuses_other(mux1, mux1, 4) -> ok;
+fuses_other(mux1, mux2, 5) -> ok;
+fuses_other(mux2, mux0, 6) -> ok;
+fuses_other(mux2, mux1, 7) -> ok;
+fuses_other(mux2, mux2, 8) -> ok;
+fuses_other(mux3, mux0, 9) -> ok.
 
