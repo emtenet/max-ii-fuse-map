@@ -299,7 +299,7 @@ Selects the asyncronous load line from either control line 2 or 3:
  * a `0` bit selects 0
  * a `1` bit selects 1
 
-### `{lab(), clk#_global#}`
+### `{lab(), clk#, global#}`
 
 Each LAB can select a clk1 & clk2
 from amongst the four global signals (0..3) (and others).
@@ -307,11 +307,11 @@ from amongst the four global signals (0..3) (and others).
 The four global signals are selected with a one-shot fuse per selection,
 the selection is active with a bit of `0`.
 
-### `{lab(), clk#_invert}`
+### `{lab(), clk#, invert}`
 
 Each LAB's clk1 & clk2 can be inverted. Invert is selected when the bit is `0`.
 
-### `{lab(), clr#_global#}`
+### `{lab(), clr#, global#}`
 
 Each LAB can select a clr1 & clk2
 from amongst the four global signals (0..3) (and others).
@@ -319,7 +319,7 @@ from amongst the four global signals (0..3) (and others).
 The four global signals are selected with a one-shot fuse per selection,
 the selection is active with a bit of `0`.
 
-### `{lab(), clr#_invert}`
+### `{lab(), clr#, invert}`
 
 Each LAB's clr1 can be inverted. Invert is selected when the bit is `0`.
 

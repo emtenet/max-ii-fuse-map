@@ -19,7 +19,7 @@
 %  * clk1 = gclk3, clk2 = gclk2
 %  * clk1 = gclk0, clk2 = gclk3
 %
-% The known {lab(), clk1_global?} fuses can be excluded from the
+% The known {lab(), clk1, global?} fuses can be excluded from the
 % matrix to leave the clk2 fuses.
 
 %%====================================================================
@@ -110,8 +110,8 @@ run_lab(Density, Device, Sources, Settings0, LAB, X, Y) ->
     ]),
     Matrix0 = matrix:build(Density, Experiments),
     Matrix = matrix:remove_fuses(Matrix0, [
-        {LAB, clk1_global0},
-        {LAB, clk1_global3}
+        {LAB, clk1, global0},
+        {LAB, clk1, global3}
     ]),
     %matrix:print(Matrix),
     [{Clk2Global0, _}] = matrix:pattern_is(Matrix, [0,0,1,1,1]),
@@ -120,11 +120,11 @@ run_lab(Density, Device, Sources, Settings0, LAB, X, Y) ->
     [{Clk2Global3, _}] = matrix:pattern_is(Matrix, [1,1,1,1,0]),
     [{Clk2Invert, _}]  = matrix:pattern_is(Matrix, [1,0,1,1,1]),
     fuse_database:update(Density, [
-        {Clk2Global0, {LAB, clk2_global0}},
-        {Clk2Global1, {LAB, clk2_global1}},
-        {Clk2Global2, {LAB, clk2_global2}},
-        {Clk2Global3, {LAB, clk2_global3}},
-        {Clk2Invert, {LAB, clk2_invert}}
+        {Clk2Global0, {LAB, clk2, global0}},
+        {Clk2Global1, {LAB, clk2, global1}},
+        {Clk2Global2, {LAB, clk2, global2}},
+        {Clk2Global3, {LAB, clk2, global3}},
+        {Clk2Invert, {LAB, clk2, invert}}
     ]).
 
 %%--------------------------------------------------------------------
