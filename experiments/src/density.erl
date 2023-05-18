@@ -22,6 +22,8 @@
 -export([rows/1]).
 -export([left_rows/1]).
 -export([right_rows/1]).
+-export([global_block/1]).
+-export([block_type/3]).
 
 -export_type([density/0]).
 
@@ -615,4 +617,135 @@ left_rows(Density) ->
 
 right_rows(Density) ->
     rows(Density).
+
+%%====================================================================
+%% global_block
+%%====================================================================
+
+-spec global_block(density()) -> {max_ii:x(), max_ii:y()} | false.
+
+global_block(epm240) -> false;
+global_block(epm570) -> {9, 3};
+global_block(epm1270) -> {11, 3};
+global_block(epm2210) -> {13, 3}.
+
+%%====================================================================
+%% block_type
+%%====================================================================
+
+-ifdef(TEST).
+
+block_type_test() ->
+    block_type_test(epm240),
+    block_type_test(epm570),
+    block_type_test(epm1270),
+    block_type_test(epm2210),
+    ok.
+
+%%--------------------------------------------------------------------
+
+block_type_test(Density) ->
+    IOBs = [IOB || {IOB, _} <- iobs(Density)],
+    LABs = labs(Density),
+    Global = global_block(Density),
+    Expect0 = length(IOBs) + length(LABs),
+    Expect = case Global of
+        {_, _} -> Expect0 + 1;
+        false -> Expect0
+    end,
+    Grid = [
+        {X, Y}
+        ||
+        X <- lists:seq(-5, 25),
+        Y <- lists:seq(-5, 20)
+    ],
+    Count = lists:foldl(fun ({X, Y}, Tally) ->
+        block_type_test(X, Y, Density, IOBs, LABs, Global, Tally)
+    end, 0, Grid),
+    ?assertEqual(Expect, Count),
+    ok.
+
+%%--------------------------------------------------------------------
+
+block_type_test(X, Y, Density, IOBs, LABs, Global, Tally) ->
+    case block_type(X, Y, Density) of
+        logic ->
+            ?assertMatch({true, _, _}, {lists:member({lab, X, Y}, LABs), X, Y}),
+            Tally + 1;
+
+        row ->
+            ?assert(lists:member({iob, X, Y}, IOBs)),
+            Tally + 1;
+
+        column ->
+            ?assert(lists:member({iob, X, Y}, IOBs)),
+            Tally + 1;
+
+        global ->
+            ?assertEqual(Global, {X, Y}),
+            Tally + 1;
+
+        false ->
+            Tally
+    end.
+
+-endif.
+
+%%--------------------------------------------------------------------
+
+-spec block_type(max_ii:x(), max_ii:y(), density())
+    -> logic | row | column | global | false.
+
+block_type(X, Y, Density) ->
+    block(X, Y, metric(Density)).
+
+%%--------------------------------------------------------------------
+
+block(X, Y, #metric{top_io = Y, left_lab = L, right_lab = R}) ->
+    if
+        X < L -> false;
+        X > R -> false;
+        true -> column
+    end;
+block(_, Y, #metric{top_lab = T}) when Y > T ->
+    false;
+block(X, Y, #metric{left_io = X, indent_bottom_lab = B}) ->
+    if
+        Y < B -> false;
+        true -> row
+    end;
+block(X, _, #metric{left_lab = L}) when X < L ->
+    false;
+block(X, Y, #metric{right_io = X, bottom_lab = B}) ->
+    if
+        Y < B -> false;
+        true -> row
+    end;
+block(X, _, #metric{right_lab = R}) when X > R ->
+    false;
+block(X, Y, #metric{bottom_io = Y, indent_left_lab = L, right_lab = R}) ->
+    if
+        X < L -> false;
+        X > R -> false;
+        true -> column
+    end;
+block(_, Y, #metric{bottom_lab = B}) when Y < B ->
+    false;
+block(X, _, #metric{indent_left_io = G}) when X > G ->
+    logic;
+block(X, Y, #metric{indent_left_io = X, indent_bottom_io = B}) ->
+    if
+        Y < B -> false;
+        Y =:= B -> global;
+        true -> logic
+    end;
+block(X, Y, #metric{indent_bottom_io = Y, left_lab = L}) ->
+    if
+        X < L -> false;
+        true -> column
+    end;
+block(_, Y, #metric{indent_bottom_lab = B}) when Y < B ->
+    false;
+block(_, _, _) ->
+    logic.
 
