@@ -24,6 +24,7 @@
 -export([right_rows/1]).
 -export([global_block/1]).
 -export([block_type/3]).
+-export([is_lab/3]).
 
 -export_type([density/0]).
 
@@ -668,7 +669,9 @@ block_type_test(Density) ->
 %%--------------------------------------------------------------------
 
 block_type_test(X, Y, Density, IOBs, LABs, Global, Tally) ->
-    case block_type(X, Y, Density) of
+    Type = block_type(X, Y, Density),
+    ?assertEqual(Type =:= logic, is_lab(X, Y, Density)),
+    case Type of
         logic ->
             ?assertMatch({true, _, _}, {lists:member({lab, X, Y}, LABs), X, Y}),
             Tally + 1;
@@ -748,4 +751,32 @@ block(_, Y, #metric{indent_bottom_lab = B}) when Y < B ->
     false;
 block(_, _, _) ->
     logic.
+
+%%====================================================================
+%% is_lab
+%%====================================================================
+
+-spec is_lab(max_ii:x(), max_ii:y(), density()) -> boolean().
+
+is_lab(X, Y, Density) ->
+    case metric(Density) of
+        #metric{top_lab = T} when Y > T ->
+            false;
+
+        #metric{left_lab = L} when X < L ->
+            false;
+
+        #metric{right_lab = R} when X > R ->
+            false;
+
+        #metric{bottom_lab = B} when Y < B ->
+            false;
+
+        #metric{indent_bottom_lab = B, indent_left_lab = L}
+                when Y < B andalso X < L ->
+            false;
+
+        _ ->
+            true
+    end.
 
