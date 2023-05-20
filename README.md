@@ -57,6 +57,8 @@ My experiments are being run in the following
  * [Global network](experiments/src/global_network_experiment.erl)
  * [LAB interconnect global](experiments/src/lab_interconnect_global.erl)
  * [LAB interconnect](experiments/src/lab_interconnect_database.erl) database
+ * [IOB interconnect global](experiments/src/iob_interconnect_global.erl)
+ * [IOB interconnect](experiments/src/iob_interconnect_database.erl) database
 
 ## Fuse map
 
@@ -81,6 +83,7 @@ and some mapping tables printed:
 
 These are being replaced by route cache based databases:
 
+ * [IOB interconnect](experiments/src/iob_interconnect_database.erl)
  * [LAB interconnect](experiments/src/lab_interconnect_database.erl)
 
 ## C4/R4 interconnect mux
@@ -224,7 +227,7 @@ Only applicable for IOBs on the left and right sides.
 
 Not used at the same time as the interconnect muxes below.
 
-### `{iob(), {interconnect, #}, from4, mux#}` and `{iob(), {interconnect, #}, from3, mux#}`
+### `{iob(), {interconnect, #}, from4, mux# / gclk}` and `{iob(), {interconnect, #}, from3, mux#}`
 
 Selects a direct-link, C4 or R4 onto an IOB's interconnect.
 
@@ -232,6 +235,10 @@ Not used at the same time as the dedicated direct-link above.
 
 Each interconnect has a two dimentional mux of size 4 x 3
 selecting from 12 alternative sources.
+
+As a special case, row interconnects 8 and 17 have an extra fuse expanding the
+mux to size 5 x 3. The extra 3 alternatives source from the global clock
+networks.
 
 ### `{lc(), data_#3, mux#}` and `{lc(), data_#6, mux#}`
 

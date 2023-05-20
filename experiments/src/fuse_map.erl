@@ -315,6 +315,16 @@
     ?IOB_SIDE(10, 9, 3, {{interconnect, 9}, from4, mux3});
 ).
 
+-define(IOB_LEFT_LINES(),
+    ?IOB_LEFT_LINE(10, 20, {{interconnect,  8}, from4, gclk});
+    ?IOB_LEFT_LINE(10, 25, {{interconnect, 17}, from4, gclk});
+).
+
+-define(IOB_RIGHT_LINES(),
+    ?IOB_RIGHT_LINE(7, 20, {{interconnect,  8}, from4, gclk});
+    ?IOB_RIGHT_LINE(7, 25, {{interconnect, 17}, from4, gclk});
+).
+
 -define(IOB_HEADS(),
     ?IOB_HEAD( 2,  1, {{interconnect, 5}, from4, mux0});
     ?IOB_HEAD( 2,  2, {{interconnect, 5}, from4, mux1});
@@ -2787,12 +2797,24 @@ from_global(G, Name, _With) ->
     from_iob_side(X, Y, Name, With) ->
         from_side(X, Sector, Y, N, Index, With)
 ).
+-define(IOB_LEFT_LINE(Sector, Index, Name),
+    from_iob_side(X, Y, Name, With) when X =:= With#with.left_x ->
+        from_line(X, Sector, Y, Index, With)
+).
+-define(IOB_RIGHT_LINE(Sector, Index, Name),
+    from_iob_side(X, Y, Name, With) when X =:= With#with.right_x ->
+        from_line(X, Sector, Y, Index, With)
+).
 
 ?IOB_SIDES()
+?IOB_LEFT_LINES()
+?IOB_RIGHT_LINES()
 from_iob_side(X, Y, Name, _With) ->
     {error, {iob_side, X, Y, Name}}.
 
 -undef(IOB_SIDE).
+-undef(IOB_LEFT_LINE).
+-undef(IOB_RIGHT_LINE).
 
 %%--------------------------------------------------------------------
 
@@ -3766,6 +3788,14 @@ to_side_tail(X, Index, Sector, _With) ->
 
 %%--------------------------------------------------------------------
 
+-define(IOB_LEFT_LINE(Sector, Index, Name),
+    to_side_line(X, Y, Index, Sector, With) when X =:= With#with.left_x ->
+        to_iob(X, Y, Name)
+).
+-define(IOB_RIGHT_LINE(Sector, Index, Name),
+    to_side_line(X, Y, Index, Sector, With) when X =:= With#with.right_x ->
+        to_iob(X, Y, Name)
+).
 -define(IOC_LEFT_LINE(Sector, Index, N, Name),
     to_side_line(X, Y, Index, Sector, With) when X =:= With#with.left_x ->
         to_ioc(X, Y, N, Name)
@@ -3775,11 +3805,15 @@ to_side_tail(X, Index, Sector, _With) ->
         to_ioc(X, Y, N, Name)
 ).
 
+?IOB_LEFT_LINES()
+?IOB_RIGHT_LINES()
 ?IOC_LEFT_LINES()
 ?IOC_RIGHT_LINES()
 to_side_line(X, Y, Index, Sector, _) ->
     {error, {X, Y, line, Index, side, Sector}}.
 
+-undef(IOB_LEFT_LINE).
+-undef(IOB_RIGHT_LINE).
 -undef(IOC_LEFT_LINE).
 -undef(IOC_RIGHT_LINE).
 
