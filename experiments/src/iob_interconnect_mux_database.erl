@@ -435,7 +435,7 @@ update_check([_ | Exists], Add) ->
 %%====================================================================
 
 database_file(Density) ->
-    lists:flatten(io_lib:format("../database/~s.iob-interconnect", [Density])).
+    lists:flatten(io_lib:format("../database/old/~s.iob-interconnect", [Density])).
 
 %%====================================================================
 %% merge
