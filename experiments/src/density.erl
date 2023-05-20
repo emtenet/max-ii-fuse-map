@@ -25,6 +25,9 @@
 -export([global_block/1]).
 -export([block_type/3]).
 -export([is_lab/3]).
+-export([is_iob/3]).
+-export([is_column_iob/3]).
+-export([is_row_iob/3]).
 
 -export_type([density/0]).
 
@@ -671,6 +674,9 @@ block_type_test(Density) ->
 block_type_test(X, Y, Density, IOBs, LABs, Global, Tally) ->
     Type = block_type(X, Y, Density),
     ?assertEqual(Type =:= logic, is_lab(X, Y, Density)),
+    ?assertEqual(Type =:= column, is_column_iob(X, Y, Density)),
+    ?assertEqual(Type =:= row, is_row_iob(X, Y, Density)),
+    ?assertEqual(Type =:= row orelse Type =:= column, is_iob(X, Y, Density)),
     case Type of
         logic ->
             ?assertMatch({true, _, _}, {lists:member({lab, X, Y}, LABs), X, Y}),
@@ -778,5 +784,71 @@ is_lab(X, Y, Density) ->
 
         _ ->
             true
+    end.
+
+%%====================================================================
+%% is_iob
+%%====================================================================
+
+-spec is_iob(max_ii:x(), max_ii:y(), density()) -> boolean().
+
+is_iob(X, Y, Density) ->
+    case metric(Density) of
+        #metric{left_io = X, top_lab = T, indent_bottom_lab = B} ->
+            Y >= B andalso Y =< T;
+
+        #metric{right_io = X, top_lab = T, bottom_lab = B} ->
+            Y >= B andalso Y =< T;
+
+        #metric{top_io = Y, left_lab = L, right_lab = R} ->
+            X >= L andalso X =< R;
+
+        #metric{bottom_io = Y, indent_left_lab = L, right_lab = R} ->
+            X >= L andalso X =< R;
+
+        #metric{indent_bottom_io = Y, left_lab = L, indent_right_lab = R} ->
+            X >= L andalso X =< R;
+
+        _ ->
+            false
+    end.
+
+%%====================================================================
+%% is_column_iob
+%%====================================================================
+
+-spec is_column_iob(max_ii:x(), max_ii:y(), density()) -> boolean().
+
+is_column_iob(X, Y, Density) ->
+    case metric(Density) of
+        #metric{top_io = Y, left_lab = L, right_lab = R} ->
+            X >= L andalso X =< R;
+
+        #metric{bottom_io = Y, indent_left_lab = L, right_lab = R} ->
+            X >= L andalso X =< R;
+
+        #metric{indent_bottom_io = Y, left_lab = L, indent_right_lab = R} ->
+            X >= L andalso X =< R;
+
+        _ ->
+            false
+    end.
+
+%%====================================================================
+%% is_row_iob
+%%====================================================================
+
+-spec is_row_iob(max_ii:x(), max_ii:y(), density()) -> boolean().
+
+is_row_iob(X, Y, Density) ->
+    case metric(Density) of
+        #metric{left_io = X, top_lab = T, indent_bottom_lab = B} ->
+            Y >= B andalso Y =< T;
+
+        #metric{right_io = X, top_lab = T, bottom_lab = B} ->
+            Y >= B andalso Y =< T;
+
+        _ ->
+            false
     end.
 
