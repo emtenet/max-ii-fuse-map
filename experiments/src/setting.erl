@@ -13,6 +13,7 @@
 -type setting() ::
     % global
     {auto_global_clock, boolean()} |
+    {not_gate_push_back, boolean()} |
     {unused_pins, unused_pins()} |
     {user_code_as_checksum, boolean()} |
     {user_code, binary()} |
@@ -89,6 +90,8 @@ defaults([_ | Settings], Defaults) ->
 
 setting({auto_global_clock, Value}) ->
     global(<<"AUTO_GLOBAL_CLOCK">>, boolean(Value));
+setting({not_gate_push_back, Value}) ->
+    instance(<<"NOT_GATE_PUSH_BACK">>, <<"*">>, boolean(Value));
 setting({unused_pins, Value}) ->
     global(<<"RESERVE_ALL_UNUSED_PINS">>, unused_pins(Value));
 setting({user_code_as_checksum, Value}) ->
