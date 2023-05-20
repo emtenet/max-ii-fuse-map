@@ -55,6 +55,8 @@ My experiments are being run in the following
  * [LAB control](experiments/src/lab_control_playground.erl) playground
  * [LAB control mux](experiments/src/lab_control_mux_experiment.erl)
  * [Global network](experiments/src/global_network_experiment.erl)
+ * [LAB interconnect global](experiments/src/lab_interconnect_global.erl)
+ * [LAB interconnect](experiments/src/lab_interconnect_database.erl) database
 
 ## Fuse map
 
@@ -76,6 +78,10 @@ and some mapping tables printed:
 
  * [IOB interconnect](experiments/src/iob_interconnect_mux_database.erl)
  * [LAB interconnect](experiments/src/lab_interconnect_mux_database.erl)
+
+These are being replaced by route cache based databases:
+
+ * [LAB interconnect](experiments/src/lab_interconnect_database.erl)
 
 ## C4/R4 interconnect mux
 
@@ -336,7 +342,7 @@ Selects a direct-link from a neighbouring LAB onto a LAB's interconnect.
 
 Not used at the same time as the interconnect muxes below.
 
-### `{lab(), {interconnect, #}, from4, mux#}` and `{lab(), {interconnect, #}, from3, mux#}`
+### `{lab(), {interconnect, #}, from4, mux#}`, `{lab(), {interconnect, #}, from3, mux#}` and `{lab(), {interconnect, 12/25}, from4, gclk}`
 
 Selects a direct-link, C4 or R4 onto a LAB's interconnect.
 
@@ -344,6 +350,10 @@ Not used at the same time as the dedicated direct-link above.
 
 Each interconnect has a two dimentional mux of size 4 x 3
 selecting from 12 alternative sources.
+
+As a special case, interconnects 12 and 25 have an extra fuse expanding the
+mux to size 5 x 3. The extra 3 alternatives source from the global clock
+networks.
 
 ### `{c4(), {mux, #}, from4, mux#}` and `{c4(), {mux, #}, from3, mux#}` and `{c4(), {mux, #}, direct_link}`
 
