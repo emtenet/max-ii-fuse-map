@@ -18,11 +18,15 @@
 %  * {{lab, X, Y}, clk1, global3}
 %  * {{lab, X, Y}, clk1, control}
 %
-%  Then in control is selected above, a further fuse:
+% Then in control is selected above, a further fuse:
 %
 %  * {{lab, X, Y}, clk1, control_0_not_1}
 %
-%  selects between {control, 0} and {control, 1}.
+% selects between {control, 0} and {control, 1}.
+%
+% The clock line can be inverted with:
+%
+%  * {{lab, X, Y}, clk1, invert}
 %
 % Sometimes the FF uses s-data instead of the LUT for its input, in
 % those cases some s-load fuses can be matched when looking for the
@@ -108,6 +112,7 @@ block(Density, Device, LAB, Gclks, Pins) ->
     %    } <- Experiments
     %],
     %
+    expect(Matrix, [0,1,1,1,1,1,1], {LAB, clk1, invert}),
     expect(Matrix, [0,0,1,1,1,1,1], {LAB, clk1, global0}),
     expect(Matrix, [1,1,0,1,1,1,1], {LAB, clk1, global1}),
     expect(Matrix, [1,1,1,0,1,1,1], {LAB, clk1, global2}),
