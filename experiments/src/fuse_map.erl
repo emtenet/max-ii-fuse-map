@@ -770,7 +770,7 @@
 ).
 
 -define(LAB_LINES(),
-    ?LAB_LINE( 5, 20, {a_clr1, control_5_not_4});
+    ?LAB_LINE( 5, 25, {clr1, control_5_not_4});
     ?LAB_LINE( 6, 20, {{control, 0}, from6, mux0});
     ?LAB_LINE( 6, 21, {{control, 0}, from6, mux1});
     ?LAB_LINE( 6, 22, {{control, 2}, from6, mux0});
@@ -835,6 +835,8 @@
     ?LAB_LINE(16, 24, {ena1, off});
     ?LAB_LINE(19, 22, {clk2, invert});
     ?LAB_LINE(20, 20, {s_load, off});
+    ?LAB_LINE(20, 21, {clr1, global});
+    ?LAB_LINE(20, 25, {clr1, off});
     ?LAB_LINE(21, 20, s_clr);
     ?LAB_LINE(21, 21, {s_clr, invert});
     ?LAB_LINE(21, 23, {clr1, invert});

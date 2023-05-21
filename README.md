@@ -61,6 +61,7 @@ My experiments are being run in the following
  * [LAB clk1](experiments/src/lab_clk1_experiment.erl)
  * [LAB ena1](experiments/src/lab_ena1_experiment.erl)
  * [LAB s-clr](experiments/src/lab_s_clr_experiment.erl)
+ * [LAB clk1](experiments/src/lab_clr1_experiment.erl)
 
 ## Fuse map
 
@@ -302,13 +303,6 @@ The s-load signal is generated once for the whole LAB.
 When signaled the register sources it's input from the data-c line
 directly rather than the output of the LUT.
 
-### `{lab(), a_clr1, control_5_not_4}`
-
-Selects the asyncronous clr1 line from either control line 4 or 5:
-
- * a `0` bit selects 5
- * a `1` bit selects 4
-
 ### `{lab(), a_load, control_3_not_2}`
 
 Selects the asyncronous load line from either control line 2 or 3:
@@ -335,6 +329,17 @@ the selection is active with a bit of `0`.
 
 Each LAB's clk1 & clk2 can be inverted. Invert is selected when the bit is `0`.
 
+### `{lab(), clr1, control_5_not_4}`
+
+Selects the asyncronous clr1 line from either control line 4 or 5:
+
+ * a `0` bit selects 5
+ * a `1` bit selects 4
+
+### `{lab(), clr1, global}`
+
+This fuse selects between global clock lines (default) or LAB control lines.
+
 ### `{lab(), clr#, global#}`
 
 Each LAB can select a clr1 & clk2
@@ -346,6 +351,10 @@ the selection is active with a bit of `0`.
 ### `{lab(), clr#, invert}`
 
 Each LAB's clr1 can be inverted. Invert is selected when the bit is `0`.
+
+### `{lab(), clr1, off}`
+
+This turns of the LAB's clr1 line (default).
 
 ### `{lab(), {control, #}, from6, mux#}` and `{lab(), {control, #}, from3, mux#}`
 
