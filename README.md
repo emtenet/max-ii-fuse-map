@@ -60,6 +60,7 @@ My experiments are being run in the following
  * [IOB interconnect](experiments/src/iob_interconnect_database.erl) database
  * [LAB clk1](experiments/src/lab_clk1_experiment.erl)
  * [LAB ena1](experiments/src/lab_ena1_experiment.erl)
+ * [LAB s-clr](experiments/src/lab_s_clr_experiment.erl)
 
 ## Fuse map
 
@@ -386,6 +387,21 @@ selecting from 12 alternative sources.
 As a special case, interconnects 12 and 25 have an extra fuse expanding the
 mux to size 5 x 3. The extra 3 alternatives source from the global clock
 networks.
+
+### `{lab(), s_clr}`
+
+This enables the LAB's synchronous clr line.
+
+### `{lab(), s_clr1, control_5_not_4}`
+
+Selects the syncronous clr line from either control line 4 or 5:
+
+ * a `0` bit selects 5
+ * a `1` bit selects 4
+
+### `{lab(), s_clr, invert}`
+
+This inverts the LAB's synchronous clr line.
 
 ### `{lab(), s_load, off}`
 
