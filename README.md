@@ -59,6 +59,7 @@ My experiments are being run in the following
  * [IOB interconnect global](experiments/src/iob_interconnect_global.erl)
  * [IOB interconnect](experiments/src/iob_interconnect_database.erl) database
  * [LAB clk1](experiments/src/lab_clk1_experiment.erl)
+ * [LAB ena1](experiments/src/lab_ena1_experiment.erl)
 
 ## Fuse map
 
@@ -351,6 +352,21 @@ Six LAB control lines are selected from local interconnects
 via two dimentional muxes, one of size 3, and the other of size 6.
 
 These muxes are one-cold.
+
+### `{lab(), ena1, control_3_not_2}`
+
+This selects the LAB's enable (1) line from either:
+
+ * a `0` bit selects control line 3
+ * a `1` bit selects control line 2
+
+### `{lab(), ena1, invert}`
+
+This inverts the LAB's enable (1) line.
+
+### `{lab(), ena1, off}`
+
+This turns off the LAB's enable line. LC's are then continuously enabled.
 
 ### `{lab(), {interconnect, #}, direct_link}`
 

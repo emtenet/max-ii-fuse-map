@@ -829,6 +829,9 @@
     ?LAB_LINE(15, 21, {clk1, invert});
     ?LAB_LINE(15, 22, {a_load, control_3_not_2});
     ?LAB_LINE(16, 20, {clk1, control_0_not_1});
+    ?LAB_LINE(16, 21, {ena1, invert});
+    ?LAB_LINE(16, 22, {ena1, control_3_not_2});
+    ?LAB_LINE(16, 24, {ena1, off});
     ?LAB_LINE(19, 22, {clk2, invert});
     ?LAB_LINE(20, 20, {s_load, off});
     ?LAB_LINE(21, 23, {clr1, invert});
