@@ -51,7 +51,6 @@ My experiments are being run in the following
  * [C4 tail](experiments/src/c4_tail_experiment.erl)
  * [Global enable](experiments/src/global_enable_experiment.erl)
  * [Global interconnect mux](experiments/src/global_interconnect_mux_experiment.erl) experiment
- * [LAB clk1](experiments/src/lab_clk1_playground.erl) playground
  * [LAB control](experiments/src/lab_control_playground.erl) playground
  * [LAB control mux](experiments/src/lab_control_mux_experiment.erl)
  * [Global network](experiments/src/global_network_experiment.erl)
@@ -59,6 +58,7 @@ My experiments are being run in the following
  * [LAB interconnect](experiments/src/lab_interconnect_database.erl) database
  * [IOB interconnect global](experiments/src/iob_interconnect_global.erl)
  * [IOB interconnect](experiments/src/iob_interconnect_database.erl) database
+ * [LAB clk1](experiments/src/lab_clk1_experiment.erl)
 
 ## Fuse map
 
@@ -291,6 +291,15 @@ This fuse either:
 Each LC can drive the LUT output to the left or right
 via direct-links, r4s & c4s.
 
+### `{lc(), s_load}`
+
+This fuse enables the synchronous load line of a register.
+
+The s-load signal is generated once for the whole LAB.
+
+When signaled the register sources it's input from the data-c line
+directly rather than the output of the LUT.
+
 ### `{lab(), a_clr1, control_5_not_4}`
 
 Selects the asyncronous clr1 line from either control line 4 or 5:
@@ -361,6 +370,13 @@ selecting from 12 alternative sources.
 As a special case, interconnects 12 and 25 have an extra fuse expanding the
 mux to size 5 x 3. The extra 3 alternatives source from the global clock
 networks.
+
+### `{lab(), s_load, off}`
+
+This is a temporary name for the fuse.
+
+At the moment it is observed to be `0` when the s-load signal is not used
+in a LAB.
 
 ### `{c4(), {mux, #}, from4, mux#}` and `{c4(), {mux, #}, from3, mux#}` and `{c4(), {mux, #}, direct_link}`
 
