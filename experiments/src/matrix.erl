@@ -5,6 +5,7 @@
 -export([build_with_location/2]).
 -export([build_with_map/2]).
 -export([is_empty/1]).
+-export([find_fuse/2]).
 -export([all_ones/1]).
 -export([all_zeros/1]).
 -export([single_ones/1]).
@@ -201,6 +202,24 @@ is_empty({matrix, _, []}) ->
     true;
 is_empty({matrix, _, [_ | _]}) ->
     false.
+
+%%====================================================================
+%% find_fuse
+%%====================================================================
+
+-spec find_fuse(matrix(), fuse_name()) -> {ok, bits()} | false.
+
+find_fuse({matrix, _, Fuses}, Fuse) ->
+    find_fuse_in(Fuses, Fuse).
+
+%%--------------------------------------------------------------------
+
+find_fuse_in([], _) ->
+    false;
+find_fuse_in([{_, Bits, Fuse} | _], Fuse) ->
+    {ok, Bits};
+find_fuse_in([_ | Fuses], Fuse) ->
+    find_fuse_in(Fuses, Fuse).
 
 %%====================================================================
 %% single_ones & single_zeros
