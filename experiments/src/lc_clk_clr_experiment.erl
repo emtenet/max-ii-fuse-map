@@ -14,8 +14,11 @@
 %
 % {LC, clr} selects
 %
-%   1 => lab-clr1
-%   0 => lab-clr2
+%   1 => lab-clr2
+%   0 => lab-clr1
+%
+% NOTE: The inversion of clr (compared to clk) was learnt from
+% lab_clr2_experiment
 
 %%====================================================================
 %% run

@@ -276,8 +276,8 @@ Each LC then can choose from those two clock/clears.
 
 The fuse bit selects:
 
- * `1` LAB clk1 or clr1,
- * `0` LAB clk2 or clk2.
+ * `1` LAB clk1 or clr2,
+ * `0` LAB clk2 or clk1.
 
 ### `{lc(), local_line}`
 
