@@ -91,22 +91,7 @@ block(Density, Device, LAB, Gclks, Pins) ->
     end),
     %
     %matrix:print(Matrix),
-    %[
-    %    io:format("  ~w ~p~n", [Name, hd(Route)])
-    %    ||
-    %    {Name,
-    %     _,
-    %     #{signals := #{ena := #{dests := [#{port := ena, route := Route}]}}}
-    %    } <- Experiments
-    %],
-    %[
-    %    io:format("  ~w ~p~n", [Name, hd(Route)])
-    %    ||
-    %    {Name,
-    %     _,
-    %     #{signals := #{ee := #{dests := [#{port := ena, route := Route}]}}}
-    %    } <- Experiments
-    %],
+    %lab_clk1_experiment:control_routing(Experiments),
     %
     lists:foreach(fun control_is/1,
                   lists:zip(Experiments, [x,3,3,2,2,3])),

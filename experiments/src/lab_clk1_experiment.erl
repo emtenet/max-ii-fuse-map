@@ -2,6 +2,8 @@
 
 -export([run/0]).
 
+-export([control_routing/1]).
+
 % This experiment was designed to look at how the LAB's clk1
 % source was selected between the four (4) global networks
 % or the two (2) LAB control lines.
@@ -103,14 +105,7 @@ block(Density, Device, LAB, Gclks, Pins) ->
     end),
     %
     %matrix:print(Matrix),
-    %[
-    %    io:format("  ~w ~w~n", [Name, Port])
-    %    ||
-    %    {Name,
-    %     _,
-    %     #{signals := #{d := #{dests := [#{port := Port}]}}}
-    %    } <- Experiments
-    %],
+    %control_routing(Experiments),
     %
     expect(Matrix, [0,1,1,1,1,1,1], {LAB, clk1, invert}),
     expect(Matrix, [0,0,1,1,1,1,1], {LAB, clk1, global0}),
@@ -195,6 +190,46 @@ s_load_pattern_bit(Experiment, Bit) ->
         data_a ->
             1 - Bit
     end.
+
+%%--------------------------------------------------------------------
+
+control_routing(Experiments) ->
+    lists:foreach(fun control_routing_experiment/1, Experiments).
+
+%%--------------------------------------------------------------------
+
+control_routing_experiment({Name, _, #{signals := Signals}}) ->
+    io:format(" --> ~w~n", [Name]),
+    Routing = maps:fold(fun control_routing_signal/3, [], Signals),
+    [
+        io:format("  ~12w ~6w <- ~p~n", [LC, Port, Route])
+        ||
+        {LC, Port, Route} <- lists:sort(Routing)
+    ].
+
+%%--------------------------------------------------------------------
+
+control_routing_signal(_, #{dests := Dests}, Routing) ->
+    lists:foldl(fun control_routing_dest/2, Routing, Dests).
+
+%%--------------------------------------------------------------------
+
+control_routing_dest(#{lc := LC, port := Port, route := Route}, Routing) ->
+    case Route of
+        [{lab_clk, _, _, 0, N} | _] ->
+            [{LC, Port, {global, N}} | Routing];
+
+        [{lab_control_mux, _, _, 0, N}, From | _] ->
+            [{LC, Port, {local, N, From}} | Routing];
+
+        [From | _] when Port =:= s_data ->
+            [{LC, Port, From} | Routing];
+
+        _ ->
+            Routing
+    end;
+control_routing_dest(_, Routing) ->
+    Routing.
 
 %%--------------------------------------------------------------------
 

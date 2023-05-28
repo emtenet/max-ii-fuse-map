@@ -108,22 +108,7 @@ block(Density, Device, LAB, Gclks, Pins) ->
     end),
     %
     %matrix:print(Matrix),
-    %[
-    %    io:format("  ~w ~w~n", [Name, Route])
-    %    ||
-    %    {Name,
-    %     _,
-    %     #{signals := #{clr := #{dests := [#{port := a_clr, route := Route}]}}}
-    %    } <- Experiments
-    %],
-    %[
-    %    io:format("  ~w ~w~n", [Name, Route])
-    %    ||
-    %    {Name,
-    %     _,
-    %     #{signals := #{cc := #{dests := [#{port := a_clr, route := Route}]}}}
-    %    } <- Experiments
-    %],
+    %lab_clk1_experiment:control_routing(Experiments),
     %
     expect_fuse(Matrix, [0,1,1,1,1,1,1,1], {LAB, clr1, off}),
     expect_fuse(Matrix, [1,0,1,1,1,1,0,0], {LAB, clr1, invert}),
@@ -136,9 +121,7 @@ block(Density, Device, LAB, Gclks, Pins) ->
     [_, _, _, _, _, _, Local7, Local8] = Experiments,
     expect_a_clr(Local7, cc, 4),
     expect_a_clr(Local8, cc, 5),
-    %
-    Control = control_pattern(Experiments),
-    expect_fuse(Matrix, Control, {LAB, clr1, control_5_not_4}),
+    expect_fuse(Matrix, [1,1,1,1,1,1,1,0], {LAB, clr1, control_5_not_4}),
     ok.
 
 %%--------------------------------------------------------------------
@@ -152,37 +135,6 @@ expect_fuse(Matrix, Pattern, Fuse) ->
 expect_a_clr({_, _, #{signals := Signals}}, Signal, Control) ->
     #{Signal := #{dests := [#{port := a_clr, route := Route}]}} = Signals,
     [{lab_control_mux, _, _, 0, Control} | _] = Route.
-
-%%--------------------------------------------------------------------
-
-control_pattern(Experiments) ->
-    lists:map(fun ({_, _, #{signals := Signals}}) ->
-        control_pattern_bit(Signals)
-    end, Experiments).
-
-%%--------------------------------------------------------------------
-
-control_pattern_bit(#{cc := #{dests := [#{port := a_clr, route := Route}]}}) ->
-    case  Route of
-        [{lab_control_mux, _, _, 0, 4} | _] ->
-            1;
-
-        [{lab_control_mux, _, _, 0, 5} | _] ->
-            0
-    end;
-control_pattern_bit(#{clr := #{dests := [#{port := a_clr, route := Route}]}}) ->
-    case Route of
-        [{lab_control_mux, _, _, 0, 4} | _] ->
-            1;
-
-        [{lab_control_mux, _, _, 0, 5} | _] ->
-            0;
-
-        [{lab_clk, _, _, 0, _} | _] ->
-            1
-    end;
-control_pattern_bit(_) ->
-    1.
 
 %%--------------------------------------------------------------------
 
