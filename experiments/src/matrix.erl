@@ -150,16 +150,18 @@ build_diff(Results, With, Matrix) ->
 build_min_max([]) ->
     finished;
 build_min_max([[] | Results]) ->
-    build_min_max(Results);
+    build_min_max(Results, undefined, undefined);
 build_min_max([[Fuse | _] | Results]) ->
     build_min_max(Results, Fuse, Fuse).
 
 %%--------------------------------------------------------------------
 
+build_min_max([], undefined, undefined) ->
+    finished;
 build_min_max([], Min, Max) ->
     {Min, Max};
 build_min_max([[] | Results], Min, Max) ->
-    build_min_max(Results, Min, Max);
+    build_min_max(Results, min(Min, undefined), max(Max, undefined));
 build_min_max([[Fuse | _] | Results], Min, Max) ->
     build_min_max(Results, min(Min, Fuse), max(Max, Fuse)).
 
